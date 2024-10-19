@@ -34,10 +34,17 @@ const defCon1 = new DefaultConfig("NwjnAddons", "/data/Config.json")
 })
 .addSwitch({
     category: "General",
-    configName: "imageFix",
-    title: "&e✯&r Image Fix",
-    description: "Encodes and Decodes Image Links to allow sending and viewing for those with the mod",
+    configName: "linkFix",
+    title: "&e✯&r Link Fix",
+    description: "Encodes and Decodes Links to allow sending and viewing for those with the mod",
     value: true
+})
+.addSwitch({
+    category: "General",
+    configName: "imageViewer",
+    title: "Image Viewer",
+    description: "Displays images from urls when hovered over in chat",
+    value: false
 })
 .addSwitch({
     category: "General",
@@ -119,6 +126,26 @@ const defCon1 = new DefaultConfig("NwjnAddons", "/data/Config.json")
     title: "Skyblock XP Gain Message",
     description: "Takes action bar skyblock xp gained message and pastes them in chat",
     value: false
+})
+.addSwitch({
+    category: "General",
+    configName: "clock",
+    title: "Clock Display",
+    description: "Shows your current time",
+    subcategory: "Clock",
+    value: false
+})
+.addColorPicker({
+    category: "General",
+    configName: "clockColor",
+    title: "➤ Clock Color",
+    description: "     Sets the color for the clock display",
+    subcategory: "Clock",
+    value: [255, 255, 255, 255],
+
+    shouldShow(data) {
+        return (data.clock)
+    }
 })
 .addSwitch({
     category: "Combat",
@@ -571,26 +598,6 @@ const defCon1 = new DefaultConfig("NwjnAddons", "/data/Config.json")
             value: false
         }
     ]
-})
-.addSwitch({
-    category: "Utilities",
-    configName: "clock",
-    title: "Clock Display",
-    description: "Shows your current time",
-    subcategory: "Clock",
-    value: false
-})
-.addColorPicker({
-    category: "Utilities",
-    configName: "clockColor",
-    title: "➤ Clock Color",
-    description: "     Sets the color for the clock display",
-    subcategory: "Clock",
-    value: [255, 255, 255, 255],
-
-    shouldShow(data) {
-        return (data.clock)
-    }
 })
 
 import TextUtil from "../core/static/TextUtil"

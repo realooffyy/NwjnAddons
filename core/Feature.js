@@ -154,7 +154,7 @@ export default class Feature {
    * @param {() => boolean} fn The function that will be ran whenever this subevent gets updated
    * @returns this for method chaining
    */
-  addSubEvent(register, fn) {
+  addSubEvent(register, fn = () => true) {
     this.subevents.push([register.unregister(), fn])
 
     return this

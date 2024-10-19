@@ -141,7 +141,7 @@ createCustomEvent(EventEnums.SERVER.CHAT, (fn, criteria = "") =>
     
         if (!unformatted) return
         
-        TextUtil.matchesCriteria(fn, criteria, unformatted, event, formatted)
+        TextUtil.matchesCriteria(fn, criteria, unformatted, event, formatted, chatComponent)
     }).setFilteredClass(net.minecraft.network.play.server.S02PacketChat).unregister()
 )
 

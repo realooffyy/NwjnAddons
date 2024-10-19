@@ -49,7 +49,7 @@ export default class TextUtil {
     * @param {?String} formatted The current formatted text
     * @returns returns the callback fn with the given matches or the current msg if the criteria is null
     */
-   static matchesCriteria(fn, criteria, unformatted, event = null, formatted = null) {
+   static matchesCriteria(fn, criteria, unformatted, event, formatted, chatComponent = null) {
         if (!criteria) return fn(unformatted, event, formatted)
 
         else if (typeof criteria === "string") {
@@ -62,7 +62,7 @@ export default class TextUtil {
             const match = unformatted.match(criteria)
             if (!match) return
 
-            return fn(...match.slice(1), event, formatted)
+            return fn(...match.slice(1), event, formatted, chatComponent)
         }
     }
 

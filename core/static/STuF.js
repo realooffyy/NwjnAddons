@@ -1,7 +1,7 @@
 import TextUtil from "./TextUtil";
 
-const stufRegex = /(l\$)([hH])([1-4])([0-9]+)?\|(.+)/
-const urlRegex = /(https?:\/\/)(.+\..+)(\/.+)(\.(?:png|jpe?g|gif))/
+const stufRegex = /(l\$)([hH])([1-4])?([0-9]*)?\|(\S+)/
+const urlRegex = /(https?:\/\/)(.+\..+)(\/.+)(\.(?:png|jpe?g|gif)?)/
 const schemes = {
     "h": "http://",
     "H": "https://"
@@ -32,11 +32,11 @@ export default class STuF {
 
         let url = STuF.translate(host + dir.replace(/\^/g, "."), -1)
 
-        for (let i of dots) url = url.slice(0, ~~i) + "." + url.slice(~~i)
+        for (let i of dots)
+            url = url.slice(0, ~~i) + "." + url.slice(~~i)
 
-        const getScheme = schemes[scheme]
-        const getExtension = extensions[extension]
-        if (!getScheme || !getExtension) return
+        const getScheme = schemes[scheme] ?? ""
+        const getExtension = extensions[extension] ?? ""
         return getScheme + url + getExtension
     }
 

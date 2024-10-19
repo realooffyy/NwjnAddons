@@ -12,9 +12,7 @@ export default class EntityUtil {
      * @returns {MCTEntity} The armor stand entity
      */
     static getMobStandTag(entity) {
-        entity = this.getEntity(entity)
-
-        if (Player.asPlayerMP().distanceTo(entity) > 16) return null // hypixel won't render stands from over 16 blocks away
+        entity = EntityUtil.getEntity(entity)
 
         const tagEntity =
             World.getWorld().func_73045_a( // getEntityByID
@@ -29,20 +27,21 @@ export default class EntityUtil {
     }
 
     /**
+     * Credit: PerseusPotter
      * Gets the Max HP of the entity
      * @param {MCTEntity|Entity} entity 
      * @returns {Number} maxhealth int
      */
-    static getMaxHP = (entity) => ~~this.getEntity(entity)
-        .func_110138_aP() // getMaxHealth
+    static getMaxHP = (entity) => ~~EntityUtil.getEntity(entity)
+        .func_110140_aT().func_111152_a('generic.maxHealth').func_111125_b()
 
     /**
      * Gets the current HP of the entity
      * @param {MCTEntity|Entity} entity 
      * @returns {Number} hp int
      */
-    static getHP = (entity) => ~~this.getEntity(entity)
-        .func_110143_aJ(); // getHealth
+    static getHP = (entity) => ~~EntityUtil.getEntity(entity)
+        .func_110143_aJ() // getHealth
 
     /**
      * Checks if the player entity is a real user
