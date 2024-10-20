@@ -7,7 +7,7 @@ import { Event } from "../../core/Event";
 new Feature("linkFix")
   .addEvent(
     new Event("messageSent", (msg, event) => {
-      const [url] = TextUtil.getMatches(/(https?:\/\/.+\..+\/.+(\.(?:png|jpe?g|gif)?))/, msg)
+      const [url] = TextUtil.getMatches(/(https?:\/\/.+\..+\/.+(\.(?:png|jpe?g|gif)?)?)/, msg)
       if (!url) return
 
       cancel(event)

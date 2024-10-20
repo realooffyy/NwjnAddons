@@ -9,7 +9,7 @@ export const customTriggers = new Map()
 const createCustomEvent = (id, invokeFn) => customTriggers.set(id, invokeFn)
 
 // Constant used to get the packet's ENUMS
-// and also filter the class in packetRecieved event
+// and also filter the class in packetReceived event
 const S38PacketPlayerListItem = net.minecraft.network.play.server.S38PacketPlayerListItem
 
 // [Interval]
@@ -18,9 +18,9 @@ createCustomEvent(EventEnums.INTERVAL.FPS, (fn, fps = 3) => register("step", fn)
 createCustomEvent(EventEnums.INTERVAL.SECONDS, (fn, sec = 1) => register("step", fn).setDelay(sec).unregister())
 
 createCustomEvent(EventEnums.INTERVAL.TICK, (fn) =>
-    register("packetReceived", (packet) => {
-        if (packet.func_148890_d() <= 0) fn()
-    }).setFilteredClass(net.minecraft.network.play.server.S32PacketConfirmTransaction).unregister()
+    register("packetReceived", () => {
+        fn()
+    }).setFilteredClass(net.minecraft.network.play.server.S03PacketTimeUpdate).unregister()
 )
 
 // [Entity]

@@ -10,6 +10,8 @@ new Feature("deathAnimation")
       const mcEntity = entity.entity
       mcEntity.func_70106_y() // setDead
       
+      if (Player.asPlayerMP().distanceTo(entity) > 16) return
+      
       scheduleTask(() => 
         EntityUtil.getMobStandTag(mcEntity)
           ?.func_70106_y() // setDead if fn returns the armorstand tag

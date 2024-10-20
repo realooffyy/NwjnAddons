@@ -5,12 +5,14 @@ import ItemUtil from "../../core/static/ItemUtil.js"
 import { addCommand } from "../../utils/Command.js";
 import Settings from "../../data/Settings.js";
 
+register("command", () => ChatLib.command("nwjn clearChat", true)).setName("clearChat", true)
 addCommand(
   "clearChat",
   "Clears entire chat log (may improve performance if you've been on for a long time)",
   () => ChatLib.clearChat()
 )
 
+register("command", () => ChatLib.command("nwjn deal", true)).setName("deal", true)
 addCommand(
   "deal", 
   "Sends a trade request to the player in front of you",
@@ -25,10 +27,11 @@ addCommand(
   }
 )
 
+register("command", (...args) => ChatLib.command(`nwjn calc ${args.join(" ")}`, true)).setName("calc", true)
 addCommand(
-  "calc <equation>",
+  "calc",
   "Simple calculator",
-  () => {
+  (args) => {
     try {
       const equat = args.join(" ").replace(/,/g, "");
       log(`${ equat } = ${ MathUtil.addCommas(eval(equat)) }`);
@@ -37,23 +40,26 @@ addCommand(
 )
 
 // [Dev tools]
+register("command", () => ChatLib.command("nwjn Entity", true)).setName("entity", true)
 addCommand(
   "Entity",
-  "(Dev) Get data of entity directly infront",
+  "(Dev) Get data of entities in world",
   () => {
-    const looking = Player.lookingAt()
-    if (!(looking instanceof Entity)) { ChatLib.chat(looking); return; }
+    let res = {}
+    World.getAllEntities().forEach(it => {
+      res[it.entity.func_145782_y()] = {
+        name: it.getName(),
+        clazz: it.getClassName(),
+        currentHealth: MathUtil.addCommas(~~EntityUtil?.getHP(it)),
+        maxHealth: MathUtil.addCommas(~~EntityUtil?.getMaxHP(it))
+      }
+    })
 
-    ChatLib.chat(ChatLib.getChatBreak("-"))
-    ChatLib.chat(`Name: ${ looking?.getName() }`)
-    ChatLib.chat(`EntityClass: ${ looking?.getClassName() }`)
-    ChatLib.chat(`Current HP: ${ MathUtil.addCommas(~~EntityUtil.getHP(looking)) }`)
-    ChatLib.chat(`Max HP: ${ MathUtil.addCommas(~~EntityUtil.getMaxHP(looking)) }`)
-    ChatLib.chat(ChatLib.getChatBreak("-"))
-    FileLib.write("NwjnAddons", "/Dev/Entity.json", JSON.stringify(Object(looking), null, 4), true)
+    FileLib.write("NwjnAddons", "/Dev/Entity.json", JSON.stringify(res, null, 4), true)
   }
 )
 
+register("command", () => ChatLib.command("nwjn Item", true)).setName("item", true)
 addCommand(
   "Item",
   "(Dev) Get held item data",
@@ -68,10 +74,11 @@ addCommand(
     ChatLib.chat(`ID: ${ ItemUtil.getSkyblockItemID(holding) }`)
     ChatLib.chat(`Rarity: ${rarity}`)
     ChatLib.chat(ChatLib.getChatBreak("-"))
-    FileLib.write("NwjnAddons", "/Dev/Item.json", JSON.stringify(Object(holding.getNBT()), null, 4), true)
+    FileLib.write("NwjnAddons", "/Dev/Item.json", JSON.stringify(holding.getNBT().toObject(), null, 4), true)
   }
 )
 
+register("command", () => ChatLib.command("nwjn Versions", true)).setName("versions", true)
 addCommand(
   "Versions",
   "(Dev) Module and dependency versions",
@@ -89,6 +96,7 @@ addCommand(
   }
 )
 
+register("command", () => ChatLib.command("nwjn Apply", true)).setName("apply", true)
 addCommand(
   "Apply",
   "(Dev) Apply scheme setting changes",
