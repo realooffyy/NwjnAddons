@@ -25,6 +25,12 @@ export let data = new PogOject("NwjnAddons", {
     "y": 60,
     "scale": 1.5,
     "bg": true
+  },
+  "FatalTempo": {
+    "x": 70,
+    "y": 70,
+    "scale": 1.5,
+    "bg": true
   }
 }, "/data/User.json");
 data.autosave(3)

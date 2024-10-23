@@ -1,7 +1,7 @@
 import Feature from "../../core/Feature";
 import { Event } from "../../core/Event";
 import EventEnums from "../../core/EventEnums";
-import { scheduleTask } from "../../utils/Ticker";
+import { scheduleTask, secondsToTick } from "../../utils/Ticker";
 import Settings from "../../data/Settings";
 import RenderUtil from "../../core/static/RenderUtil";
 import TextUtil from "../../core/static/TextUtil";
@@ -26,7 +26,7 @@ const feat = new Feature("waypoint")
         scheduleTask(() => {
           waypoints.delete(ign)
           feat.update()
-        }, Settings().wpTime * 20)
+        }, secondsToTick(Settings().wpTime))
       
       // Credit: https://github.com/DocilElm/Doc/blob/main/features/misc/ChatWaypoint.js for regex
     }, /^(?:[\w\-]{5})?(?: > )?(?:\[\d+\] .? ?)?(?:\[[^\]]+\] )?(\w{1,16}): x: ([\d\-\.]+), y: ([\d\-\.]+), z: ([\d\-\.]+) ?(.+)?$/)

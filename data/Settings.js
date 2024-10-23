@@ -168,6 +168,42 @@ const defCon1 = new DefaultConfig("NwjnAddons", "/data/Config.json")
     description: "Shows the amount or arrows pulled on rend",
     value: false
 })
+.addDropDown({
+    category: "Combat",
+    configName: "fatalTempo",
+    title: "Fatal Tempo Display",
+    description: "Select when to show Fatal Tempo Display -> /moveFT",
+    options: ["Off", "Always", "Over 0%", "At 200%"],
+    value: 0,
+    subcategory: "Fatal Tempo"
+})
+.addMultiCheckbox({
+    category: "Combat",
+    configName: "ftParts",
+    title: "Fatal Tempo Components",
+    description: "Toggles for different aspects of this display",
+    placeHolder: "Click",
+    options: [
+        {
+            title: "Prefix",
+            configName: "ftPrefix",
+            value: true
+        },
+        {
+            title: "Percent",
+            configName: "ftPercent",
+            value: true
+        },
+        {
+            title: "Time",
+            configName: "ftTime",
+            value: true
+        }
+    ],
+    shouldShow(data) {
+        return (data.fatalTempo !== 0)
+    }
+})
 .addTextInput({
     category: "Bestiary",
     configName: "mobList",
@@ -226,42 +262,6 @@ const defCon1 = new DefaultConfig("NwjnAddons", "/data/Config.json")
     description: "Shows how much time left on gummy and wisp pot -> /moveBlaze",
     subcategory: "Blaze",
     value: false
-})
-.addDropDown({
-    category: "HUD",
-    configName: "fatalTempo",
-    title: "Fatal Tempo Display",
-    description: "Select when to show Fatal Tempo Display -> /moveFT",
-    options: ["Off", "Always", "Over 0%", "At 200%"],
-    value: 0,
-    subcategory: "Fatal Tempo"
-})
-.addMultiCheckbox({
-    category: "HUD",
-    configName: "ftParts",
-    title: "Fatal Tempo Components",
-    description: "Toggles for different aspects of this display",
-    placeHolder: "Click",
-    options: [
-        {
-            title: "Prefix",
-            configName: "ftPrefix",
-            value: true
-        },
-        {
-            title: "Percent",
-            configName: "ftPercent",
-            value: true
-        },
-        {
-            title: "Time",
-            configName: "ftTime",
-            value: true
-        }
-    ],
-    shouldShow(data) {
-        return (data.fatalTempo !== 0)
-    }
 })
 .addSwitch({
     category: "HUD",
@@ -445,7 +445,7 @@ const defCon1 = new DefaultConfig("NwjnAddons", "/data/Config.json")
     configName: "customSupply",
     title: "Custom Supply Drop Message",
     description: "Changes supply message to include time when a supply is dropped:\n&r&6[MVP&r&9++&r&6] nwjn&r&f &a&lrecovered a supply at 18s! &r&8(1/6)&r",
-    subcategory: "Kuudra",
+    subcategory: "Phase 1",
     value: false
 })
 .addSwitch({

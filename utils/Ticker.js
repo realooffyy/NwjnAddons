@@ -1,77 +1,65 @@
-import EventEnums from "../core/EventEnums";
-import { Event } from "../core/Event";
+export const secondsToTick = (seconds) => seconds * 20
+export const tickToSeconds = (ticks) => ticks * 0.05
 
-let _scheduleTaskList = []
+let _scheduleTaskList = {}
 /**
- * - Runs the given function after the delay is done
- * - NOTE: These are server ticks not client ticks for that use ct's one
- * @param {() => void} fn The function to be ran
- * @param {number?} delay The delay in ticks
- * @author DocilElm
+ * Credit: DocilElm
+ * @param {() => void} onEnd fn to run after the delay
+ * @param {number} delay the delay in ticks
+ * @returns {void}
  */
-export const scheduleTask = (fn, delay = 1) => _scheduleTaskList.push([fn, delay])
-const _runTasks = () => {
-  // Credit: DocilElm
-  for (let idx = _scheduleTaskList.length - 1; idx >= 0; idx--) {
-    let delay = _scheduleTaskList[idx][1]--
-    if (delay !== 0) continue
+export const scheduleTask = (onEnd, delay = 1) => _scheduleTaskList[onEnd] = [onEnd, delay]
+const _updateTasks = () => {
+    for (let key in _scheduleTaskList) {
+        let tick = _scheduleTaskList[key][1]--
+        if (tick) continue
 
-    let fn = _scheduleTaskList[idx][0]
-    fn()
-
-    _scheduleTaskList.splice(idx, 1)
-  }
+        _scheduleTaskList[key][0]()
+        delete _scheduleTaskList[key]
+    }
 }
 
 
 let _countdownList = {}
 /**
- * @param {Function} onTick fn to run every tick
- * @param {Number} initialTime seconds
- * @returns 
+ * @param {(secLeft: number) => void} onTick fn to run every tick
+ * @param {number} elapse # of ticks to elapse
+ * @returns {void}
  */
-export const addCountdown = (onTick, initialTime) => _countdownList[onTick] = [onTick, initialTime * 20]
+export const addCountdown = (onTick, elapse) => _countdownList[onTick] = [onTick, elapse]
 const _updateCountdowns = () => {
     for (let key in _countdownList) {
-      let time = _countdownList[key][1]--
-        _countdownList[key][0](time / 20)
-        if (time <= 0) delete _countdownList[key]
+        let tick = _countdownList[key][1]--
+        _countdownList[key][0](tickToSeconds(tick))
+        if (!tick) delete _countdownList[key]
     }
-} 
+}
 let _timerList = {}
 /**
- * @param {Function} onTick fn to run every tick
- * @param {Number} endTime seconds
- * @returns 
+ * @param {(elapsed: number) => void} onTick fn to run every tick
+ * @param {number} elapse ticks
+ * @returns {void}
  */
-export const addTimer = (onTick, endTime, _currentTime = 0) => _timerList[onTick] = [onTick, endTime * 20, _currentTime * 20]
+export const addTimer = (onTick, elapse, _currentTime = 0) => _timerList[onTick] = [onTick, elapse, _currentTime]
 const _updateTimers = () => {
     for (let key in _timerList) {
-        let time = _timerList[key][2]++
-        _timerList[key][0](time / 20)
-        if (time >= _timerList[key][1]) delete _timerList[key]
+        let tick = _timerList[key][2]++
+        _timerList[key][0](tickToSeconds(tick))
+        if (tick === _timerList[key][1]) delete _timerList[key]
     }
 }
 
-let tps = 20;
-const pastTps = [20, 20, 20];
-let pastDate = 0;
-export const getTPS = () => Math.min(...pastTps).toFixed(2)
+let ticked = 0
+const history = Array(5).fill(0)
+export const getTPS = () => (history.reduce((a, b) => a + b) / history.length).toFixed(2)
 
-/**
- * Credit: VolcAddons
- */
-const _calcTPS = () => {
-  const time = Date.now() - pastDate;
-  tps = Math.min(20000 / time, 20);
-  pastTps.shift();
-  pastTps.push(tps);
-  pastDate = Date.now();
-}
+register("step", () => history.unshift(ticked).length = 5).setDelay(1)
 
-new Event(EventEnums.INTERVAL.TICK, () => {
-  _runTasks()
-  _updateCountdowns()
-  _updateTimers()
-  _calcTPS()
-}).register()
+register("packetReceived", (packet) => {
+    if (packet.func_148890_d() > 0) return
+
+    _updateTasks()
+    _updateCountdowns()
+    _updateTimers()
+    ticked++
+}).setFilteredClass(net.minecraft.network.play.server.S32PacketConfirmTransaction)

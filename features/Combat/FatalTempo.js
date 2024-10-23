@@ -1,76 +1,107 @@
-// import Settings from "../../Settings"
-// import { data } from "../../utils/data/DataWriter.js";
-// import { Overlay } from "../../utils/Overlay.js";
-// import { registerWhen } from "../../utils/functions.js";
-// import { clamp } from "../../utils/functions/format.js";
-// import Loc from "../../utils/Location.js"
+import { addCountdown, secondsToTick } from "../../utils/Ticker"
+import Settings from "../../data/Settings"
+import Location from "../../utils/Location"
+import ItemUtil from "../../core/static/ItemUtil"
+import Feature from "../../core/Feature"
+import EventEnums from "../../core/EventEnums"
+import { Event } from "../../core/Event"
+import Enum from "../../core/static/Enum"
+import DraggableGui from "../../utils/DraggableGui"
 
-// const ftExample = `Fatal Tempo:&c   0% | 0.00s`;
-// const ftOverlay = new Overlay("fatalTempo", ["all"], data.ftL, "moveFt", ftExample);
+const overlay = new DraggableGui({
+    name: "FatalTempo",
+    setting: "fatalTempo",
+    example: "Fatal Tempo:&c   0% | 0.00s",
+    command: "nwjnFatalTempo"
+})
+const OPTION = Enum.fromArray([
+    "NEVER",
+    "ALWAYS",
+    "OVER_0",
+    "AT_200"
+])
 
-// let prevHit = 0
-// let hits = 0
-// let ftLevel = 0
+let percent, buffLeft, ftLevel, inKuudra; reset()
+function reset() {
+    percent = 0
+    buffLeft = 0
+    ftLevel = 0
+    inKuudra = false
+    overlay.drawText(formatText())
+}
 
-// const addHits = () => {
-//   const holding = Player.getHeldItem()
-//   if (holding?.getRegistryName() !== "minecraft:bow") return
+const feat = new Feature("fatalTempo")
+    .addEvent(
+        new Event(EventEnums.CLIENT.HELDITEMCHANGE, () => {
+            const holding = Player.getHeldItem()
+            if (holding?.getRegistryName() !== "minecraft:bow") return
 
-//   const ftLvl = holding.getNBT()?.getCompoundTag("tag")?.getCompoundTag("ExtraAttributes")?.getCompoundTag("enchantments")?.getTag("ultimate_fatal_tempo");
-//   if (!ftLvl) return
+            const ftLvl = ItemUtil.getExtraAttribute(holding)?.enchantments?.ultimate_fatal_tempo
+            if (!ftLvl) return
 
-//   ftLevel = ftLvl;
-//   prevHit = Date.now()
-//   hits++
-// }
+            ftLevel = ftLvl
+            inKuudra = Location.inWorld("Kuudra")
+            feat.update()
+        })
+    )
+    .addSubEvent(
+        // hypixel doesnt send 'random.successful_hit' in kuudra
+        new Event(EventEnums.CLIENT.SOUNDPLAY, addHit, "tile.piston.out"),
+        () => inKuudra
+    )
+    .addSubEvent(
+        new Event(EventEnums.CLIENT.SOUNDPLAY, addHit, "random.successful_hit"),
+        () => !inKuudra
+    )
+    .onUnregister(reset)
 
-// registerWhen(register("soundPlay", addHits).setCriteria("tile.piston.out"), () => Settings().fatalTempo && Loc.inWorld("Kuudra"));
-// registerWhen(register("soundPlay", addHits).setCriteria("random.successful_hit"), () => Settings().fatalTempo && !Loc.inWorld("Kuudra"));
+function formatText() {
+    buffLeft = MathLib.clampFloat(buffLeft, 0, 3)
+    percent = MathLib.clamp(percent, 0, 200)
+    if (!shouldDraw()) return ""
 
-// const calcString = (countdown = 0, percent = 0) => {
-//   countdown = clamp(countdown, 0, 3)
-//   percent = clamp(percent, 0, 200)
-//   let displayText = Settings().ftPrefix ? `Fatal Tempo: ` : ""
+    const parts = []
+    if (Settings().ftPrefix) 
+        parts.push("Fatal Tempo: ")
 
-//   displayText += Settings().ftPercent ? 
-//     ((percent === 200) ? "&a" :
-//     (percent > 0) ? "&e" :
-//     "&c")
-//   : ""
+    if (Settings().ftPercent) {
+        const color = 
+            percent === 200 ? "&a" :
+            percent > 0 ? "&e" :
+        "&c"
+        parts.push(`${color}${percent}%`)
+    }
+    
+    if (Settings().ftPercent && Settings().ftTime)
+        parts.push(" &r| ")
 
-//   const percentString = percent >= 100 ? percent : `  ${percent}`
-//   displayText += Settings().ftPercent ? `${percentString}%` : ""
+    if (Settings().ftTime) {
+        const color = 
+            buffLeft > 1.25 ? "&a" :
+            buffLeft > 0 ? "&e" :
+        "&c"
+        parts.push(`${color}${buffLeft.toFixed(2)}s`)
+    }
 
-//   displayText += (Settings().ftPercent && Settings().ftTime) ? " &r| " : ""
+    return parts.join(" ")
+}
 
-//   displayText += Settings().ftTime ?
-//     ((countdown > 1.25) ? "&a" :
-//     (countdown > 0) ? "&e" :
-//     "&c")
-//   : ""
+function addHit() {
+    percent += ftLevel * 10
+    addCountdown((remainder) => {
+        if (!remainder) return reset()
+        buffLeft = remainder
 
-//   displayText += Settings().ftTime ? `${ countdown.toFixed(2) }s` : ""
+        overlay.drawText(formatText())
+    }, secondsToTick(3))
+}
 
-//   return (
-//     (Settings().fatalTempo === 1) ||
-//     (Settings().fatalTempo === 2 && percent > 0) ||
-//     (Settings().fatalTempo === 3 && percent === 200)
-//   )
-//   ? displayText : "";
-// }
-
-// registerWhen(register("tick", () => {
-//   const countdown = (3 - (Date.now() - prevHit) / 1000)
-//   const percent = hits * ftLevel * 10
-
-//   if (countdown < 0) {
-//     prevHit = 0
-//     hits = 0
-//   }
-
-//   ftOverlay.setMessage(calcString(countdown, percent))
-// }), () => Settings().fatalTempo !== 0);
-
-// ftOverlay.setMessage(
-//   Settings().fatalTempo == 1 ? ftExample : ""
-// )
+function shouldDraw() {
+    switch (Settings().fatalTempo) {
+        case OPTION.NEVER: return false
+        case OPTION.ALWAYS: return true
+        case OPTION.OVER_0 && percent > 0: return true
+        case OPTION.AT_200 && percent === 200: return true
+        default: return false
+    }
+}

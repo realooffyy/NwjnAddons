@@ -1,5 +1,5 @@
 // Credit: https://github.com/DocilElm/Doc/blob/main/core/CustomRegisters.js
-
+import { scheduleTask } from "../utils/Ticker";
 import TextUtil from "./static/TextUtil";
 import ItemUtil from "./static/ItemUtil"
 import EventEnums from "./EventEnums"
@@ -18,9 +18,9 @@ createCustomEvent(EventEnums.INTERVAL.FPS, (fn, fps = 3) => register("step", fn)
 createCustomEvent(EventEnums.INTERVAL.SECONDS, (fn, sec = 1) => register("step", fn).setDelay(sec).unregister())
 
 createCustomEvent(EventEnums.INTERVAL.TICK, (fn) =>
-    register("packetReceived", () => {
-        fn()
-    }).setFilteredClass(net.minecraft.network.play.server.S03PacketTimeUpdate).unregister()
+    register("packetReceived", (packet) => {
+        if (packet.func_148890_d() <= 0) fn()
+    }).setFilteredClass(net.minecraft.network.play.server.S32PacketConfirmTransaction).unregister()
 )
 
 // [Entity]
@@ -93,7 +93,7 @@ createCustomEvent(EventEnums.CLIENT.SOUNDPLAY, (fn, criteria) => register("sound
 createCustomEvent(EventEnums.CLIENT.HELDITEMCHANGE, (fn, ids = []) => 
     register("packetSent", (packet) => {
         const sbID = ItemUtil.getSkyblockItemID(Player.getHeldItem())
-        if (!ids.includes(sbID)) return
+        if (ids.length && !ids.includes(sbID)) return
         
         fn(packet.func_149614_c());
     }).setFilteredClass(net.minecraft.network.play.client.C09PacketHeldItemChange).unregister()

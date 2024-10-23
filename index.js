@@ -1,6 +1,7 @@
 import "./data/Data"
 import "./utils/Broadcasting"
 import "./utils/Command"
+import "./utils/DraggableGui"
 import "./utils/Party"
 import "./utils/Location"
 import "./utils/Ticker"
@@ -8,6 +9,7 @@ import "./utils/Ticker"
 import "./features/Combat/DamageTracker"
 import "./features/Combat/ReaperTimer"
 import "./features/Combat/RendArrows"
+import "./features/Combat/FatalTempo"
 
 import "./features/Bestiary/MobHighlight"
 // import "./features/CrimsonIsle(Move)";

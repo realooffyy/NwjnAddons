@@ -3,7 +3,7 @@ import EventEnums from "../../core/EventEnums";
 import { Event } from "../../core/Event";
 import DraggableGui from "../../utils/DraggableGui";
 import ItemUtil from "../../core/static/ItemUtil";
-import { addCountdown } from "../../utils/Ticker";
+import { addCountdown, secondsToTick } from "../../utils/Ticker";
 
 const ReaperOverlay = new DraggableGui({
   name: "Reaper",
@@ -26,6 +26,6 @@ new Feature("reaperTimer")
         "REAPER_CHESTPLATE"
       ) return
         
-      addCountdown((time) => draw(time), 6)
+      addCountdown((time) => draw(time), secondsToTick(6))
     }, "mob.zombie.remedy")
   )
