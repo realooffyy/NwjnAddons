@@ -53,7 +53,11 @@ let ticked = 0
 const history = Array(5).fill(0)
 export const getTPS = () => (history.reduce((a, b) => a + b) / history.length).toFixed(2)
 
-register("step", () => history.unshift(ticked).length = 5).setDelay(1)
+register("step", () => {
+    history.push(ticked)
+    history.shift()
+    ticked = 0
+}).setDelay(1)
 
 register("packetReceived", (packet) => {
     if (packet.func_148890_d() > 0) return

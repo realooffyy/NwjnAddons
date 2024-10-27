@@ -12,7 +12,7 @@ const editGui = new DraggableGui({
   command: "nwjnClock"
 })
 
-new Feature("clock")
+new Feature({setting: "clock"})
   .addEvent(
     new Event(EventEnums.INTERVAL.SECONDS, () =>
       editGui.drawText(MathUtil.getTime())

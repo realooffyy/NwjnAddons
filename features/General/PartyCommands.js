@@ -105,7 +105,7 @@ const commands = {
   }
 }
 
-new Feature("partyCommands")
+new Feature({setting: "partyCommands"})
   .addEvent(
     new Event(EventEnums.SERVER.CHAT, (player, command, event) => {
       const ign = TextUtil.getSenderName(player).toLowerCase()

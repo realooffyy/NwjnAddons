@@ -6,7 +6,7 @@ import { scheduleTask } from "../../utils/Ticker";
 
 let arrows = 0
 
-new Feature("rendArrows")
+new Feature({setting: "rendArrows"})
   .addEvent(
     new Event(EventEnums.CLIENT.SOUNDPLAY, () => {
       const held = Player.getHeldItem()

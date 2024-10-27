@@ -11,7 +11,7 @@ const options = [
 ]
 
 options.forEach(([setting, clazz]) => {
-  new Feature(setting)
+  new Feature({setting})
     .addEvent(
       new Event(EventEnums.ENTITY.JOINWORLD, (entity) => {
         scheduleTask(() => entity.func_70106_y())

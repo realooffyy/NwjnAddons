@@ -51,4 +51,8 @@ export default class MathUtil {
      * @returns {String}
      */
     static addCommas = (num, seperator = ',') => num.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, seperator)
+
+    static getDistance(arr1, arr2) {
+        return Math.abs(Math.hypot(arr1[0] - arr2[0], arr1[1] - arr2[1], arr1[2] - arr2[2]))
+    }
 }

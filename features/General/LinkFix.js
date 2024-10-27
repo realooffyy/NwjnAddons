@@ -4,7 +4,7 @@ import Feature from "../../core/Feature";
 import EventEnums from "../../core/EventEnums";
 import { Event } from "../../core/Event";
 
-new Feature("linkFix")
+new Feature({setting: "linkFix"})
   .addEvent(
     new Event("messageSent", (msg, event) => {
       const [url] = TextUtil.getMatches(/(https?:\/\/.+\..+\/.+(\.(?:png|jpe?g|gif)?)?)/, msg)

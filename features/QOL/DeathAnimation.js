@@ -4,7 +4,7 @@ import EventEnums from "../../core/EventEnums";
 import { scheduleTask } from "../../utils/Ticker";
 import EntityUtil from "../../core/static/EntityUtil";
 
-new Feature("deathAnimation")
+new Feature({setting: "deathAnimation"})
   .addEvent(
     new Event(EventEnums.ENTITY.DEATH, (entity) => {
       const mcEntity = entity.entity

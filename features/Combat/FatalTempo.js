@@ -5,7 +5,6 @@ import ItemUtil from "../../core/static/ItemUtil"
 import Feature from "../../core/Feature"
 import EventEnums from "../../core/EventEnums"
 import { Event } from "../../core/Event"
-import Enum from "../../core/static/Enum"
 import DraggableGui from "../../utils/DraggableGui"
 
 const overlay = new DraggableGui({
@@ -14,12 +13,11 @@ const overlay = new DraggableGui({
     example: "Fatal Tempo:&c   0% | 0.00s",
     command: "nwjnFatalTempo"
 })
-const OPTION = Enum.fromArray([
-    "NEVER",
-    "ALWAYS",
-    "OVER_0",
-    "AT_200"
-])
+const OPTION = {
+    "ALWAYS": 1,
+    "OVER_0": 2,
+    "AT_200": 3
+}
 
 let percent, buffLeft, ftLevel, inKuudra; reset()
 function reset() {
@@ -30,7 +28,7 @@ function reset() {
     overlay.drawText(formatText())
 }
 
-const feat = new Feature("fatalTempo")
+const feat = new Feature({setting: "fatalTempo"})
     .addEvent(
         new Event(EventEnums.CLIENT.HELDITEMCHANGE, () => {
             const holding = Player.getHeldItem()
@@ -98,7 +96,6 @@ function addHit() {
 
 function shouldDraw() {
     switch (Settings().fatalTempo) {
-        case OPTION.NEVER: return false
         case OPTION.ALWAYS: return true
         case OPTION.OVER_0 && percent > 0: return true
         case OPTION.AT_200 && percent === 200: return true

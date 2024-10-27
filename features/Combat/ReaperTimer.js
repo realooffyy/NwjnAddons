@@ -17,7 +17,7 @@ const draw = (time) =>
   )
 
 
-new Feature("reaperTimer")
+new Feature({setting: "reaperTimer"})
   .addEvent(
     new Event(EventEnums.CLIENT.SOUNDPLAY, () => {
       if (

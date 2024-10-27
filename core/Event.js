@@ -1,4 +1,9 @@
-// Credit: https://github.com/DocilElm/Doc/blob/main/core/Event.js
+/** 
+ * Virtually entire class taken from:
+ * @author DocilElm
+ * @license {GNU-GPL-3} https://github.com/DocilElm/Doc/blob/main/LICENSE
+ * @credit https://github.com/DocilElm/Doc/blob/main/core/Event.js
+ */
 
 import { customTriggers } from "./CustomRegisters"
 

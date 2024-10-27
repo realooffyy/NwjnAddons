@@ -1,122 +1,138 @@
-// Credit: https://github.com/DocilElm/Doc/blob/main/core/Feature.js
+/** 
+ * Virtually entire class taken from:
+ * @author DocilElm
+ * @license {GNU-GPL-3} https://github.com/DocilElm/Doc/blob/main/LICENSE
+ * @credit https://github.com/DocilElm/Doc/blob/main/core/Feature.js
+ */
+
 import Settings from "../data/Settings";
 import Location from "../utils/Location"
 
+/**
+ * - Class to handle Events and SubEvents of a feature
+ * - Usually used in tandem with settings unless extra utility is needed—in which case [obj.setting] is omitted
+ * 
+ * - Huge thanks to DocilElm
+ * @credit https://github.com/DocilElm/Doc/blob/main/core/Feature.js
+ */
 export default class Feature {
   /**
    * - Class that handles event based utilities
    * - For example waiting for the proper world to be loaded in order
-   * - to register the event/subevents
-   * @param {?string} name The feature name (config name) for this Feature
-   * @param {?string|string[]} world The required world for this Feature (if left empty it will not check)
-   * @param {?string|string[]} area The required area for this Feature (if left empty it will not check)
+   * - to register the event/subEvents
+   * @param {Object} obj
+   * @param {String} obj.setting The feature name (config name) for this Feature
+   * @param {String[]|String} obj.otherSettings Other settings to listen to
+   * @param {String[]|String} obj.worlds The required world for this Feature (if left empty it will not check)
+   * @param {String[]|String} obj.zones The required area for this Feature (if left empty it will not check)
    */
-  constructor(name = null, world = null, area = null) {
-    // Main class fields
-    this.featureName = name
-    this.isWorldArray = Array.isArray(world)
-    this.isAreaArray = Array.isArray(area)
-
-    // Required world/area stuff
-    this.world = this.isWorldArray
-      ? world.map(it => it.toLowerCase().removeFormatting())
-      : world?.toLocaleLowerCase()?.removeFormatting()
-    this.area = this.isAreaArray
-      ? area.map(it => it.toLowerCase().removeFormatting())
-      : area?.toLocaleLowerCase()?.removeFormatting()
-
-    // Initial config value
-    this.configValue = name ? Settings()[this.featureName] : null
-
+  constructor({
+    setting = null,
+    otherSettings = null,
+    worlds = null,
+    zones = null
+  } = {}) {
     // Events stuff
+    /** @type import("./Event").Event[] */
     this.events = []
-    this.subevents = []
-    this.hasRegistered = false
+    /** @type Array.<[import("./Event").Event, () => Boolean]> */
+    this.subEvents = []
+
+    this.activeFeature = false
 
     // Listeners
     this._onRegister = []
     this._onUnregister = []
 
-    // Initialize events
-    this._init()
+    // If setting exists get its value and register a listener
+    this._setSetting(setting)
+
+    // If other settings are required, get their values and register their listeners
+    this._setOtherSettings(otherSettings)
+
+    // If worlds are required register their listeners
+    this._setWorlds(worlds)
+
+    // If zones are required register their listeners
+    this._setZones(zones)
+
+    // Init
+    register("worldLoad", () => this._updateRegister())
+    register("worldUnload", () => this._unregister())
   }
 
-  /**
-   * - Internal use.
-   * - Initializes the listeners required for this Feature
-   */
-  _init() {
-    if (this.featureName) Settings().getConfig().registerListener(this.featureName, (_, val) => {
-      this.configValue = val
+  _setSetting(setting) {
+    if (!setting || !(setting in Settings())) return
+    this.setting = setting
+    this.settingValue = Settings()[setting]
 
-      if (!this.configValue) return this._unregister()
-      if (!this._checkWorld(Location.area) || !this._checkArea(Location.subarea)) return this._unregister()
-
-      this._register()
+    Settings().getConfig().registerListener(setting, (_, val) => {
+      this.settingValue = val
+      this._updateRegister()
     })
-
-    Location
-      .onWorldChange((worldName) => {
-        if (!this._checkWorld(worldName)) return this._unregister()
-        if (this.area && !this._checkArea(Location.subarea)) return this._unregister()
-
-        this._register()
-      })
-      .onAreaChange((areaName) => {
-        if (!this._checkArea(areaName)) return this._unregister()
-        if (this.world && !this._checkWorld(Location.area)) return this._unregister()
-
-        this._register()
-      })
   }
 
-  /**
-   * - Checks whether the given [worldName] matches with this Feature's
-   * - required world.
-   * - NOTE: if there's no world it will always return `true`
-   * @param {string} worldName
-   * @returns {boolean}
-   */
-  _checkWorld(worldName) {
-    if (!worldName) return false
-    if (!this.world) return true
+  _setOtherSettings(otherSettings) {
+    if (!otherSettings) return
+    otherSettings = Array.isArray(otherSettings) ? otherSettings : Array(otherSettings)
+    this.otherSettings = otherSettings
 
-    if (this.isWorldArray) return this.world.some(it => it === worldName)
+    for (let otherSetting of otherSettings) {
+      if (!otherSetting || !(otherSetting in Settings())) continue
+      this[`${otherSetting}Value`] = Settings()[otherSetting]
 
-    return worldName === this.world
+      Settings().getConfig().registerListener(otherSetting, (_, val) => this[`${otherSetting}Value`] = val)
+    }
+
+    return this
   }
 
-  /**
-   * - Checks whether the given [areaName] matches with this Feature's
-   * - required area.
-   * - NOTE: if there's no area it will always return `true`
-   * @param {string} areaName
-   * @returns {boolean}
-   */
-  _checkArea(areaName) {
-    if (!areaName) return false
-    if (!this.area) return true
+  _setWorlds(worlds) {
+    if (!worlds) return
+    worlds = Array.isArray(worlds) ? worlds : Array(worlds)
+    this.worlds = worlds
 
-    if (this.isAreaArray) return this.area.some(it => areaName.includes(it))
+    Location.registerWorldChange(() => this._updateRegister())
 
-    return areaName.includes(this.area)
+    return this
+  }
+
+  _setZones(zones) {
+    if (!zones) return
+    zones = Array.isArray(zones) ? zones : Array(zones)
+    this.zones = zones
+
+    Location.registerZoneChange(() => this._updateRegister())
+
+    return this
   }
 
   /**
    * - Internal use.
-   * - Unregisters all of the events and subevents for this Feature
+   * - Note: #inWorld and #inZone return true if param is nullish
+   * @returns {this} meth chain
+   */
+  _updateRegister() {
+    if (this.setting && !this.settingValue) return this._unregister()
+    if (!(Location.inWorld(this.worlds) && Location.inZone(this.zones))) return this._unregister()
+    
+    return this._register()
+  }
+
+  /**
+   * - Internal use.
+   * - Unregisters all of the events and subEvents for this Feature
    * - Only unregisters if the events have been registered before-hand
-   * @returns this for method chaining
+   * @returns {this} meth chain
    */
   _unregister() {
-    if (!this.hasRegistered) return this
-
-    for (let reg of this.events) reg.unregister()
-    for (let reg of this.subevents) reg[0].unregister()
+    if (!this.activeFeature) return this
+    
+    for (let event of this.events) event.unregister()
+    for (let subEvent of this.subEvents) subEvent[0].unregister()
     for (let listener of this._onUnregister) listener?.()
-
-    this.hasRegistered = false
-
+  
+    this.activeFeature = false
     return this
   }
 
@@ -124,38 +140,37 @@ export default class Feature {
    * - Internal use.
    * - Registers all of the events and triggers the listener for this Feature
    * - Only registers the events if it should and if they haven't been registered before-hand
-   * @returns this for method chaining
+   * @returns {this} meth chain
    */
   _register() {
-    if (this.hasRegistered || !this.configValue) return this
-
-    for (let reg of this.events) reg.register()
+    if (this.activeFeature) return this
+    
+    for (let event of this.events) event.register()
     for (let listener of this._onRegister) listener?.()
-
-    this.hasRegistered = true
-
+  
+    this.activeFeature = true
     return this
   }
 
   /**
    * - Adds a [Event] to this Feature
-   * @param {import("./Event").Event} register
-   * @returns this for method chaining
+   * @param {import("./Event").Event} event
+   * @returns {this} meth chain
    */
-  addEvent(register) {
-    this.events.push(register.unregister())
+  addEvent(event) {
+    this.events.push(event)
 
     return this
   }
 
   /**
    * - Adds a [SubEvent] to this Feature
-   * @param {import("./Event").Event} register
-   * @param {() => boolean} fn The function that will be ran whenever this subevent gets updated
-   * @returns this for method chaining
+   * @param {import("./Event").Event} subEvent
+   * @param {() => Boolean} condition The function that will be ran whenever this subEvent gets updated
+   * @returns {this} meth chain
    */
-  addSubEvent(register, fn = () => true) {
-    this.subevents.push([register.unregister(), fn])
+  addSubEvent(subEvent, condition) {
+    this.subEvents.push([subEvent, condition])
 
     return this
   }
@@ -163,7 +178,7 @@ export default class Feature {
   /**
    * - Calls the given function whenever this Feature's events have been registered
    * @param {() => void} fn
-   * @returns this for method chaining
+   * @returns {this} meth chain   
    */
   onRegister(fn) {
     this._onRegister.push(fn)
@@ -174,7 +189,7 @@ export default class Feature {
   /**
    * - Calls the given function whenever this Feature's events have been unregistered
    * @param {() => void} fn
-   * @returns this for method chaining
+   * @returns {this} meth chain
    */
   onUnregister(fn) {
     this._onUnregister.push(fn)
@@ -183,20 +198,15 @@ export default class Feature {
   }
 
   /**
-   * - Calls all of the subevents for update
-   * - Each subevent's function is ran to see whether it should be registered or not
-   * @returns this for method chaining
+   * - Calls all of the subEvents for update
+   * - Each subEvent's function is ran to see whether it should be registered or not
+   * @returns {this} meth chain
    */
   update() {
-    for (let it of this.subevents) {
-      /** @type {[import("./Event").Event, () => boolean]} */
-      let [ reg, fn ] = it
-      if (!fn()) {
-        reg.unregister()
-        continue
-      }
+    for (let it of this.subEvents) {
+      let [ subEvent, condition ] = it // grr Rhino
 
-      reg.register()
+      condition() ? subEvent.register() : subEvent.unregister()
     }
 
     return this

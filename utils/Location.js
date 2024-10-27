@@ -1,202 +1,98 @@
-// Credit: https://github.com/DocilElm/Doc/blob/main/shared/Location.js
+/** 
+ * Virtually entire class taken from:
+ * @author DocilElm
+ * @license {GNU-GPL-3} https://github.com/DocilElm/Doc/blob/main/LICENSE
+ * @credit https://github.com/DocilElm/Doc/blob/main/shared/Location.js
+ */
 
-const S38PacketPlayerListItem = net.minecraft.network.play.server.S38PacketPlayerListItem
+import { Event } from "../core/Event"
+import EventEnums from "../core/EventEnums"
+import TextUtil from "../core/static/TextUtil"
 
 export default new class Location {
+  /**
+   * @param {(world: String?) => void} fn 
+  */
+  registerWorldChange(fn) {
+    this._listeners.world.push(fn)
+
+    return this
+  }
+  
+  /**
+   * @param {(zone: String?) => void} fn 
+  */
+  registerZoneChange(fn) {
+    this._listeners.zone.push(fn)
+
+    return this
+  }
+
+  /**
+   * @param {String[]|String|null} world 
+   * @returns {Boolean}
+   */
+  inWorld(world) {
+    if (world instanceof Array) return world.includes(this.world)
+    if (world instanceof String) return world === this.world
+    return true
+  }
+
+  /**
+   * @param {String[]|String|null} zone 
+   * @returns {Boolean}
+   */
+  inZone(zone) {
+    if (zone instanceof Array) return zone.includes(this.zone)
+    if (zone instanceof String) return zone === this.zone
+    return true
+  }
+
   constructor() {
-    // Should store all the registers this [class]
-    // needs to unregister them on unload
-    this.registers = []
+    new Event(EventEnums.SERVER.TABADD, (world) => this._triggerWorldEvents(world), /^(?:Area|Dungeon): (.+)$/).register()
+    new Event(EventEnums.SERVER.SCOREBOARD, (zone) => this._triggerZoneEvents(zone), /^ [⏣ф] (.+)$/).register()
+    new Event("worldUnload", () => this._clear()).register()
 
-    // Location stuff
-    this.area = null
-    this.subarea = null
-
-    // Listeners
-    this.listeners = {
-      area: [],
-      subarea: []
+    // Ct reload case
+    if (World.isLoaded()) {
+      TabList.getNames().find(it => {
+        [it] = TextUtil.getMatches(/^(?:Area|Dungeon): (.+)$/, it.removeFormatting())
+        if (!it) return false
+        this._triggerWorldEvents(it)
+        return true
+      })
+      Scoreboard.getLines().find(it => {
+        [it] = TextUtil.getMatches(/^ [⏣ф] (.+)$/, it.getName().removeFormatting())
+        if (!it) return false
+        this._triggerZoneEvents(it)
+        return true
+      })
     }
+  }
 
-    // Create registers
-    this._createRegisters()
+  _listeners = {
+    world: [],
+    zone: []
+  }
 
-    // Register data
-    this.hasRegistered = true
+  _clear() {
+    this._triggerWorldEvents(null)
+    this._triggerZoneEvents(null)
   }
 
   /**
-   * - Internal use.
-   * - Creates the required registers for this class
+   * @param {String?} world 
    */
-  _createRegisters() {
-    // Getting world/area data on `/ct load`
-    // trigger the corresponding listeners
-    this.registers.push(
-      register("gameLoad", () => {
-        if (!World.isLoaded()) return
-
-        // Getting the area
-        Scoreboard.getLines()
-          ?.map(line => line?.getName()?.removeFormatting()?.replace(/[^\u0000-\u007F]/g, ""))
-          ?.forEach(it => {
-            const match = it?.match(/^  (\w.+)$/)?.[1]
-            if (!match) return
-
-            this.subarea = match.toLowerCase()
-            this.listeners.subarea.forEach(it => it(this.subarea))
-          })
-
-        // Getting the world
-        TabList.getNames()
-          ?.forEach(it => {
-            const match = it?.removeFormatting()?.match(/^(Area|Dungeon): ([\w\d ]+)$/)?.[2]
-            if (!match) return
-
-            this.area = match.toLowerCase().replace(/(area|dungeon): /, "")
-            this.listeners.area.forEach(it => it(this.area))
-          })
-      })
-    )
-
-    // Getting scoreboard subarea
-    this.registers.push(
-      register("packetReceived", (packet) => {
-        const channel = packet.func_149307_h()
-        if (channel !== 2) return
-
-        const teamStr = packet.func_149312_c()
-        const teamMatch = teamStr.match(/^team_(\d+)$/)
-        if (!teamMatch) return
-
-        const formatted = packet.func_149311_e().concat(packet.func_149309_f())
-        const unformatted = formatted.removeFormatting()
-
-        if (!/^ (⏣|ф)/.test(unformatted)) return
-
-        this.subarea = unformatted.toLowerCase()
-        this.listeners.subarea.forEach(it => it(this.subarea))
-      }).setFilteredClass(net.minecraft.network.play.server.S3EPacketTeams)
-    )
-
-    // Getting tablist area
-    this.registers.push(
-      register("packetReceived", (packet) => {
-        const players = packet.func_179767_a() // .getPlayers()
-        const action = packet.func_179768_b() // .getAction()
-
-        if (action !== S38PacketPlayerListItem.Action.ADD_PLAYER) return
-
-        players.forEach(addPlayerData => {
-          const name = addPlayerData.func_179961_d() // .getDisplayName()
-          
-          if (!name) return
-
-          const formatted = name.func_150254_d() // .getFormattedText()
-          const unformatted = formatted.removeFormatting()
-
-          if (!/^Area|Dungeon: [\w ]+$/.test(unformatted)) return
-          if (action !== S38PacketPlayerListItem.Action.ADD_PLAYER) return
-
-          this.area = unformatted.toLowerCase().replace(/(area|dungeon): /, "")
-          this.listeners.area.forEach(it => it(this.area))
-        })
-      }).setFilteredClass(S38PacketPlayerListItem)
-    )
-
-    // Reset both variables
-    this.registers.push(
-      register("worldUnload", () => {
-        this.area = null
-        this.subarea = null
-
-        this.listeners.area.forEach(it => it())
-        this.listeners.subarea.forEach(it => it())
-      })
-    )
+  _triggerWorldEvents(world) {
+    this.world = world
+    for (let fn of this._listeners.world) fn(world)
   }
 
   /**
-   * - Checks whether the player is currently in the given world
-   * @param {string} str
-   * @returns {boolean}
+   * @param {String?} zone 
    */
-  inWorld(str) {
-    if (!World.isLoaded() || !this.area) return false
-    
-    return this.area === str.toLowerCase().removeFormatting()
-  }
-
-  /**
-   * - Checks whether the player is currently in the given area
-   * @param {string} str
-   * @returns {boolean}
-   */
-  inArea(str) {
-    if (!World.isLoaded() || !this.subarea) return false
-
-    return this.subarea.includes(str.toLowerCase().removeFormatting())
-  }
-
-  /**
-   * - Runs the given function whenever the World has changed (tablist area)
-   * @param {(world: ?string) => void} fn 
-   * @returns this for method chaining
-   */
-  onWorldChange(fn) {
-    this.listeners.area.push(fn)
-
-    return this
-  }
-
-  /**
-   * - Runs the given function whenever the Area has changed (scoreboard area)
-   * @param {(area: ?string) => void} fn 
-   * @returns this for method chaining
-   */
-  onAreaChange(fn) {
-    this.listeners.subarea.push(fn)
-
-    return this
-  }
-
-  /**
-   * - Internal use.
-   * - Clears the listeners to their default state
-   * @returns this for method chaining
-   */
-  _clearListeners() {
-    this.listeners.area = []
-    this.listeners.subarea = []
-
-    return this
-  }
-
-  /**
-   * - Internal use.
-   * - Registers the registers required by this class
-   * @returns this for method chaining
-   */
-  _load() {
-    if (this.hasRegistered) return this
-
-    this.registers.forEach(it => it.register())
-    this.hasRegistered = true
-    
-    return this
-  }
-
-  /**
-   * - Internal use.
-   * - Unregisters the registers required by this class
-   * @returns this for method chaining
-   */
-  _unload() {
-    if (!this.hasRegistered) return this
-
-    this.registers.forEach(it => it.unregister())
-    this.hasRegistered = false
-    
-    return this
+  _triggerZoneEvents(zone) {
+    this.zone = zone
+    for (let fn of this._listeners.zone) fn(zone) 
   }
 }

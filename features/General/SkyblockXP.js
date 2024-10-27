@@ -4,7 +4,7 @@ import { Event } from "../../core/Event";
 import { log } from "../../core/static/TextUtil";
 
 let lastbar = [Date.now(), ""]
-new Feature("skyblockXP")
+new Feature({setting: "skyblockXP"})
   .addEvent(
     new Event(EventEnums.SERVER.ACTIONBAR, (xp, category, progress) => {
       const msg = `§b${xp} §7${category} §b${progress}`

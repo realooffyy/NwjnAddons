@@ -1,4 +1,10 @@
-// Credit: https://github.com/DocilElm/Doc/blob/main/core/EventEnums.js
+/** 
+ * Virtually entirely taken from:
+ * @author DocilElm
+ * @license {GNU-GPL-3} https://github.com/DocilElm/Doc/blob/main/LICENSE
+ * @credit https://github.com/DocilElm/Doc/blob/main/core/EventEnums.js
+ */
+
 let idx = 0
 
 export default {
@@ -9,35 +15,26 @@ export default {
   },
   ENTITY: {
     RENDER: idx++,
-    // POSTRENDER: idx++,
     JOINWORLD: idx++,
     SPAWNMOB: idx++,
-    // SPAWNPARTICLE: idx++,
     DEATH: idx++
   },
   CLIENT: {
     CHAT: idx++,
     COMMAND: idx++,
     SOUNDPLAY: idx++,
-    HELDITEMCHANGE: idx++,
-    PLAYERPOSLOOK: idx++
-    // DIGGING: idx++,
-    // BLOCKPLACEMENT: idx++
+    HELDITEMCHANGE: idx++
   },
   SERVER: {
     CHAT: idx++,
     ACTIONBAR: idx++,
     SCOREBOARD: idx++,
     TABUPDATE: idx++,
-    TABADD: idx++,
-    // COLLECTITEM: idx++,
-    // BLOCKCHANGE: idx++,
-    // MULTIBLOCKCHANGE: idx++
+    TABADD: idx++
   },
   WINDOW: {
     OPEN: idx++,
     CLOSE: idx++,
-    CLICK: idx++,
-    ITEMS: idx++
+    CLICK: idx++
   }
 }

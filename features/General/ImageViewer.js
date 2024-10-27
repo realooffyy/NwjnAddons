@@ -8,7 +8,7 @@ import { Event } from "../../core/Event";
 import TextUtil from "../../core/static/TextUtil";
 
 let IMAGE = {}
-const feat = new Feature("imageViewer")
+const feat = new Feature({setting: "imageViewer"})
   .addEvent(
     new Event("chatComponentHovered", (textComp) => {
       // Checks if hovered value is a link

@@ -1,4 +1,10 @@
-// Credit: https://github.com/DocilElm/Doc/blob/main/core/CustomRegisters.js
+/** 
+ * Virtually entirely taken from:
+ * @author DocilElm
+ * @license {GNU-GPL-3} https://github.com/DocilElm/Doc/blob/main/LICENSE
+ * @credit https://github.com/DocilElm/Doc/blob/main/core/CustomRegisters.js
+ */
+
 import { scheduleTask } from "../utils/Ticker";
 import TextUtil from "./static/TextUtil";
 import ItemUtil from "./static/ItemUtil"
@@ -26,17 +32,6 @@ createCustomEvent(EventEnums.INTERVAL.TICK, (fn) =>
 // [Entity]
 createCustomEvent(EventEnums.ENTITY.RENDER, (fn, clazz) => register("renderEntity", fn).setFilteredClass(clazz).unregister())
 
-// createCustomEvent(EventEnums.ENTITY.POSTRENDER, (fn, clazz) => register("postRenderEntity", fn).setFilteredClass(clazz).unregister())
-
-// Pre-Join World
-// createCustomEvent(EventEnums.ENTITY.CONSTRUCTING, (fn, clazz) => {
-//     register(net.minecraftforge.event.entity.EntityEvent.EntityConstructing, (event) => {
-//         if (!(event.entity instanceof clazz)) return
-
-//         fn(event.entity)
-//     })
-// })
-
 createCustomEvent(EventEnums.ENTITY.JOINWORLD, (fn, clazz) => 
     // Credits: https://github.com/BetterMap/BetterMap/blob/main/Extra/Events/SecretTracker.js
     register(net.minecraftforge.event.entity.EntityJoinWorldEvent, (event) => {
@@ -60,21 +55,6 @@ createCustomEvent(EventEnums.ENTITY.SPAWNMOB, (fn, clazz) =>
     }).setFilteredClass(net.minecraft.network.play.server.S0FPacketSpawnMob).unregister()
 )
 
-// createCustomEvent(EventEnums.ENTITY.SPAWNPARTICLE, (fn, type) =>
-//     register("packetReceived", (packet, event) => {
-//         const particleType = packet.func_179749_a()
-//         if (particleType !== type) return
-
-//         const [ x, y, z ] = [
-//             packet.func_149220_d(), // getXCoordinate
-//             packet.func_149226_e(), // getYCoordinate
-//             packet.func_149225_f() // getZCoordinate
-//         ]
-
-//         fn(particleType, [x, y, z], event)
-//     }).setFilteredClass(net.minecraft.network.play.server.S2APacketParticles).unregister()
-// )
-
 createCustomEvent(EventEnums.ENTITY.DEATH, (fn, clazz) =>
     register("entityDeath", (entity) => {
         if (clazz && !(entity.entity instanceof clazz)) return
@@ -88,6 +68,7 @@ createCustomEvent(EventEnums.CLIENT.CHAT, (fn, criteria = "") => register("chat"
 
 createCustomEvent(EventEnums.CLIENT.COMMAND, (fn, name) => register("command", fn).setName(name).unregister())
 
+/** @todo change to SoundEffectPacket */
 createCustomEvent(EventEnums.CLIENT.SOUNDPLAY, (fn, criteria) => register("soundPlay", fn).setCriteria(criteria).unregister())
 
 createCustomEvent(EventEnums.CLIENT.HELDITEMCHANGE, (fn, ids = []) => 
@@ -97,36 +78,6 @@ createCustomEvent(EventEnums.CLIENT.HELDITEMCHANGE, (fn, ids = []) =>
         
         fn(packet.func_149614_c());
     }).setFilteredClass(net.minecraft.network.play.client.C09PacketHeldItemChange).unregister()
-)
-
-// createCustomEvent(EventEnums.CLIENT.DIGGING, (fn) =>
-//     register("packetSent", (packet, event) =>
-//         fn(packet.func_180762_c()?.toString(), event)
-//     ).setFilteredClass(net.minecraft.network.play.client.C07PacketPlayerDigging).unregister()
-// )
-
-// createCustomEvent(EventEnums.CLIENT.BLOCKPLACEMENT, (fn, wrapBP = true) =>
-//     register("packetSent", (packet) => {
-//         const position = packet.func_179724_a()
-    
-//         const [ x, y, z ] = [
-//             position.func_177958_n(), // getX()
-//             position.func_177956_o(), // getY()
-//             position.func_177952_p() // getZ()
-//         ]
-//         const ctBlock = World.getBlockAt(x, y, z)
-
-//         fn(ctBlock, [x, y, z], wrapBP ? new BlockPos(position) : position)
-//     }).setFilteredClass(net.minecraft.network.play.client.C08PacketPlayerBlockPlacement).unregister()
-// )
-
-createCustomEvent(EventEnums.CLIENT.PLAYERPOSLOOK, (fn) =>
-    register("packetReceived", (packet) => {
-        const [ x, y, z ] = [ packet.func_148932_c(), packet.func_148928_d(), packet.func_148933_e() ]
-        const [ yaw, pitch ] = [ packet.func_148931_f(), packet.func_148930_g() ]
-
-        fn([x, y, z], yaw, pitch)
-    }).setFilteredClass(net.minecraft.network.play.server.S08PacketPlayerPosLook).unregister()
 )
 
 // [Server]
@@ -223,38 +174,6 @@ createCustomEvent(EventEnums.SERVER.TABADD, (fn, criteria) =>
     }).setFilteredClass(S38PacketPlayerListItem).unregister()
 )
 
-// createCustomEvent(EventEnums.SERVER.COLLECTITEM, (fn) =>
-//     register("packetReceived", (packet) => {
-//         const entityID = packet.func_149354_c()
-        
-//         fn(entityID)
-//     }).setFilteredClass(net.minecraft.network.play.server.S0DPacketCollectItem).unregister()
-// )
-
-// createCustomEvent(EventEnums.PACKET.SERVER.BLOCKCHANGE, (fn) =>
-//     register("packetReceived", (packet) => {
-//         const pos = new BlockPos(packet.func_179827_b())
-//         const block = World.getBlockAt(pos.x, pos.y, pos.z)
-//         const packetBlock = packet.func_180728_a().func_177230_c()
-
-//         fn(block, pos, packetBlock)
-//     }).setFilteredClass(net.minecraft.network.play.server.S23PacketBlockChange).unregister()
-// )
-
-// createCustomEvent(EventEnums.PACKET.CUSTOM.MULTIBLOCKCHANGE, (fn) =>
-//     register("packetReceived", (packet) => {
-//         const list = packet.func_179844_a()
-
-//         for (let v of list) {
-//             let pos = new BlockPos(v.func_180090_a())
-//             let packetBlock = v.func_180088_c().func_177230_c()
-//             let block = World.getBlockAt(pos.x, pos.y, pos.z)
-
-//             fn(block, pos, packetBlock)
-//         }
-//     }).setFilteredClass(net.minecraft.network.play.server.S22PacketMultiBlockChange).unregister()
-// )
-
 // [Window]
 createCustomEvent(EventEnums.WINDOW.OPEN, (fn) => 
     register("packetReceived", (packet) => {
@@ -270,10 +189,8 @@ createCustomEvent(EventEnums.WINDOW.OPEN, (fn) =>
 )
 
 createCustomEvent(EventEnums.WINDOW.CLOSE, (fn) => {
-    return [
-        register("packetReceived", fn).setFilteredClass(net.minecraft.network.play.server.S2EPacketCloseWindow).unregister(),
-        register("packetSent", fn).setFilteredClass(net.minecraft.network.play.client.C0DPacketCloseWindow).unregister()
-    ]
+    register("packetReceived", fn).setFilteredClass(net.minecraft.network.play.server.S2EPacketCloseWindow).unregister(),
+    register("packetSent", fn).setFilteredClass(net.minecraft.network.play.client.C0DPacketCloseWindow).unregister()
 })
 
 createCustomEvent(EventEnums.WINDOW.CLICK, (fn) => 
@@ -281,10 +198,4 @@ createCustomEvent(EventEnums.WINDOW.CLICK, (fn) =>
         // Container name, Slot clicked
         fn(Player.getContainer().getName(), packet.func_149544_d())
     }).setFilteredClass(net.minecraft.network.play.client.C0EPacketClickWindow).unregister()
-)
-
-createCustomEvent(EventEnums.WINDOW.ITEMS, (fn) => 
-    register("packetReceived", (packet) => {
-        fn(packet.func_148910_d())
-    }).setFilteredClass(net.minecraft.network.play.server.S30PacketWindowItems).unregister()
 )

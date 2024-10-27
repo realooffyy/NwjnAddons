@@ -27,6 +27,8 @@ import "./features/QOL/ChatCleanup"
 import "./features/QOL/DeathAnimation"
 import "./features/QOL/EntitySpawn"
 
+import "./features/Mining/MineshaftWaypoints"
+
 // import "./features/HUD/FatalTempo"
 // import "./features/HUD/Minibosses"
 // import "./features/HUD/Poison"
@@ -65,5 +67,3 @@ import "./features/QOL/EntitySpawn"
     // import "./features/Bestiary/PlayerHighlight"
     // import "./features/Bestiary/StandHighlight"
     // Bestiary }
-    
-    // import "./features/Mining/MineshaftWaypoints"

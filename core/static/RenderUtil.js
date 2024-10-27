@@ -314,10 +314,10 @@ export default class RenderUtil {
     static renderWaypoint(text, x, y, z, r, g, b, a, phase = true) {
         const block = World.getBlockAt(x, y, z)
 
-        this.outlineBlock(block, r, g, b, a, phase)
+        this.outlineBlock(block, r, g, b, a, phase, 2)
         this.filledBlock(block, r, g, b, 50, phase)
         this.drawString(text, x + 0.5, y + 3, z + 0.5)
-        this.renderBeaconBeam(x, y, z, r, g, b, a, phase)
+        this.renderBeaconBeam(x, y, z, r, g, b, 150, phase)
     }
     
     /**
