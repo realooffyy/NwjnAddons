@@ -35,7 +35,7 @@ export default class TextUtil {
      * @returns {RegExpMatchArray|null[]} matches 
      */
     static getMatches(regex, string, vars = 1) {
-        return string.match(regex)?.slice(1) ?? Array(vars).fill(null)
+        return string.match(regex)?.slice(1) ?? Array(vars)
     }
 
    /**

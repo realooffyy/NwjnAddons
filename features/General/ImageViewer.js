@@ -1,6 +1,7 @@
-/**
- * Adaption of ImageViewer (Permitted by AllenZheng)
- * @see https://github.com/zhenga8533/VolcAddons/blob/main/features/general/ImageViewer.js
+/** 
+ * An adaption of ImageViewer (Approved by Allen Zheng)
+ * @author Allen Zheng
+ * @credit https://github.com/zhenga8533/VolcAddons/blob/main/features/general/ImageViewer.js
  */
 
 import Feature from "../../core/Feature";
@@ -13,7 +14,7 @@ const feat = new Feature({setting: "imageViewer"})
     new Event("chatComponentHovered", (textComp) => {
       // Checks if hovered value is a link
       const [url] = TextUtil.getMatches(
-        /(https?:\/\/.+\..+\/.+(\.(?:png|jpe?g|gif)?))/,
+        /((?:https?:\/\/)?\S+\/\S+(?:\.(?:png|jpe?g|gif))?)/,
         textComp.getHoverValue().removeFormatting()
       )
       if (!url || IMAGE.url === url) return

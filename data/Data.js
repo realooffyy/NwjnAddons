@@ -32,7 +32,7 @@ export let data = new PogOject("NwjnAddons", {
     "scale": 1.5,
     "bg": true
   }
-}, "/data/User.json");
+}, "/data/.User.json");
 data.autosave(3)
 
 // [Player Stat Data]

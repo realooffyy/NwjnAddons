@@ -1,7 +1,7 @@
 import Settings from "../../Amaterasu/core/Settings"
 import DefaultConfig from "../../Amaterasu/core/DefaultConfig"
 
-const defCon1 = new DefaultConfig("NwjnAddons", "/data/Config.json")
+const defCon1 = new DefaultConfig("NwjnAddons", "/data/.Config.json")
 .addSwitch({
     category: "General",
     configName: "waypoint",

@@ -51,21 +51,17 @@ export default new class Location {
   constructor() {
     new Event(EventEnums.SERVER.TABADD, (world) => this._triggerWorldEvents(world), /^(?:Area|Dungeon): (.+)$/).register()
     new Event(EventEnums.SERVER.SCOREBOARD, (zone) => this._triggerZoneEvents(zone), /^ [⏣ф] (.+)$/).register()
-    new Event("worldUnload", () => this._clear()).register()
+    new Event("worldUnload", () => this._triggerWorldEvents(null)._triggerZoneEvents(null)).register()
 
     // Ct reload case
     if (World.isLoaded()) {
       TabList.getNames().find(it => {
         [it] = TextUtil.getMatches(/^(?:Area|Dungeon): (.+)$/, it.removeFormatting())
-        if (!it) return false
-        this._triggerWorldEvents(it)
-        return true
+        return it ? Boolean(this._triggerWorldEvents(it)) : false
       })
       Scoreboard.getLines().find(it => {
         [it] = TextUtil.getMatches(/^ [⏣ф] (.+)$/, it.getName().removeFormatting().replace(/[^\x0-\xFF]/g, ""))
-        if (!it) return false
-        this._triggerZoneEvents(it)
-        return true
+        return it ? Boolean(this._triggerZoneEvents(it)) : false
       })
     }
   }
@@ -75,24 +71,19 @@ export default new class Location {
     zone: []
   }
 
-  _clear() {
-    this._triggerWorldEvents(null)
-    this._triggerZoneEvents(null)
-  }
-
-  /**
-   * @param {String?} world 
-   */
+  /** @param {String?} world */
   _triggerWorldEvents(world) {
     this.world = world
-    for (let fn of this._listeners.world) fn(world)
+    this._listeners.world.forEach(fn => fn(world))
+
+    return this
   }
 
-  /**
-   * @param {String?} zone 
-   */
+  /** @param {String?} zone */
   _triggerZoneEvents(zone) {
     this.zone = zone
-    for (let fn of this._listeners.zone) fn(zone) 
+    this._listeners.zone.forEach(fn => fn(zone))
+
+    return this
   }
 }
