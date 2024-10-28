@@ -62,7 +62,7 @@ export default new class Location {
         return true
       })
       Scoreboard.getLines().find(it => {
-        [it] = TextUtil.getMatches(/^ [⏣ф] (.+)$/, it.getName().removeFormatting())
+        [it] = TextUtil.getMatches(/^ [⏣ф] (.+)$/, it.getName().removeFormatting().replace(/[^\x0-\xFF]/g, ""))
         if (!it) return false
         this._triggerZoneEvents(it)
         return true
