@@ -5,6 +5,7 @@
  */
 
 import TextUtil from "./TextUtil";
+import MathUtil from "./MathUtil";
 
 const schemes = {
     "h": "http://",
@@ -94,14 +95,10 @@ export default class StuffysCipher {
         for (let char of input) {
             let idx = charSet.indexOf(char)
 
-            if (!~idx) result += char
-            else {
-                let offset = idx + inc
-                while (offset >= 62) offset -= 62
-                while (offset < 0) offset += 62
-                let nextChar = charSet[offset]
-                result += nextChar
-            }
+            result += 
+                ~idx ?
+                    charSet[wrap(idx + inc), 0, 61] :
+                char
         }
 
         return result

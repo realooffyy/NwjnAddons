@@ -55,4 +55,9 @@ export default class MathUtil {
     static getDistance(arr1, arr2) {
         return Math.abs(Math.hypot(arr1[0] - arr2[0], arr1[1] - arr2[1], arr1[2] - arr2[2]))
     }
+
+    static wrap(number, min, max) {
+        const range = (max - min) + 1
+        return ((number - min) % range + range) % range + min
+    }
 }
