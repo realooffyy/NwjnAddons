@@ -14,10 +14,11 @@ const feat = new Feature({setting: "imageViewer"})
     new Event("chatComponentHovered", (textComp) => {
       // Checks if hovered value is a link
       const [url] = TextUtil.getMatches(
-        /((?:https?:\/\/)?\S+\/\S+(?:\.(?:png|jpe?g|gif))?)/,
-        textComp.getHoverValue().removeFormatting()
+        /([a-z\d]{2,}:\/\/[-\w.]+\.[a-z]{2,}(?:\d{1,5})?(?:\S*)?(?:\.\S+)?(?=[!"§ \n]|$))/,
+        textComp.getClickValue()
       )
       if (!url || IMAGE.url === url) return
+      IMAGE.url = url
 
       // If the link returns an image, update values
       try {

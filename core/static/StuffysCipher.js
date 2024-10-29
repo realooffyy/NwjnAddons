@@ -19,13 +19,13 @@ const extensions = {
 const charSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 export default class StuffysCipher {
     /**
-     * Decodes a string in Standardized Truncated url Format.
-     * @param {String} encoded - The String to Decode.
-     * @returns {String} url
-     */
+    * Decodes a string in Standardized Truncated url Format.
+    * @param {String} encoded - The String to Decode.
+    * @returns {String} url
+    */
     static decode = (encoded) => {
         const [valid, scheme, extension, dots, body] = TextUtil.getMatches(/^(l\$(\S)?(\S)?(\d+)\|(\S+))$/, encoded, 5)
-        if (!valid) return ""
+        if (!valid) return false
 
         let url = StuffysCipher.translate(
             body.slice(0, 9 - dots.length) 
@@ -42,28 +42,42 @@ export default class StuffysCipher {
     }
 
     /**
-     * Encodes a string in Standardized Truncated url Format.
-     * @param {String} url - The URL to Encode.
-     */
+    * Encodes a string in Standardized Truncated url Format.
+    * @param {String} url - The URL to Encode.
+    */
     static encode = (url) => {
-        const [valid, scheme, host, dir, extension] = TextUtil.getMatches(/^((https?:\/\/)?(\S+)(\/\S+)(\.(?:png|jpe?g|gif))?)$/, url, 5)
-        if (!valid) return ""
-        const body = host + dir
+        const [valid, scheme, host, dir, extension] = TextUtil.getMatches(/^(([a-z\d]{2,}:\/\/)([-\w.]+\.[a-z]{2,})(?:\d{1,5})?(\S*)?(\.\S+)(?=[!"§ \n]|$))$/, url, 5)
+        if (!valid) return false
 
         let encoded = "l$"
-            + TextUtil.getKeyFromValue(schemes, scheme) ?? ""
-            + TextUtil.getKeyFromValue(extensions, extension) ?? "0"
+        const schemeKey = TextUtil.getKeyFromValue(schemes, scheme) ?? ""
+        if (schemeKey) encoded += schemeKey
 
-        for (let i in body)
-            if (body[i] === ".")
-                encoded += i
+        const extensionKey = TextUtil.getKeyFromValue(extensions, extension) ?? ""
+        if (extensionKey) encoded += extensionKey
+        else encoded += "0"
+
+        const newBodyPart = (
+            (schemeKey ? "" : scheme)
+            +
+            host
+            +
+            dir
+            +
+            (extensionKey ? "" : extension)
+        )
+
+        const first9 = newBodyPart.substring(0, 9)
+        for (let i in first9)
+            if (first9[i] === ".")
+                encoded += ~~i
 
         encoded += "|"
 
         encoded += StuffysCipher.translate(
-            body.substring(0, 9).replace(/\./g, "") 
+            first9.replace(/\./g, "") 
             + 
-            body.substring(9).replace(/\./g, "^"), 
+            newBodyPart.substring(9).replace(/\./g, "^"), 
             1
         )
 
@@ -71,19 +85,23 @@ export default class StuffysCipher {
     }
 
     /**
-     * @param {String} input 
-     * @param {Number} inc Encode uses 1, Decode uses -1
-     * @returns {String}
-     */
+    * @param {String} input 
+    * @param {Number} inc Encode uses 1, Decode uses -1
+    * @returns {String}
+    */
     static translate(input, inc) {
         let result = ""
         for (let char of input) {
             let idx = charSet.indexOf(char)
 
-            result += 
-                ~idx ?
-                    charSet[(idx + inc) % 62 /** 62 is charSet.length */] :
-                char
+            if (!~idx) result += char
+            else {
+                let offset = idx + inc
+                while (offset >= 62) offset -= 62
+                while (offset < 0) offset += 62
+                let nextChar = charSet[offset]
+                result += nextChar
+            }
         }
 
         return result
