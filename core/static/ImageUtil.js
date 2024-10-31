@@ -17,10 +17,12 @@ export default class ImageUtil {
     }
 
     static findImageInUrl(url, thenFn) {
+        let res, conn
+        url = ImageUtil.fixIfImgur(url)
         try {
-            const makeURL = new URL(ImageUtil.fixIfImgur(url))
+            const makeURL = new URL(url)
             if (!makeURL) throw new Error(`NwjnAddons failed to parse URL: ${url}`)
-            const conn = makeURL.openConnection()
+            conn = makeURL.openConnection()
     
             conn.setRequestMethod("GET")
             conn.setUseCaches(true)
@@ -37,8 +39,7 @@ export default class ImageUtil {
             const BufferedImage = ImageIO.read(stream)
             const shouldRecurse = conn.getHeaderField("Content-Type").includes("text/html")
             
-            conn.disconnect()
-            if (!shouldRecurse) return thenFn(new Image(BufferedImage))
+            if (!shouldRecurse) return res = thenFn(new Image(BufferedImage))
     
             const [protocol, host] = [makeURL.getProtocol(), makeURL.getHost()]
             const body = IOUtils.toString(stream, "UTF-8")
@@ -47,7 +48,12 @@ export default class ImageUtil {
             if (!valid) throw new Error(`NwjnAddons couldn't find any image in ${url}`)
     
             const imageURL = slash ? `${protocol}://${host}/${match}`.trim() : match
-            if (imageURL) return ImageUtil.findImageInUrl(imageURL)
-        } catch (err) {console.log(err)}
+            if (imageURL) return res = ImageUtil.findImageInUrl(imageURL, thenFn)
+        } catch (err) {
+            console.log(err)
+        } finally {
+            if (conn) conn.disconnect()
+            if (response) return response
+        }
     }
 }
