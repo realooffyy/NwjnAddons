@@ -56,8 +56,8 @@ export default class MathUtil {
         return Math.abs(Math.hypot(arr1[0] - arr2[0], arr1[1] - arr2[1], arr1[2] - arr2[2]))
     }
 
-    static wrap(number, min, max) {
-        const range = (max - min) + 1
+    static wrap(number, min, max, inc) {
+        const range = (max - min) + inc
         return ((number - min) % range + range) % range + min
     }
 }

@@ -7,6 +7,7 @@
 import Feature from "../../core/Feature";
 import { Event } from "../../core/Event";
 import TextUtil from "../../core/static/TextUtil";
+import ImageUtil from "../../core/static/ImageUtil";
 
 let IMAGE = {}
 const feat = new Feature({setting: "imageViewer"})
@@ -15,24 +16,17 @@ const feat = new Feature({setting: "imageViewer"})
             // Checks if hovered value is a link
             const [url] = TextUtil.getMatches(
                 /([a-z\d]{2,}:\/\/[-\w.]+\.[a-z]{2,}(?:\d{1,5})?(?:\S*)?(?:\.\S+)?(?=[!"§ \n]|$))/,
-                textComp.getClickValue().removeFormatting()
+                textComp.getClickValue()?.removeFormatting()
             )
             if (!url || IMAGE.url === url) return
             IMAGE.url = url
 
             // If the link returns an image, update values
-            /** @todo get request image? */
-            try {
-                const image = Image.fromUrl(url); // Will return if this throws err
-
-                const width = Math.min(
-                    image.getTextureWidth(), 
-                    Renderer.screen.getWidth() * 0.15
-                )
-                const height = Math.min(
-                    image.getTextureHeight(), 
-                    Renderer.screen.getHeight() * 0.15
-                )
+            ImageUtil.findImageInUrl(url, (image) => {
+                
+                const scale = 1 / Renderer.screen.getScale()
+                const width = image.getTextureWidth() * scale
+                const height = image.getTextureHeight() * scale
                     
                 IMAGE = {
                     image,
@@ -42,13 +36,13 @@ const feat = new Feature({setting: "imageViewer"})
                 }
 
                 feat.update()
-            } catch (err) {}
+            })
         })
     )
     .addSubEvent(
         new Event("renderOverlay", () => {
-            const { image, _, width, height } = IMAGE
-            
+            const { image, width, height } = IMAGE
+
             image.draw(
                 Client.getMouseX() - (width * 0.5),
                 Client.getMouseY() - (height * 0.5),
