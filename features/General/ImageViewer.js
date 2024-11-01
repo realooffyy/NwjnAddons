@@ -7,7 +7,6 @@
 import Feature from "../../core/Feature";
 import { Event } from "../../core/Event";
 import TextUtil from "../../core/static/TextUtil";
-import ImageUtil from "../../core/static/ImageUtil";
 
 let IMAGE = {}
 const feat = new Feature({setting: "imageViewer"})
@@ -22,11 +21,13 @@ const feat = new Feature({setting: "imageViewer"})
             IMAGE.url = url
 
             // If the link returns an image, update values
-            ImageUtil.findImageInUrl(url, (image) => {
-                
-                const scale = 1 / Renderer.screen.getScale()
-                const width = image.getTextureWidth() * scale
-                const height = image.getTextureHeight() * scale
+            try {
+                const image = Image.fromUrl(url)
+
+                const [texWidth, texHeight] = [image.getTextureWidth(), image.getTextureHeight()]
+                const scale = Math.max(texWidth / texHeight, texHeight / texWidth) * Renderer.screen.getScale()
+                const width = image.getTextureWidth() / scale
+                const height = image.getTextureHeight() / scale
                     
                 IMAGE = {
                     image,
@@ -36,7 +37,7 @@ const feat = new Feature({setting: "imageViewer"})
                 }
 
                 feat.update()
-            })
+            } catch (err) {console.log(err)}
         })
     )
     .addSubEvent(

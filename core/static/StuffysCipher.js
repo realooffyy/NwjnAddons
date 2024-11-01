@@ -97,7 +97,7 @@ export default class StuffysCipher {
 
             result += 
                 ~idx ?
-                    charSet[MathUtil.wrap(idx, 0, 61, inc)] :
+                    charSet[MathUtil.wrap(idx + inc, 0, 61)] :
                 char
         }
 

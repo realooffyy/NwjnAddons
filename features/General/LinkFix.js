@@ -23,7 +23,7 @@ new Feature({setting: "linkFix"})
   .addEvent(
     new Event(EventEnums.SERVER.CHAT, (url, _, __, component) => {
       try {
-        const decoded = `§n${StuffysCipher.decode(url)}§r`
+        const decoded = `${StuffysCipher.decode(url)}`
   
         component.func_150253_a() // getSiblings
           .map(comp => {
