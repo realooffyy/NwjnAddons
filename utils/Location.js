@@ -33,8 +33,8 @@ export default new class Location {
    * @returns {Boolean}
    */
   inWorld(world) {
-    if (world instanceof Array) return world.includes(this.world)
-    if (world instanceof String) return world === this.world
+    if (Array.isArray(world)) return world.includes(this.world)
+    if (typeof(world) === "string" || world instanceof String) return world === this.world
     return true
   }
 
@@ -43,8 +43,8 @@ export default new class Location {
    * @returns {Boolean}
    */
   inZone(zone) {
-    if (zone instanceof Array) return zone.includes(this.zone)
-    if (zone instanceof String) return zone === this.zone
+    if (Array.isArray(zone)) return zone.includes(this.zone)
+    if (typeof(zone) === "string" || zone instanceof String) return zone === this.zone
     return true
   }
 
@@ -55,11 +55,11 @@ export default new class Location {
 
     // Ct reload case
     if (World.isLoaded()) {
-      TabList.getNames().find(it => {
+      TabList?.getNames()?.find(it => {
         [it] = TextUtil.getMatches(/^(?:Area|Dungeon): (.+)$/, it.removeFormatting())
         return it ? Boolean(this._triggerWorldEvents(it)) : false
       })
-      Scoreboard.getLines().find(it => {
+      Scoreboard?.getLines()?.find(it => {
         [it] = TextUtil.getMatches(/^ [⏣ф] (.+)$/, it.getName().removeFormatting().replace(/[^\x0-\xFF]/g, ""))
         return it ? Boolean(this._triggerZoneEvents(it)) : false
       })
