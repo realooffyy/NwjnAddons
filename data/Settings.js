@@ -41,13 +41,6 @@ const defCon1 = new DefaultConfig("NwjnAddons", "/data/.Config.json")
 })
 .addSwitch({
     category: "General",
-    configName: "imageViewer",
-    title: "Image Viewer",
-    description: "Displays images from urls when hovered over in chat",
-    value: false
-})
-.addSwitch({
-    category: "General",
     configName: "partyCommands",
     title: "Party Commands",
     description: "Enables party commands, universally triggers on [.!?] commands",

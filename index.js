@@ -15,7 +15,6 @@ import "./features/Bestiary/MobHighlight"
 // import "./features/CrimsonIsle(Move)";
 import "./features/General/ChatWaypoints"
 import "./features/General/LinkFix"
-import "./features/General/ImageViewer"
 import "./features/General/PartyCommands"
 import "./features/General/SkyblockXP"
 import "./features/General/Clock"
