@@ -11,8 +11,7 @@ let _scheduleTaskList = {}
 export const scheduleTask = (onEnd, delay = 1) => _scheduleTaskList[onEnd] = [onEnd, delay]
 const _updateTasks = () => {
     for (let key in _scheduleTaskList) {
-        let tick = _scheduleTaskList[key][1]--
-        if (tick) continue
+        if (_scheduleTaskList[key][1]-- > 0) continue
 
         _scheduleTaskList[key][0]()
         delete _scheduleTaskList[key]
@@ -31,7 +30,7 @@ const _updateCountdowns = () => {
     for (let key in _countdownList) {
         let tick = _countdownList[key][1]--
         _countdownList[key][0](tickToSeconds(tick))
-        if (!tick) delete _countdownList[key]
+        if (tick <= 0) delete _countdownList[key]
     }
 }
 let _timerList = {}
@@ -45,19 +44,21 @@ const _updateTimers = () => {
     for (let key in _timerList) {
         let tick = _timerList[key][2]++
         _timerList[key][0](tickToSeconds(tick))
-        if (tick === _timerList[key][1]) delete _timerList[key]
+        if (tick <= _timerList[key][1]) delete _timerList[key]
     }
 }
 
-let ticked = 0
-const history = Array(5).fill(0)
-export const getTPS = () => (history.reduce((a, b) => a + b) / history.length).toFixed(2)
+const history = Array(3)
+let tick = 0, lastSec = 0, avg = 0
 
-register("step", () => {
+export const getTPS = () => avg.toFixed(2)
+const _updateTPS = () => {
+    if (tick++ % 20) return
+    const ticked = 20000 / (-lastSec + (lastSec = Date.now()))
     history.push(ticked)
+    avg = history.reduce((a,b) => a+b) / 4
     history.shift()
-    ticked = 0
-}).setDelay(1)
+}
 
 register("packetReceived", (packet) => {
     if (packet.func_148890_d() > 0) return
@@ -65,5 +66,5 @@ register("packetReceived", (packet) => {
     _updateTasks()
     _updateCountdowns()
     _updateTimers()
-    ticked++
+    _updateTPS()
 }).setFilteredClass(net.minecraft.network.play.server.S32PacketConfirmTransaction)

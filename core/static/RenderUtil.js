@@ -352,7 +352,7 @@ export default class RenderUtil {
         const lText = text.addColor()
         
         const lScale = increase 
-            ? scale * 0.45 * (Math.sqrt(x**2 + y**2 + z**2) / 120) //increase up to 120 blocks away
+            ? scale * 0.5 * (Math.sqrt(x**2 + y**2 + z**2) / 120) //increase up to 120 blocks away
             : scale
         const xMulti = Client.getMinecraft().field_71474_y.field_74320_O == 2 ? -1 : 1; //perspective
         

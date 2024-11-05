@@ -1,20 +1,19 @@
-import DraggableGui from "../../utils/DraggableGui"
-import Feature from "../../core/Feature";
 import EventEnums from "../../core/EventEnums";
 import { Event } from "../../core/Event";
 import MathUtil from "../../core/static/MathUtil";
+import GuiFeature from "../../core/GuiFeature";
+import { data } from "../../data/Data";
 
-const editGui = new DraggableGui({
-  name: "Clock",
-  example: "0:00:00",
+const clock = new GuiFeature({
   setting: "clock",
+  name: "Clock",
+  dataObj: data.Clock,
+  baseText: "0:00:00",
   color: "clockColor",
-  command: "nwjnClock"
+  _command: "nwjnClock"
 })
-
-new Feature({setting: "clock"})
   .addEvent(
-    new Event(EventEnums.INTERVAL.SECONDS, () =>
-      editGui.drawText(MathUtil.getTime())
+    new Event(EventEnums.INTERVAL.SECONDS, () => 
+      clock.text = MathUtil.getTime()
     )
   )

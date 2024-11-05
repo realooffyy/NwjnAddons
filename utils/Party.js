@@ -41,7 +41,6 @@ export default new class Party {
 	constructor() {
 		this.members = {}
 		this.leader = null
-		this.excludePlayers = [] // Auto reparty won't reinvite these players
 		this.memberJoined = [
 			/^(.+) &r&ejoined the party.&r$/,
 			/^(.+) &r&einvited &r.+ &r&eto the party! They have &r&c60 &r&eseconds to accept.&r$/,
@@ -135,6 +134,11 @@ export default new class Party {
                     this.removeMember(match[2])
                 }
             }
+        }).setCriteria(/party|offline\./i)
+
+        scheduleTask(() => {
+            hidePartySpam(15)
+            ChatLib.command("pl")
         })
 	}
 
@@ -154,7 +158,6 @@ export default new class Party {
 	disbandParty() {
 		this.members = {}
 		this.leader = null
-        this.excludePlayers = []
     }
     
     amILeader() {

@@ -22,13 +22,11 @@ export default class Feature {
    * - to register the event/subEvents
    * @param {Object} obj
    * @param {String} obj.setting The feature name (config name) for this Feature
-   * @param {String[]|String} obj.otherSettings Other settings to listen to
    * @param {String[]|String} obj.worlds The required world for this Feature (if left empty it will not check)
    * @param {String[]|String} obj.zones The required area for this Feature (if left empty it will not check)
    */
   constructor({
     setting = null,
-    otherSettings = null,
     worlds = null,
     zones = null
   } = {}) {
@@ -46,9 +44,6 @@ export default class Feature {
 
     // If setting exists get its value and register a listener
     this._setSetting(setting)
-
-    // If other settings are required, get their values and register their listeners
-    this._setOtherSettings(otherSettings)
 
     // If worlds are required register their listeners
     this._setWorlds(worlds)
@@ -70,21 +65,6 @@ export default class Feature {
       this.settingValue = val
       this._updateRegister()
     })
-  }
-
-  _setOtherSettings(otherSettings) {
-    if (!otherSettings) return
-    otherSettings = Array.isArray(otherSettings) ? otherSettings : Array(otherSettings)
-    this.otherSettings = otherSettings
-
-    for (let otherSetting of otherSettings) {
-      if (!otherSetting || !(otherSetting in Settings())) continue
-      this[`${otherSetting}Value`] = Settings()[otherSetting]
-
-      Settings().getConfig().registerListener(otherSetting, (_, val) => this[`${otherSetting}Value`] = val)
-    }
-
-    return this
   }
 
   _setWorlds(worlds) {

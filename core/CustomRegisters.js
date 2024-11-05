@@ -59,7 +59,7 @@ createCustomEvent(EventEnums.ENTITY.DEATH, (fn, clazz) =>
     register("entityDeath", (entity) => {
         if (clazz && !(entity.entity instanceof clazz)) return
 
-        fn(entity)
+        fn(entity, entity.entity)
     }).unregister()
 )
 

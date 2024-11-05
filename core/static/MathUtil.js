@@ -1,5 +1,6 @@
 // Credit: https://github.com/DocilElm/Doc/blob/main/shared/TextHelper.js
 const numberFormat = { undefined: 1, "k": 1_000, "m": 1_000_000, "b": 1_000_000_000 };
+const date = new Date()
 export default class MathUtil {
     static toRadian = (num) => num * (Math.PI / 180)
 
@@ -25,12 +26,11 @@ export default class MathUtil {
 
     /**
      * - Gets the current system time
-     * @returns {String} hrs:mins:secs
+     * @returns {String}
      */
     static getTime() {
-        const date = new Date()
-        const [h, m, s] = [date.getHours(), date.getMinutes(), date.getSeconds()]
-        return `${(h%12) || 12}:${MathUtil.timeFormat(m)}:${MathUtil.timeFormat(s)} ${h<12?"AM":"PM"}`
+        date.setTime(Date.now())
+        return date.toLocaleTimeString("en-us")
     }
 
     /**

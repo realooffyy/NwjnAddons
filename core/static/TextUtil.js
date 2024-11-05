@@ -93,7 +93,7 @@ export default class TextUtil {
      * @param {RegExp} endRegex 
      * @returns {?String[]}
      */
-    static getTabBlock(tab, startRegex, endRegex = /^\s[A-Z]/) {
+    static getTabBlock(tab, startRegex, endRegex = /^\s\w+/) {
         const startIndex = tab.findIndex(it => startRegex.test(it))
         const endIndex = tab.findIndex((it, i) => ~startIndex && i > startIndex && !endRegex.test(it))
 
