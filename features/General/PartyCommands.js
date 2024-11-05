@@ -40,14 +40,16 @@ const commands = {
     access: () => Settings().pcStats,
     fn: () => 
       "pc " +
-      TextUtil.getTabBlock(
-        TabList.getNames()
-          .map(it => it.removeFormatting()),
-        Location.inWorld("catacombs") ? /Skills:/ : /Stats:/
-      )
-        ?.map(it => it.match(/: (.[\d]+)$/)?.[1])
-        ?.join(" | ")
-          ?? "Me no have stat widget"
+        (
+          TextUtil.getTabBlock(
+          TabList.getNames()
+            .map(it => it.removeFormatting()),
+          Location.inWorld("Catacombs") ? /Skills:/ : /Stats:/
+        )
+          ?.map(it => it.match(/: (.[\d]+)$/)?.[1])
+          ?.join(" | ")
+            ?? "Me no have stat widget"
+        )
   },
 
   "tps": {

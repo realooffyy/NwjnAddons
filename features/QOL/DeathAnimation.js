@@ -6,11 +6,8 @@ import EntityUtil from "../../core/static/EntityUtil";
 
 new Feature({setting: "deathAnimation"})
   .addEvent(
-    new Event(EventEnums.ENTITY.DEATH, (entity) => {
-      const mcEntity = entity.entity
+    new Event(EventEnums.ENTITY.DEATH, (_, mcEntity) => {
       mcEntity.func_70106_y() // setDead
-      
-      if (Player.asPlayerMP().distanceTo(entity) > 16) return
       
       scheduleTask(() => 
         EntityUtil.getMobStandTag(mcEntity)

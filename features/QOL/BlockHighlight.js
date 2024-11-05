@@ -1,18 +1,20 @@
 import Feature from "../../core/Feature"
 import { Event } from "../../core/Event"
 import RenderUtil from "../../core/static/RenderUtil"
+import Settings from "../../data/Settings"
 
-const feat = new Feature({
-  setting: "blockHighlight",
-  otherSettings: "highlightColor"
-})
+new Feature({setting: "blockHighlight"})
   .addEvent(
     new Event("drawBlockHighlight", (_, event) => {
+      cancel(event)
+      
+      /** @type {Block|Sign|Entity|BlockType} BlockType means its air*/
       const target = Player.lookingAt()
 
-      if (target instanceof Entity || target instanceof BlockType) return
-      cancel(event)
+      // "type" is only in Block and Sign; returns if its Entity or BlockType
+      if (!("type" in target)) return
 
-      RenderUtil.outlineBlock(target, ...feat.highlightColorValue, false, 3)
+      const [r, g, b, a] = Settings().highlightColor
+      RenderUtil.outlineBlock(target, r, g, b, a, false, 3)
     })
   )
