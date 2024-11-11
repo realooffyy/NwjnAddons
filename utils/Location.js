@@ -48,6 +48,14 @@ export default new class Location {
     return true
   }
 
+  getWorld() {
+    return this.world
+  }
+
+  getZone() {
+    return this.zone
+  }
+
   constructor() {
     new Event(EventEnums.SERVER.TABADD, (world) => this._triggerWorldEvents(world), /^(?:Area|Dungeon): (.+)$/).register()
     new Event(EventEnums.SERVER.SCOREBOARD, (zone) => this._triggerZoneEvents(zone), /^ [⏣ф] (.+)$/).register()
