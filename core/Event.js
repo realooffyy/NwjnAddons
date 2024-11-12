@@ -8,67 +8,45 @@
 import { customTriggers } from "./CustomRegisters"
 
 export class Event {
-  constructor(name, cb, args) {
-    // Fields needed for this event
-    this.name = name
-    this.cb = cb
-    this.args = args
+    // Custom triggers are number enums
+    static _createRegisterCustom = (type, onTrigger, args) => customTriggers.get(type)(onTrigger, args).unregister()
 
-    // The register itself
-    this.isCustom = typeof this.name === "number"
-    this._register = this.isCustom
-      // Custom triggers are number enums
-      ? customTriggers.get(this.name)?.(this.cb, this.args)
-      // Normal are just strings
-      : register(this.name, this.cb).unregister()
+    static _createRegisterNormal = (type, onTrigger) => register(type, onTrigger).unregister()
 
-    this.isCustom && Array.isArray(this._register)
-      ? this._register.forEach(it => it.unregister())
-      : this._register.unregister()
-
-    // Always start unregistered
-    this.hasRegistered = false
-  }
-
-  /**
-   * - Registers this [event]'s trigger
-   * @returns this for method chaining
-   */
-  register() {
-    if (this.hasRegistered) return this
-
-    if (this.isCustom && Array.isArray(this._register)) {
-      for (let idx = 0; idx < this._register.length; idx++)
-        this._register[idx].register()
-      this.hasRegistered = true
-
-      return this
+    constructor(type, onTrigger, args) {
+        // Custom triggers are numbers
+        this._event = typeof(type) === "number"
+            ? Event._createRegisterCustom(type, onTrigger, args)
+            : Event._createRegisterNormal(type, onTrigger)
+            
+        this.isRegistered = false
+            
+        if (!this._event) return this.destroy()
     }
 
-    this._register.register()
-    this.hasRegistered = true
+    /**
+     * - Registers this [event]'s trigger
+     * @returns this for method chaining
+     */
+    register() {
+        if (this.isRegistered) return this
 
-    return this
-  }
+        this._event.register()
+        this.isRegistered = true
 
-  /**
-   * - Unregisters this [event]'s trigger
-   * @returns this for method chaining
-   */
-  unregister() {
-    if (!this.hasRegistered) return this
-
-    if (this.isCustom && Array.isArray(this._register)) {
-      for (let idx = 0; idx < this._register.length; idx++)
-        this._register[idx].unregister()
-      this.hasRegistered = false
-
-      return this
+        return this
     }
 
-    this._register.unregister()
-    this.hasRegistered = false
+    /**
+     * - Unregisters this [event]'s trigger
+     * @returns this for method chaining
+     */
+    unregister() {
+        if (!this.isRegistered) return this
 
-    return this
-  }
+        this._event.unregister()
+        this.isRegistered = false
+
+        return this
+    }
 }

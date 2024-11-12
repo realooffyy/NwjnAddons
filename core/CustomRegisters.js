@@ -68,15 +68,27 @@ createCustomEvent(EventEnums.CLIENT.CHAT, (fn, criteria = "") => register("chat"
 
 createCustomEvent(EventEnums.CLIENT.COMMAND, (fn, name) => register("command", fn).setName(name).unregister())
 
-/** @todo change to SoundEffectPacket */
-createCustomEvent(EventEnums.CLIENT.SOUNDPLAY, (fn, criteria) => register("soundPlay", fn).setCriteria(criteria).unregister())
+createCustomEvent(EventEnums.CLIENT.SOUNDPLAY, (fn, criteria) => 
+    register("packetReceived", (packet, event) => {
+        if (packet.func_149212_c()/*getSoundName*/ !== criteria) return
 
-createCustomEvent(EventEnums.CLIENT.HELDITEMCHANGE, (fn, ids = []) => 
-    register("packetSent", (packet) => {
-        const sbID = ItemUtil.getSkyblockItemID(Player.getHeldItem())
-        if (ids.length && !ids.includes(sbID)) return
+        const pitch = packet.func_149209_h()
+        const volume = packet.func_149208_g()
         
-        fn(packet.func_149614_c());
+        fn(pitch, volume, event)
+    }).setFilteredClass(net.minecraft.network.play.server.S29PacketSoundEffect).unregister()
+)
+
+createCustomEvent(EventEnums.CLIENT.HELDITEMCHANGE, (fn) => 
+    register("packetSent", (packet) => {
+        const item = Player.getHeldItem()
+        if (!item) return fn()
+
+        const index = packet.func_149614_c()
+        const attr = ItemUtil.getExtraAttribute(item)
+        const sbID = ItemUtil.getSkyblockItemID(item)
+        
+        fn(item, index, attr, sbID)
     }).setFilteredClass(net.minecraft.network.play.client.C09PacketHeldItemChange).unregister()
 )
 
@@ -188,10 +200,11 @@ createCustomEvent(EventEnums.WINDOW.OPEN, (fn) =>
     }).setFilteredClass(net.minecraft.network.play.server.S2DPacketOpenWindow).unregister()
 )
 
-createCustomEvent(EventEnums.WINDOW.CLOSE, (fn) => {
-    register("packetReceived", fn).setFilteredClass(net.minecraft.network.play.server.S2EPacketCloseWindow).unregister(),
-    register("packetSent", fn).setFilteredClass(net.minecraft.network.play.client.C0DPacketCloseWindow).unregister()
-})
+createCustomEvent(EventEnums.WINDOW.CLOSE, (fn) => 
+    register("guiClosed", (screen) => {
+        if (screen instanceof net.minecraft.client.gui.inventory.GuiContainer) fn(screen)
+    }).unregister()
+)
 
 createCustomEvent(EventEnums.WINDOW.CLICK, (fn) => 
     register("packetSent", (packet) => {
