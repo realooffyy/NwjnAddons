@@ -42,16 +42,17 @@ const feat = new Feature({
     )
     .addSubEvent(
         new Event(EventEnums.INTERVAL.FPS, () => {
-            const canDelete = currentCorpses.findIndex(corpse => Player.asPlayerMP().distanceTo(...corpse) > 5)
+            const canDelete = currentCorpses.findIndex(([x, y, z]) => Player.asPlayerMP().distanceTo(x, y, z) > 5)
             if (~canDelete) return currentCorpses.splice(canDelete, 1)
         }, 3),
         () => currentRoom
     )
     .addSubEvent(
         new Event("renderWorld", () => {
-            RenderUtil.renderWaypoint("§bExit", ...currentRoom.exit, 255, 0, 0, 255)
+            const [xi, yi, zi] = currentRoom.exit
+            RenderUtil.renderWaypoint("§bExit", xi, yi, zi, 255, 0, 0, 255)
 
-            currentCorpses.forEach(corpse => RenderUtil.renderWaypoint("§cGuess", ...corpse, 255, 0, 0, 255))
+            currentCorpses.forEach(([x, y, z]) => RenderUtil.renderWaypoint("§cGuess", x, y, z, 255, 0, 0, 255))
         }),
         () => currentRoom
     )

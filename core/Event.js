@@ -13,6 +13,12 @@ export class Event {
 
     static _createRegisterNormal = (type, onTrigger) => register(type, onTrigger).unregister()
 
+    /**
+     * Register Handler for events
+     * @param {Number|String|net.minecraftforge.fml.common.eventhandler.Event} type 
+     * @param {(...args) => void} onTrigger 
+     * @param {any?} args
+     */
     constructor(type, onTrigger, args) {
         // Custom triggers are numbers
         this._event = typeof(type) === "number"
@@ -21,7 +27,7 @@ export class Event {
             
         this.isRegistered = false
             
-        if (!this._event) return this.destroy()
+        if (!this._event) throw new Error("Improper Event Formatting")
     }
 
     /**

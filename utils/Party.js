@@ -1,5 +1,4 @@
 // Credit: BloomCore
-import Feature from "../core/Feature"
 import EventEnums from "../core/EventEnums"
 import { Event } from "../core/Event"
 import { scheduleTask } from "./Ticker"
@@ -12,29 +11,30 @@ const messagesToHide = [
     /^You are not currently in a party\.$/
 ]
 
-let hidingPartySpam = false
-const feat = new Feature()
-  .addSubEvent(
-    new Event(EventEnums.SERVER.CHAT, (event) => {
-      cancel(event)
+const partySpam = {
+    chat: new Event(EventEnums.SERVER.CHAT, (event) => {
+        cancel(event)
     }, new RegExp(`(${messagesToHide.join("|")})`)),
-    () => hidingPartySpam
-  )
-  .addSubEvent(
-    new Event("messageSent", (msg, event) => {
-      if (["/pl", "/party list"].includes(msg)) cancel(event)
-    }),
-    () => hidingPartySpam
-)
-  
-const hidePartySpam = (ticks) => {
-  hidingPartySpam = true
-  feat.update()
 
-  scheduleTask(() => {
-    hidingPartySpam = false
-    feat.update()
-  }, ticks)
+    sent: new Event("messageSent", (msg, event) => {
+        if (["/pl", "/party list"].includes(msg)) cancel(event)
+    })
+}
+
+let hidingSpam = false
+const hidePartySpam = (ticks) => {
+    if (hidingSpam) return
+    
+    hidingSpam = true
+    partySpam.chat.register()
+    partySpam.sent.register()
+
+    scheduleTask(() => {
+        if (!hidingSpam) return
+        hidingSpam = false
+        partySpam.chat.unregister()
+        partySpam.sent.unregister()
+    }, ticks)
 }
 
 export default new class Party {

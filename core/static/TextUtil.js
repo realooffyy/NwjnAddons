@@ -38,18 +38,18 @@ export default class TextUtil {
         return string?.match(regex)?.slice(1) ?? Array(vars)
     }
 
-   /**
-    * - Check if the criteria is a regex or a string
-    * - Regex is way more intensive so only use that if needed
-    * - Credit: https://github.com/DocilElm/Doc/blob/main/shared/TextHelper.js#L64
-    * @param {Function} fn Callback function
-    * @param {String | RegExp} criteria The criteria to match with
-    * @param {String} unformatted The current unformatted text
-    * @param {?Event} event The current packet event
-    * @param {?String} formatted The current formatted text
-    * @returns returns the callback fn with the given matches or the current msg if the criteria is null
-    */
-   static matchesCriteria(fn, criteria, unformatted, event, formatted, chatComponent = null) {
+    /**
+     * - Check if the criteria is a regex or a string
+     * - Regex is way more intensive so only use that if needed
+     * - Credit: https://github.com/DocilElm/Doc/blob/main/shared/TextHelper.js#L64
+     * @param {Function} fn Callback function
+     * @param {String | RegExp} criteria The criteria to match with
+     * @param {String} unformatted The current unformatted text
+     * @param {?Event} event The current packet event
+     * @param {?String} formatted The current formatted text
+     * @returns returns the callback fn with the given matches or the current msg if the criteria is null
+     */
+    static matchesCriteria(fn, criteria, unformatted, event, formatted = null, chatComponent = null) {
         if (!criteria) return fn(unformatted, event, formatted)
 
         else if (typeof criteria === "string") {
@@ -117,7 +117,7 @@ export default class TextUtil {
  * For sending data and info
  * @param {String} message 
  */
-export const log = (message)  => ChatLib.chat(`${TextUtil.NWJN} > ${message}`)
+export const log = (message)  => ChatLib.chat(`${TextUtil.NWJN} &7>&r ${message}`)
 
 /**
  * For sending guides and important stuff

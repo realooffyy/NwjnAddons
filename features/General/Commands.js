@@ -18,7 +18,7 @@ addCommand(
   "Sends a trade request to the player in front of you",
   () => {
     const looking = Player.lookingAt()
-    if (!(looking instanceof net.minecraft.client.entity.EntityOtherPlayerMP)) return
+    if (!(looking instanceof PlayerMP)) return
 
     const name = looking.getName()
     log(`Trading with &e${name}`)

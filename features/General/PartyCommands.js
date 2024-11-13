@@ -84,7 +84,7 @@ const commands = {
   },
 
   "transfer": {
-    matches: /^transfer|pt(me)?$/,
+    matches: /^transfer|pt(?:me)?$/,
     access: () => Settings().pcTransfer && Party.amILeader(),
     fn: (ign, cmd) => cmd.includes(" ") ? `p transfer ${ cmd.split(" ").slice(-1)[0] }` : `p transfer ${ ign }`
   },
