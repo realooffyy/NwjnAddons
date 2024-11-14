@@ -29,7 +29,7 @@ export default class RenderUtil {
      * @param {Number} lineWidth 
      */
     static drawOutlinedBox(aabb, r, g, b, a, phase = true, lineWidth = 3) {
-        const [realX, realY, realZ] = this.getCamRenderPos()
+        const [realX, realY, realZ] = RenderUtil.getCamRenderPos()
 
         Tessellator
             .pushMatrix()

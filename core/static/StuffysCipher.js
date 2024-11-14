@@ -26,16 +26,17 @@ export default class StuffysCipher {
     */
     static decode = (encoded) => {
         const [valid, scheme, extension, dots, body] = TextUtil.getMatches(/^(l\$(\S)?(\S)?(\d+)\|(\S+))$/, encoded, 5)
-        if (!valid) return false
+        if (!valid) return
 
+        let dotsLen = 9 - dots.length
         let url = StuffysCipher.translate(
-            body.slice(0, 9 - dots.length) 
+            body.slice(0, dotsLen) 
             + 
-            body.slice(9 - dots.length).replace(/\^/g, "."),
+            body.slice(dotsLen).replace(/\^/g, "."),
             -1
         )
         for (let dot of dots) 
-            url = url.slice(0, ~~dot) + "." + url.slice(~~dot)
+            url = url.slice(0, +dot) + "." + url.slice(+dot)
 
         url = (schemes[scheme] ?? "") + url
         url += (extensions[extension] ?? "")
@@ -48,7 +49,7 @@ export default class StuffysCipher {
     */
     static encode = (url) => {
         const [valid, scheme, host, dir, extension] = TextUtil.getMatches(/^(([a-z\d]{2,}:\/\/)([-\w.]+\.[a-z]{2,})(?:\d{1,5})?(\S*)?(\.\S+)(?=[!"§ \n]|$))$/, url, 5)
-        if (!valid) return false
+        if (!valid) return
 
         let encoded = "l$"
         const schemeKey = TextUtil.getKeyFromValue(schemes, scheme) ?? ""
@@ -71,7 +72,7 @@ export default class StuffysCipher {
         const first9 = newBodyPart.substring(0, 9)
         for (let i in first9)
             if (first9[i] === ".")
-                encoded += ~~i
+                encoded += +i
 
         encoded += "|"
 

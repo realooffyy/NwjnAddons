@@ -70,13 +70,13 @@ export default class GuiFeature extends Feature {
         Settings().getConfig().registerListener(color, (_, val) => this.color = val)
     }
     
-    _draw(text, color) {
+    _draw(text, [r, g, b, a]) {
         if (!text) return
 
         Renderer.retainTransforms(true)
         Renderer.translate(this.data.x, this.data.y)
         Renderer.scale(this.data.scale)
-        Renderer.colorize(...color)
+        Renderer.colorize(r, g, b, a)
         Renderer.drawStringWithShadow(text, 0, 0)
         Renderer.retainTransforms(false)
         Renderer.finishDraw()

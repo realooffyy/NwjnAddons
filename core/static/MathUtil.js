@@ -1,6 +1,7 @@
 // Credit: https://github.com/DocilElm/Doc/blob/main/shared/TextHelper.js
 const numberFormat = { undefined: 1, "k": 1_000, "m": 1_000_000, "b": 1_000_000_000 };
-const date = new Date()
+
+const date = new java.text.SimpleDateFormat("hh:mm:ss a z", java.util.Locale.US)
 export default class MathUtil {
     static toRadian = (num) => num * (Math.PI / 180)
 
@@ -29,8 +30,7 @@ export default class MathUtil {
      * @returns {String}
      */
     static getTime() {
-        date.setTime(Date.now())
-        return date.toLocaleTimeString("en-us")
+        return date.format(Date.now())
     }
 
     /**

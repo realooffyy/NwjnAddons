@@ -10,7 +10,7 @@ new Feature({setting: "linkFix"})
   .addEvent(
     new Event("messageSent", (msg, event) => {
       try {
-        const [url] = TextUtil.getMatches(/([a-z\d]{2,}:\/\/[-\w.]+\.[a-z]{2,}(?:\d{1,5})?(?:\S*)?(?:\.\S+)?(?=[!"§ \n]|$))/, msg)
+        const [url] = TextUtil.getMatches(/([a-z\d]{2,}:\/\/[-\w.]+\.[a-z]{2,}(?:\d{1,5})?(?:\S*)?(?:\.\S+)?(?=[!"\S\n]|$))/, msg)
         if (!url) return
   
         cancel(event)
@@ -23,7 +23,9 @@ new Feature({setting: "linkFix"})
   .addEvent(
     new Event(EventEnums.SERVER.CHAT, (url, _, __, component) => {
       try {
-        const decoded = `${StuffysCipher.decode(url)}`
+        const decoded = StuffysCipher.decode(url)
+
+        if (!decoded) return
   
         component.func_150253_a() // getSiblings
           .map(comp => {
@@ -32,10 +34,10 @@ new Feature({setting: "linkFix"})
   
             const actionText = text.replace(url, decoded)
   
-            // Bypass ChatTriggers messing up link text in TextComponent
+            // Bypass CT messing up link text in new TextComponent & setText
             comp.text = actionText
   
-            // Now use ChatTriggers' TextComponent
+            // Now use CT's TextComponent with MC's TextComponent
             return new TextComponent(comp)
               .setHover("show_text", decoded.removeFormatting())
               .setClick("open_url", decoded.removeFormatting())
