@@ -10,9 +10,9 @@ new Feature({setting: "blockHighlight"})
 
       const target = Player.lookingAt()
 
-      if (!("type" in target)) return
+      if (!target?.type) return
 
-      const [r, g, b, a] = Settings().highlightColor
-      RenderUtil.outlineBlock(target, r, g, b, a, false, 3)
+      const color = Settings().highlightColor
+      RenderUtil.outlineBlock(target, color[0], color[1], color[2], color[3], false, 3)
     })
   )
