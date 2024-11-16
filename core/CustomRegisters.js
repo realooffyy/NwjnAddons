@@ -30,7 +30,6 @@ createCustomEvent(EventEnums.INTERVAL.TICK, (fn) =>
 )
 
 // [Entity]
-createCustomEvent(EventEnums.ENTITY.RENDER, (fn, clazz) => register("renderEntity", fn).setFilteredClass(clazz).unregister())
 
 createCustomEvent(EventEnums.ENTITY.JOINWORLD, (fn, clazz) => 
     // Credits: https://github.com/BetterMap/BetterMap/blob/main/Extra/Events/SecretTracker.js
@@ -90,6 +89,16 @@ createCustomEvent(EventEnums.CLIENT.HELDITEMCHANGE, (fn) =>
         
         fn(item, index, attr, sbID)
     }).setFilteredClass(net.minecraft.network.play.client.C09PacketHeldItemChange).unregister()
+)
+
+createCustomEvent(EventEnums.CLIENT.ARMORCHANGE, (fn, criteria) => 
+    register("packetSent", (packet) => {
+        if (Player.getPlayer().func_145782_y() !== packet.func_149389_d()) return
+        const item = packet.func_149390_c().serializeNBT().toObject()
+        
+        console.log(item)
+        // fn(item)
+    }).setFilteredClass(net.minecraft.network.play.server.S04PacketEntityEquipment).unregister()
 )
 
 // [Server]

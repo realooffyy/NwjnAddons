@@ -5,7 +5,6 @@ import ElementUtils from "../../DocGuiLib/core/Element"
 import HandleGui from "../../DocGuiLib/core/Gui"
 import { CenterConstraint, CramSiblingConstraint, ScrollComponent, UIRoundedRectangle, UIText, OutlineEffect } from "../../Elementa"
 import { addCommand } from "../utils/Command"
-import { data } from "../data/Data"
 import Settings from "../data/Settings"
 
 const guis = new Set()

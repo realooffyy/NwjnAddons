@@ -1,3 +1,4 @@
+import "./data/Data"
 import "./utils/Broadcasting"
 import "./utils/Command"
 import "./utils/Location"
@@ -9,6 +10,9 @@ import "./features/Combat/DamageTracker"
 import "./features/Combat/ReaperTimer"
 import "./features/Combat/RendArrows"
 import "./features/Combat/FatalTempo"
+
+import "./features/CrimsonIsle/LastMinibossKills"
+import "./features/CrimsonIsle/MagmaBossMessage"
 
 import "./features/Bestiary/MobHighlight"
 // import "./features/CrimsonIsle(Move)";

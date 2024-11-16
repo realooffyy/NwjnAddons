@@ -1,6 +1,6 @@
-import PogOject from "../../PogData/index.js";
+import PogObject from "../../PogData/index.js";
 
-export let data = new PogOject("NwjnAddons", {
+export const data = new PogObject("NwjnAddons", {
   "newUser": true,
   "newMsg": "",
 
@@ -30,4 +30,4 @@ export let data = new PogOject("NwjnAddons", {
     "scale": 1.5
   }
 }, "/data/.User.json");
-data.autosave(3)
+register("gameUnload", () => data.save())

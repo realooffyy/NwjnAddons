@@ -14,7 +14,6 @@ export default {
     TICK: idx++ // Server ticks
   },
   ENTITY: {
-    RENDER: idx++,
     JOINWORLD: idx++,
     SPAWNMOB: idx++,
     DEATH: idx++
@@ -23,7 +22,8 @@ export default {
     CHAT: idx++,
     COMMAND: idx++,
     SOUNDPLAY: idx++,
-    HELDITEMCHANGE: idx++
+    HELDITEMCHANGE: idx++,
+    ARMORCHANGE: idx++
   },
   SERVER: {
     CHAT: idx++,

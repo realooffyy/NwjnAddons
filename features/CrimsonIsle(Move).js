@@ -19,16 +19,3 @@
 // registerWhen(register("chat", () => {
 //   ChatLib.say(`/pc x: ${ ~~Player.getX() }, y: ${~~Player.getY()}, z: ${~~Player.getZ()} [NwjnAddons] Vanquisher!`)
 // }).setCriteria("A Vanquisher is spawning nearby!"), () => Settings().announceVanqs && Loc.inWorld("Crimson Isle"));
-
-// let totalDamage = 0
-// registerWhen(register("step", () => {
-//   const line = Scoreboard.getLines()?.find(l => l.getName().removeFormatting().includes("Boss: "))
-//   if (line) totalDamage = parseInt(line.toString().removeFormatting().replace(/[^0-9]/g, ""))
-// }).setDelay(5), () => Settings().magma && Loc.inWorld("Crimson Isle"))
-
-// registerWhen(register('chat', (damage, event) => {
-//   totalDamage = clamp(totalDamage + parseInt(damage), 0, 100)
-
-//   cancel(event)
-//   ChatLib.chat(`&4&lMagma Boss&r &8> &c+${ damage }% &7(${ totalDamage }%)`)
-// }).setCriteria("The Magma Boss angers! (+${damage}% Damage)"), () => Settings().magma && Loc.inWorld("Crimson Isle"))

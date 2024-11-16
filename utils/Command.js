@@ -11,11 +11,11 @@ let _commandList = {}
 export const addCommand = (name, description, onRun) => 
     _commandList[name.toLowerCase()] = {
         description,
-        chat: 
+        chat: () =>
             new TextComponent(`&a- ${name}&f: &b${description}`)
                 .setHover("show_text", `Click to run /nwjn ${name}`)
                 .setClick("run_command", `/nwjn ${name}`)
-                .chat,
+                .chat(),
         onRun
     }
 
