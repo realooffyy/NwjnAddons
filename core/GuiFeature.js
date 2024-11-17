@@ -7,6 +7,7 @@ import { CenterConstraint, CramSiblingConstraint, ScrollComponent, UIRoundedRect
 import { addCommand } from "../utils/Command"
 import Settings from "../data/Settings"
 
+const baseColor = [255, 255, 255, 255]
 const guis = new Set()
 
 export default class GuiFeature extends Feature {
@@ -37,6 +38,7 @@ export default class GuiFeature extends Feature {
         super({setting, worlds, zones})
 
         this.text = ""
+        this.name = name
         this._setData(name, dataObj)
         this._setGui(_command, baseText)
         this._setColor(color)
@@ -63,19 +65,19 @@ export default class GuiFeature extends Feature {
 
     
     _setColor(color) {
-        if (!color || !(color in Settings())) return this.color = [255, 255, 255, 255]
+        if (!color || !(color in Settings())) return this.color = baseColor
         
         this.color = Settings()[color]
         Settings().getConfig().registerListener(color, (_, val) => this.color = val)
     }
     
-    _draw(text, [r, g, b, a]) {
+    _draw(text, color) {
         if (!text) return
 
         Renderer.retainTransforms(true)
         Renderer.translate(this.data.x, this.data.y)
         Renderer.scale(this.data.scale)
-        Renderer.colorize(r, g, b, a)
+        Renderer.colorize(color[0], color[1], color[2], color[3])
         Renderer.drawStringWithShadow(text, 0, 0)
         Renderer.retainTransforms(false)
         Renderer.finishDraw()
@@ -141,7 +143,7 @@ addCommand("gui", "Opens the Editor Gui", () => {
         if (!buttons.has(gui.name)) new ButtonComponent(gui)
     })
 
-    handler.gui.open()
+    handler.ctGui.open()
 })
 
 handler._drawNormal(bgBox)

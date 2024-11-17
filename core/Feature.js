@@ -36,19 +36,14 @@ export default class Feature {
     /** @type Array.<[import("./Event").Event, () => Boolean]> */
     this.subEvents = []
 
-    this.activeFeature = false
+    this.isRegistered = false
 
     // Listeners
     this._onRegister = []
     this._onUnregister = []
 
-    // If setting exists get its value and register a listener
     this._setSetting(setting)
-
-    // If worlds are required register their listeners
     this._setWorlds(worlds)
-
-    // If zones are required register their listeners
     this._setZones(zones)
 
     // Init
@@ -73,8 +68,6 @@ export default class Feature {
     this.worlds = worlds
 
     Location.registerWorldChange(() => this._updateRegister())
-
-    return this
   }
 
   _setZones(zones) {
@@ -83,8 +76,6 @@ export default class Feature {
     this.zones = zones
 
     Location.registerZoneChange(() => this._updateRegister())
-
-    return this
   }
 
   /**
@@ -106,13 +97,13 @@ export default class Feature {
    * @returns {this} meth chain
    */
   _unregister() {
-    if (!this.activeFeature) return this
+    if (!this.isRegistered) return this
     
     for (let event of this.events) event.unregister()
     for (let subEvent of this.subEvents) subEvent[0].unregister()
     for (let listener of this._onUnregister) listener?.()
   
-    this.activeFeature = false
+    this.isRegistered = false
     return this
   }
 
@@ -123,12 +114,12 @@ export default class Feature {
    * @returns {this} meth chain
    */
   _register() {
-    if (this.activeFeature) return this
+    if (this.isRegistered) return this
     
     for (let event of this.events) event.register()
     for (let listener of this._onRegister) listener?.()
   
-    this.activeFeature = true
+    this.isRegistered = true
     return this
   }
 
