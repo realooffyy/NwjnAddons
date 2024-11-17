@@ -2,45 +2,51 @@
 import Settings from "../data/Settings"
 import { notify } from "../core/static/TextUtil"
 
-let _commandList = {}
+const _commands = new Map()
 /**
  * @param {String} name
  * @param {String} description
- * @param {(...args: String) () => void} onRun
+ * @param {?(...args: String) () => void} onRun
  */
-export const addCommand = (name, description, onRun) => 
-    _commandList[name.toLowerCase()] = {
-        description,
-        chat: () =>
-            new TextComponent(`&a- ${name}&f: &b${description}`)
-                .setHover("show_text", `Click to run /nwjn ${name}`)
-                .setClick("run_command", `/nwjn ${name}`)
-                .chat(),
+export const addCommand = (name, description, onRun) => {
+    description = new TextComponent(`&a- ${name}&f: &b${description}`)
+        .setHover("show_text", `Click to run /nwjn ${name}`)
+        .setClick("run_command", `/nwjn ${name}`)
+
+    _commands.set(name.toLowerCase(), {
+        chat: () => description.chat(),
         onRun
-    }
+    })
+}
 
 addCommand("help", "Shows this list")
 
 register("command", (...args) => {
     if (!args?.[0]) return Settings().getConfig().openGui()
+    const command = args.shift().toLowerCase()
 
-    if (args[0].toLowerCase() === "help") {
+    if (command === "help") {
         notify("&aCommand List")
-        return Object.keys(_commandList).forEach(key => _commandList[key].chat())
+        _commands.forEach(it => it.chat())
+
+        return
     }
 
-    const cmd = _commandList[args[0].toLowerCase()]
-    if (!cmd) return notify("&cInvalid command.")
+    const run = _commands.get(command)
+    if (!run) return notify("&cInvalid command.")
 
-    cmd.onRun?.(...args.slice(1)) 
+    run.onRun(...args) 
 })
     .setTabCompletions((arg) => {
         if (arg.length > 1) return []
-        const allCommands = Object.keys(_commandList)
+        const allCommands = _commands.keys()
+
         if (!arg?.[0]) return allCommands
 
         const curr = allCommands.find(it => it.startsWith(arg[0]?.toLowerCase()))
 
-        return curr ? [curr] : []
+        if (!curr) return []
+
+        return [curr]
     })
-    .setName("nwjn", true)
+    .setName("nwjn")

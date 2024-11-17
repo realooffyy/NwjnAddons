@@ -1,9 +1,9 @@
-import EntityUtil from "../../core/static/EntityUtil.js";
-import TextUtil, { log } from "../../core/static/TextUtil.js";
-import MathUtil from "../../core/static/MathUtil.js";
-import ItemUtil from "../../core/static/ItemUtil.js"
-import { addCommand } from "../../utils/Command.js";
-import Settings from "../../data/Settings.js";
+import EntityUtil from "../../core/static/EntityUtil";
+import TextUtil, { log } from "../../core/static/TextUtil";
+import MathUtil from "../../core/static/MathUtil";
+import ItemUtil from "../../core/static/ItemUtil"
+import { addCommand } from "../../utils/Command";
+import Settings from "../../data/Settings";
 
 register("command", () => ChatLib.command("nwjn clearChat", true)).setName("clearChat", true)
 addCommand(
