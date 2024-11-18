@@ -23,7 +23,7 @@ export default {
     COMMAND: idx++,
     SOUNDPLAY: idx++,
     HELDITEMCHANGE: idx++,
-    ARMORCHANGE: idx++
+    UPDATEINVENTORY: idx++
   },
   SERVER: {
     CHAT: idx++,

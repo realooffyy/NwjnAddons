@@ -91,14 +91,11 @@ createCustomEvent(EventEnums.CLIENT.HELDITEMCHANGE, (fn) =>
     }).setFilteredClass(net.minecraft.network.play.client.C09PacketHeldItemChange).unregister()
 )
 
-createCustomEvent(EventEnums.CLIENT.ARMORCHANGE, (fn, criteria) => 
-    register("packetSent", (packet) => {
-        if (Player.getPlayer().func_145782_y() !== packet.func_149389_d()) return
-        const item = packet.func_149390_c().serializeNBT().toObject()
-        
-        console.log(item)
-        // fn(item)
-    }).setFilteredClass(net.minecraft.network.play.server.S04PacketEntityEquipment).unregister()
+createCustomEvent(EventEnums.CLIENT.UPDATEINVENTORY, (fn) => 
+    register("packetReceived", (packet) => {
+        if (packet.func_149175_c() === 0) 
+            fn(packet.func_149174_e(), packet.func_149173_d())
+    }).setFilteredClass(net.minecraft.network.play.server.S2FPacketSetSlot).unregister()
 )
 
 // [Server]
