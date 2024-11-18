@@ -312,6 +312,14 @@ export default class RenderUtil {
     }
 
     static renderWaypoint(text, x, y, z, r, g, b, a, phase = true) {
+        const renderDist = Client.getSettings().settings.field_151451_c * 16
+        const distTo = Player.asPlayerMP().distanceTo(x, y, z)
+
+        if (distTo > renderDist) {
+            x /= distTo / renderDist
+            z /= distTo / renderDist
+        }
+
         const block = World.getBlockAt(x, y, z)
 
         this.outlineBlock(block, r, g, b, a, phase, 2)
@@ -352,7 +360,7 @@ export default class RenderUtil {
         const lText = text.addColor()
         
         const lScale = increase 
-            ? scale * 0.5 * (Math.sqrt(x**2 + y**2 + z**2) / 120) //increase up to 120 blocks away
+            ? scale * Math.sqrt(x**2 + y**2 + z**2) / 240
             : scale
         const xMulti = Client.getMinecraft().field_71474_y.field_74320_O == 2 ? -1 : 1; //perspective
         
@@ -361,8 +369,8 @@ export default class RenderUtil {
             .pushMatrix()
 
             .translate(x, y, z)
-            .rotate(-Renderer.getRenderManager().field_78735_i, 0, 1, 0)
-            .rotate(Renderer.getRenderManager().field_78732_j * xMulti, 1, 0, 0)
+            .rotate(rm.field_78732_j * xMulti, 1, 0, 0)
+            .rotate(-rm.field_78735_i, 0, 1, 0)
 
             .scale(-lScale, -lScale, lScale)
             .disableLighting()
