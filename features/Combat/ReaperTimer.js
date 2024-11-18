@@ -23,7 +23,7 @@ const ReaperOverlay = new GuiFeature({
             ) return
             
             addCountdown(
-                (ticks) => ReaperOverlay.text = `${prefix} ${ticks.toFixed(2)}s`, 
+                (ticks) => ReaperOverlay.text = ticks ? `${prefix} ${ticks.toFixed(2)}s` : null, 
                 secondsToTick(6)
             )
         }, "mob.zombie.remedy")
