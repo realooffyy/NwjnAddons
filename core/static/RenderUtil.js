@@ -312,7 +312,7 @@ export default class RenderUtil {
     }
 
     static renderWaypoint(text, x, y, z, r, g, b, a, phase = true) {
-        const renderDist = Client.getSettings().settings.field_151451_c * 16
+        const renderDist = Client.settings.video.getRenderDistance() << 4
         const distTo = Player.asPlayerMP().distanceTo(x, y, z)
 
         if (distTo > renderDist) {
@@ -329,7 +329,7 @@ export default class RenderUtil {
     }
     
     /**
-     * - Chattrigger's Tessellator.drawString() with depth check and multiline
+     * - Chattriggers' Tessellator.drawString() with depth check and multiline
      * - Renders floating lines of text in the 3D world at a specific position.
      *
      * @param {String} text The text to render
@@ -357,10 +357,8 @@ export default class RenderUtil {
     ) {
         ({ x, y, z } = Tessellator.getRenderPos(x, y, z))
         
-        const lText = text.addColor()
-        
         const lScale = increase 
-            ? scale * Math.sqrt(x**2 + y**2 + z**2) / 240
+            ? scale * Math.hypot(x, y, z) / (Client.settings.video.getRenderDistance() << 4)
             : scale
         const xMulti = Client.getMinecraft().field_71474_y.field_74320_O == 2 ? -1 : 1; //perspective
         
@@ -369,8 +367,8 @@ export default class RenderUtil {
             .pushMatrix()
 
             .translate(x, y, z)
-            .rotate(rm.field_78732_j * xMulti, 1, 0, 0)
             .rotate(-rm.field_78735_i, 0, 1, 0)
+            .rotate(rm.field_78732_j * xMulti, 1, 0, 0)
 
             .scale(-lScale, -lScale, lScale)
             .disableLighting()
@@ -382,7 +380,7 @@ export default class RenderUtil {
             .enableBlend()
             .blendFunc(770, 771)
             
-        const lines = lText.split("\n")
+        const lines = text.addColor().split("\n")
         const l = lines.length
         const maxWidth = Math.max(...lines.map(it => Renderer.getStringWidth(it))) / 2
 
