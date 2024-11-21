@@ -1,6 +1,7 @@
 import Feature from "../../core/Feature"
 import { Event } from "../../core/Event"
 import RenderUtil from "../../core/static/RenderUtil"
+import RenderHelper from "../../core/static/RenderHelper"
 import Settings from "../../data/Settings"
 
 new Feature({setting: "blockHighlight"})
@@ -13,6 +14,6 @@ new Feature({setting: "blockHighlight"})
       if (!target?.type) return
 
       const color = Settings().highlightColor
-      RenderUtil.outlineBlock(target, color[0], color[1], color[2], color[3], false, 3)
+      RenderUtil.drawOutlinedAABB(RenderHelper.getCTBlockAABB(target), color[0], color[1], color[2], color[3], false, 3)
     })
   )

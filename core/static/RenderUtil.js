@@ -12,12 +12,9 @@ const ResourceLocation = net.minecraft.util.ResourceLocation
 const MathHelper = net.minecraft.util.MathHelper
 const beaconBeam = new ResourceLocation("textures/entity/beacon_beam.png")
 const rm = Renderer.getRenderManager()
+import RenderHelper from "./RenderHelper"
 
 export default class RenderUtil {
-    static getCamRenderPos = () => [rm.field_78730_l, rm.field_78731_m, rm.field_78728_n]
-
-    static getDistanceToCam = (x, y, z) => rm.func_78714_a(x, y, z)
-
     /**
      * - Based off DocilElm
      * @param {net.minecraft.util.AxisAlignedBB} aabb 
@@ -28,9 +25,8 @@ export default class RenderUtil {
      * @param {Boolean} phase 
      * @param {Number} lineWidth 
      */
-    static drawOutlinedBox(aabb, r, g, b, a, phase = true, lineWidth = 3) {
-        const [realX, realY, realZ] = RenderUtil.getCamRenderPos()
-
+    static drawOutlinedAABB(aabb, r, g, b, a, phase = false, lineWidth = 3) {
+        const [rx, ry, rz] = RenderHelper.getRenderPos()
         Tessellator
             .pushMatrix()
             .disableTexture2D()
@@ -40,12 +36,12 @@ export default class RenderUtil {
 
         GL11.glLineWidth(lineWidth)
 
-        Tessellator.translate(-realX, -realY, -realZ)
+        Tessellator.translate(-rx, -ry, -rz)
         if (phase) Tessellator.disableDepth()
 
         RenderGlobal.func_181563_a(aabb, r, g, b, a) // drawOutlinedBoundingBox
 
-        Tessellator.translate(realX, realY, realZ)
+        Tessellator.translate(rx, ry, rz)
         if (phase) Tessellator.enableDepth()
 
         Tessellator
@@ -58,17 +54,28 @@ export default class RenderUtil {
         GL11.glLineWidth(2)
     }
 
-    static drawFilledBox(aabb, r, g, b, a, phase = true) {
-        const [ x0, y0, z0, x1, y1, z1 ] = [
-            aabb.field_72340_a, // Min X
-            aabb.field_72338_b, // Min Y
-            aabb.field_72339_c, // Min Z
-            aabb.field_72336_d, // Max X
-            aabb.field_72337_e, // Max Y
-            aabb.field_72334_f // Max Z
-        ]
+    /**
+     * @param {number} x X axis
+     * @param {number} y Y axis
+     * @param {number} z Z axis
+     * @param {number} w Width
+     * @param {number} h Height
+     * @param {number} r Red 0 - 255
+     * @param {number} g Green 0 - 255
+     * @param {number} b Blue 0 - 255
+     * @param {number} a Alpha 0 - 255
+     * @param {boolean} phase Whether to render the box through walls or not (`false` by default)
+     * @param {number} lineWidth The width of the line
+     */
+    static drawOutlinedBox(x, y, z, w, h, r, g, b, a, phase = false, lineWidth = 3) {
+        const aabb = RenderHelper.toAABB(x, y, z, w, h)
+        this.drawOutlinedAABB(aabb, r, g, b, a, phase, lineWidth)
+    }
+
+    static drawFilledAABB(aabb, r, g, b, a, phase = true) {
+        const [ x0, y0, z0, x1, y1, z1 ] = RenderHelper.getAxisCoords(aabb)
         
-        const [ realX, realY, realZ ] = this.getCamRenderPos()
+        const [ rx, ry, rz ] = RenderHelper.getRenderPos()
 
         Tessellator.pushMatrix()
         GlStateManager.func_179129_p()
@@ -78,7 +85,7 @@ export default class RenderUtil {
             .disableLighting()
             .disableAlpha()
             .tryBlendFuncSeparate(770, 771, 1, 0)
-            .translate(-realX, -realY, -realZ)
+            .translate(-rx, -ry, -rz)
         
         if (phase) Tessellator.disableDepth()
 
@@ -111,7 +118,7 @@ export default class RenderUtil {
         if (phase) Tessellator.enableDepth()
             
         Tessellator
-            .translate(realX, realY, realZ)
+            .translate(rx, ry, rz)
             .disableBlend()
             .enableAlpha()
             .enableTexture2D()
@@ -124,41 +131,25 @@ export default class RenderUtil {
     }
 
     /**
-     * - Draws an entity box with the given [x, y, z, w, h] values
      * @param {number} x X axis
      * @param {number} y Y axis
      * @param {number} z Z axis
      * @param {number} w Width
      * @param {number} h Height
-     * @param {number} r Red (`0` - `255`)
-     * @param {number} g Green (`0` - `255`)
-     * @param {number} b Blue (`0` - `255`)
-     * @param {number} a Alpha (`0` - `255`)
+     * @param {number} r Red 0 - 255
+     * @param {number} g Green 0 - 255
+     * @param {number} b Blue 0 - 255
+     * @param {number} a Alpha 0 - 255
      * @param {boolean} phase Whether to render the box through walls or not (`false` by default)
-     * @param {number} lineWidth The width of the line
-     * @param {boolean} translate Whether to translate the rendering coords to the [RenderViewEntity] coords (`true` by default)
      */
-    static drawEntityBox(x, y, z, w, h, r, g, b, a, lineWidth = 1, phase = false) {
-        if (x == null) return
-
-        const axis = new AxisAlignedBB(
-            x - w / 2,
-            y,
-            z - w / 2,
-            x + w / 2,
-            y + h,
-            z + w / 2
-        )
-
-        this.drawOutlinedBox(axis, r, g, b, a, phase, lineWidth)
+    static drawFilledBox(x, y, z, w, h, r, g, b, a, phase = false) {
+        const aabb = RenderHelper.toAABB(x, y, z, w, h)
+        this.drawFilledBox(aabb, r, g, b, a, phase)
     }
 
     /**
-     * - (mostly) Internal use.
-     * - Gets the [AxisAlignedBB] for the given [Block]
-     * - The same way mojang does it (kind of)
      * @param {Block} ctBlock
-     * @returns 
+     * @returns {AxisAlignedBB}
      */
     static getCTBlockAxis(ctBlock) {
         if (ctBlock.getState() != IBlockStateAir)
@@ -167,43 +158,6 @@ export default class RenderUtil {
         // getSelectedBoundingBox - func_180646_a
         return ctBlock.type.mcBlock.func_180646_a(World.getWorld(), ctBlock.pos.toMCBlock())
             .func_72314_b(0.002, 0.002, 0.002) // func_72314_b - expand
-    }
-
-    /**
-     * - Renders an outline like at the given [Block]
-     * - This is (mostly) [Mojang]'s code
-     * @param {Block} ctBlock
-     * @param {number} r Red (`0` - `255`)
-     * @param {number} g Green (`0` - `255`)
-     * @param {number} b Blue (`0` - `255`)
-     * @param {number} a Alpha (`0` - `255`)
-     * @param {boolean} phase Whether to render the filled block through walls or not (`true` by default)
-     * @param {number} lineWidth The width of the line to outline this block
-     * @param {boolean} translate Whether to translate the rendering coords to the [RenderViewEntity] coords (`true` by default)
-     * @returns
-     */
-    static outlineBlock(ctBlock, r, g, b, a, phase = true, lineWidth = 3) {
-        if (!ctBlock) return
-
-        this.drawOutlinedBox(this.getCTBlockAxis(ctBlock), r, g, b, a, phase, lineWidth)
-    }
-
-    /**
-     * - Renders a filled block like at the given [Block]
-     * @param {Block} ctBlock
-     * @param {number} r Red (`0` - `255`)
-     * @param {number} g Green (`0` - `255`)
-     * @param {number} b Blue (`0` - `255`)
-     * @param {number} a Alpha (`0` - `255`)
-     * @param {boolean} phase Whether to render the filled block through walls or not (`true` by default)
-     * @param {boolean} translate Whether to translate the rendering coords to the [RenderViewEntity] coords (`true` by default)
-     * @link Huge thanks to [Ch1ck3nNeedsRNG](https://github.com/PerseusPotter)
-     * @returns
-     */
-    static filledBlock(ctBlock, r, g, b, a, phase = true) {
-        if (!ctBlock) return
-
-        this.drawFilledBox(this.getCTBlockAxis(ctBlock), r, g, b, a, phase)
     }
 
     /**
@@ -310,22 +264,16 @@ export default class RenderUtil {
             .enableTexture2D()
             .popMatrix()
     }
+    
+    static renderWaypoint(text, x, y, z, r, g, b, a, phase = true, scale = 1) {
+        [x, y, z, scale] = RenderHelper.coerceToRenderDist(x, y, z)
 
-    static renderWaypoint(text, x, y, z, r, g, b, a, phase = true) {
-        const renderDist = Client.settings.video.getRenderDistance() << 4
-        const distTo = Player.asPlayerMP().distanceTo(x, y, z)
+        const aabb = RenderHelper.toAABB(x, y, z, 1, 1)
 
-        if (distTo > renderDist) {
-            x /= distTo / renderDist
-            z /= distTo / renderDist
-        }
-
-        const block = World.getBlockAt(x, y, z)
-
-        this.outlineBlock(block, r, g, b, a, phase, 2)
-        this.filledBlock(block, r, g, b, 50, phase)
-        this.drawString(text, x + 0.5, y + 3, z + 0.5)
-        this.renderBeaconBeam(x, y, z, r, g, b, 150, phase)
+        this.drawOutlinedAABB(aabb, r, g, b, a, phase, 2)
+        this.drawFilledAABB(aabb, r, g, b, 50, phase)
+        this.drawString(text, x, y + 3, z)
+        this.renderBeaconBeam(x + 0.5, y, z + 0.5, r, g, b, 150, phase)
     }
     
     /**
@@ -358,7 +306,7 @@ export default class RenderUtil {
         ({ x, y, z } = Tessellator.getRenderPos(x, y, z))
         
         const lScale = increase 
-            ? scale * Math.hypot(x, y, z) / (Client.settings.video.getRenderDistance() << 4)
+            ? scale * Math.hypot(x, y, z) / RenderHelper.getRenderDistanceBlocks()
             : scale
         const xMulti = Client.getMinecraft().field_71474_y.field_74320_O == 2 ? -1 : 1; //perspective
         
