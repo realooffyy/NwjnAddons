@@ -273,7 +273,7 @@ export default class RenderUtil {
         this.drawOutlinedAABB(aabb, r, g, b, a, phase, 2)
         this.drawFilledAABB(aabb, r, g, b, 50, phase)
         this.drawString(text, x, y + 3, z)
-        this.renderBeaconBeam(x + 0.5, y, z + 0.5, r, g, b, 150, phase)
+        this.renderBeaconBeam(x - 0.5, y, z - 0.5, r, g, b, 150, phase)
     }
     
     /**
@@ -304,6 +304,7 @@ export default class RenderUtil {
         depth = true
     ) {
         ({ x, y, z } = Tessellator.getRenderPos(x, y, z))
+        scale /= 2
         
         const lScale = increase 
             ? scale * Math.hypot(x, y, z) / RenderHelper.getRenderDistanceBlocks()
