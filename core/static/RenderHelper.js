@@ -1,23 +1,20 @@
 // Based off https://github.com/DocilElm/Doc/blob/main/shared/Render.js
 
 const AxisAlignedBB = net.minecraft.util.AxisAlignedBB
+const IBlockStateAir = new BlockType("minecraft:air").getDefaultState()
 const rm = Renderer.getRenderManager()
 
 export default class RenderUtil {
-    static getRenderX() {
-        return rm.renderPosX
+    static getYaw() {
+        return rm.field_78732_j
     }
 
-    static getRenderY() {
-        return rm.renderPosY
-    }
-
-    static getRenderZ() {
-        return rm.renderPosZ
+    static getPitch() {
+        return rm.field_78735_i
     }
 
     static getRenderPos() {
-        return [this.getRenderX(), this.getRenderY(), this.getRenderZ()]
+        return [rm.renderPosX, rm.renderPosY, rm.renderPosZ]
     }
     
     static getRenderDistanceBlocks() {
@@ -40,9 +37,9 @@ export default class RenderUtil {
     }
 
     static isAir(block) {
-        return block.type.getRegistryName() === "minecraft:air"
+        return block.getState() == IBlockStateAir
     }
-    
+
     static toAABB(x, y, z, w, h) {
         return new AxisAlignedBB(
             x - w / 2,
@@ -54,12 +51,17 @@ export default class RenderUtil {
         ).func_72314_b(0.002, 0.002, 0.002)
     }
 
-    static getCTBlockAABB(CTBlock) {
-        if (!this.isAir(CTBlock))
-            CTBlock.type.mcBlock.func_180654_a(World.getWorld(), CTBlock.pos.toMCBlock())
+    /** @param {Block} ctBlock*/
+    static getCTBlockAABB(ctBlock) {
+        const MCBlockPos = ctBlock.pos.toMCBlock()
+        const MCBlock = ctBlock.type.mcBlock
+        const MCWorldClient = World.getWorld()
+
+        if (!this.isAir(ctBlock))
+            MCBlock.func_180654_a(MCWorldClient, MCBlockPos)
 
         // getSelectedBoundingBox - func_180646_a
-        return CTBlock.type.mcBlock.func_180646_a(World.getWorld(), CTBlock.pos.toMCBlock())
+        return MCBlock.func_180646_a(MCWorldClient, MCBlockPos)
             .func_72314_b(0.002, 0.002, 0.002) // func_72314_b - expand
     }
 
@@ -75,8 +77,7 @@ export default class RenderUtil {
         return [
             rx + (x - rx) * scale,
             ry + (y - ry) * scale,
-            rz + (z - rz) * scale,
-            1 / scale
+            rz + (z - rz) * scale
         ]
     }
 }

@@ -1,17 +1,14 @@
 // Based off https://github.com/DocilElm/Doc/blob/main/shared/Render.js
 
-const AxisAlignedBB = net.minecraft.util.AxisAlignedBB
 const RenderGlobal = net.minecraft.client.renderer.RenderGlobal
 const MCTessellator = net.minecraft.client.renderer.Tessellator.func_178181_a()
 const DefaultVertexFormats = net.minecraft.client.renderer.vertex.DefaultVertexFormats
 const WorldRenderer = MCTessellator.func_178180_c()
-const IBlockStateAir = new BlockType("minecraft:air").getDefaultState()
 
 // From BeaconBeam module
 const ResourceLocation = net.minecraft.util.ResourceLocation
 const MathHelper = net.minecraft.util.MathHelper
 const beaconBeam = new ResourceLocation("textures/entity/beacon_beam.png")
-const rm = Renderer.getRenderManager()
 import RenderHelper from "./RenderHelper"
 
 export default class RenderUtil {
@@ -148,19 +145,6 @@ export default class RenderUtil {
     }
 
     /**
-     * @param {Block} ctBlock
-     * @returns {AxisAlignedBB}
-     */
-    static getCTBlockAxis(ctBlock) {
-        if (ctBlock.getState() != IBlockStateAir)
-            ctBlock.type.mcBlock.func_180654_a(World.getWorld(), ctBlock.pos.toMCBlock())
-
-        // getSelectedBoundingBox - func_180646_a
-        return ctBlock.type.mcBlock.func_180646_a(World.getWorld(), ctBlock.pos.toMCBlock())
-            .func_72314_b(0.002, 0.002, 0.002) // func_72314_b - expand
-    }
-
-    /**
      * - Draws a beacon beam
      * @param {number} x
      * @param {number} y
@@ -238,23 +222,24 @@ export default class RenderUtil {
         const d12 = -1 + d1
         const d13 = height + d12
 
+        const rA = a * 0.25
         WorldRenderer.func_181668_a(GL11.GL_QUADS, DefaultVertexFormats.field_181709_i)
-        WorldRenderer.func_181662_b(x + 0.2, y + height, z + 0.2).func_181673_a(1, d13).func_181666_a(r, g, b, 0.25 * a).func_181675_d()
+        WorldRenderer.func_181662_b(x + 0.2, y + height, z + 0.2).func_181673_a(1, d13).func_181666_a(r, g, b, rA).func_181675_d()
         WorldRenderer.func_181662_b(x + 0.2, y, z + 0.2).func_181673_a(1, d12).func_181666_a(r, g, b, 0.25).func_181675_d()
         WorldRenderer.func_181662_b(x + 0.8, y, z + 0.2).func_181673_a(0, d12).func_181666_a(r, g, b, 0.25).func_181675_d()
-        WorldRenderer.func_181662_b(x + 0.8, y + height, z + 0.2).func_181673_a(0, d13).func_181666_a(r, g, b, 0.25 * a).func_181675_d()
-        WorldRenderer.func_181662_b(x + 0.8, y + height, z + 0.8).func_181673_a(1, d13).func_181666_a(r, g, b, 0.25 * a).func_181675_d()
+        WorldRenderer.func_181662_b(x + 0.8, y + height, z + 0.2).func_181673_a(0, d13).func_181666_a(r, g, b, rA).func_181675_d()
+        WorldRenderer.func_181662_b(x + 0.8, y + height, z + 0.8).func_181673_a(1, d13).func_181666_a(r, g, b, rA).func_181675_d()
         WorldRenderer.func_181662_b(x + 0.8, y, z + 0.8).func_181673_a(1, d12).func_181666_a(r, g, b, 0.25).func_181675_d()
         WorldRenderer.func_181662_b(x + 0.2, y, z + 0.8).func_181673_a(0, d12).func_181666_a(r, g, b, 0.25).func_181675_d()
-        WorldRenderer.func_181662_b(x + 0.2, y + height, z + 0.8).func_181673_a(0, d13).func_181666_a(r, g, b, 0.25 * a).func_181675_d()
-        WorldRenderer.func_181662_b(x + 0.8, y + height, z + 0.2).func_181673_a(1, d13).func_181666_a(r, g, b, 0.25 * a).func_181675_d()
+        WorldRenderer.func_181662_b(x + 0.2, y + height, z + 0.8).func_181673_a(0, d13).func_181666_a(r, g, b, rA).func_181675_d()
+        WorldRenderer.func_181662_b(x + 0.8, y + height, z + 0.2).func_181673_a(1, d13).func_181666_a(r, g, b, rA).func_181675_d()
         WorldRenderer.func_181662_b(x + 0.8, y, z + 0.2).func_181673_a(1, d12).func_181666_a(r, g, b, 0.25).func_181675_d()
         WorldRenderer.func_181662_b(x + 0.8, y, z + 0.8).func_181673_a(0, d12).func_181666_a(r, g, b, 0.25).func_181675_d()
-        WorldRenderer.func_181662_b(x + 0.8, y + height, z + 0.8).func_181673_a(0, d13).func_181666_a(r, g, b, 0.25 * a).func_181675_d()
-        WorldRenderer.func_181662_b(x + 0.2, y + height, z + 0.8).func_181673_a(1, d13).func_181666_a(r, g, b, 0.25 * a).func_181675_d()
+        WorldRenderer.func_181662_b(x + 0.8, y + height, z + 0.8).func_181673_a(0, d13).func_181666_a(r, g, b, rA).func_181675_d()
+        WorldRenderer.func_181662_b(x + 0.2, y + height, z + 0.8).func_181673_a(1, d13).func_181666_a(r, g, b, rA).func_181675_d()
         WorldRenderer.func_181662_b(x + 0.2, y, z + 0.8).func_181673_a(1, d12).func_181666_a(r, g, b, 0.25).func_181675_d()
         WorldRenderer.func_181662_b(x + 0.2, y, z + 0.2).func_181673_a(0, d12).func_181666_a(r, g, b, 0.25).func_181675_d()
-        WorldRenderer.func_181662_b(x + 0.2, y + height, z + 0.2).func_181673_a(0, d13).func_181666_a(r, g, b, 0.25 * a).func_181675_d()
+        WorldRenderer.func_181662_b(x + 0.2, y + height, z + 0.2).func_181673_a(0, d13).func_181666_a(r, g, b, rA).func_181675_d()
         MCTessellator.func_78381_a()
 
         if (phase) Tessellator.enableDepth()
@@ -265,8 +250,8 @@ export default class RenderUtil {
             .popMatrix()
     }
     
-    static renderWaypoint(text, x, y, z, r, g, b, a, phase = true, scale = 1) {
-        [x, y, z, scale] = RenderHelper.coerceToRenderDist(x, y, z)
+    static renderWaypoint(text, x, y, z, r, g, b, a, phase = true) {
+        [x, y, z] = RenderHelper.coerceToRenderDist(x, y, z)
 
         const aabb = RenderHelper.toAABB(x, y, z, 1, 1)
 
@@ -286,8 +271,8 @@ export default class RenderUtil {
      * @param {Number} z Z coordinate in the game world
      * @param {Number} color the color of the text
      * @param {Boolean} renderBlackBox
-     * @param {Number} scale the scale of the text
-     * @param {Boolean} increase whether to scale the text up as the player moves away
+     * @param {Number} iScale the scale of the text
+     * @param {Boolean} autoScale whether to scale the text up as the player moves away
      * @param {Boolean} shadow whether to render shadow
      * @param {Boolean} depth whether to render through walls
      */
@@ -298,26 +283,25 @@ export default class RenderUtil {
         z,
         color = 0xffffff,
         renderBlackBox = true,
-        scale = 1,
-        increase = true,
+        iScale = 1,
+        autoScale = true,
         shadow = true,
         depth = true
     ) {
         ({ x, y, z } = Tessellator.getRenderPos(x, y, z))
-        scale /= 2
-        
-        const lScale = increase 
-            ? scale * Math.hypot(x, y, z) / RenderHelper.getRenderDistanceBlocks()
-            : scale
+        iScale /= 2
+
+        const lScale = autoScale 
+            ? iScale * Math.hypot(x, y, z) / RenderHelper.getRenderDistanceBlocks()
+            : iScale
         const xMulti = Client.getMinecraft().field_71474_y.field_74320_O == 2 ? -1 : 1; //perspective
         
         Tessellator
             .colorize(1, 1, 1, 0.5)
             .pushMatrix()
-
             .translate(x, y, z)
-            .rotate(-rm.field_78735_i, 0, 1, 0)
-            .rotate(rm.field_78732_j * xMulti, 1, 0, 0)
+            .rotate(-RenderHelper.getPitch(), 0, 1, 0)
+            .rotate(RenderHelper.getYaw() * xMulti, 1, 0, 0)
 
             .scale(-lScale, -lScale, lScale)
             .disableLighting()
@@ -329,24 +313,31 @@ export default class RenderUtil {
             .enableBlend()
             .blendFunc(770, 771)
             
-        const lines = text.addColor().split("\n")
-        const l = lines.length
-        const maxWidth = Math.max(...lines.map(it => Renderer.getStringWidth(it))) / 2
+        let maxWidth = 0
+        let l = 0
+        const lines = text.addColor().split("\n").map(it => {
+            const res = [it, -(Renderer.getStringWidth(it) / 2), l++ * 9]
+
+            maxWidth = Math.min(maxWidth, res[1])
+
+            return res
+        })
 
         if (renderBlackBox) {
             Tessellator.disableTexture2D()
             WorldRenderer.func_181668_a(7, DefaultVertexFormats.field_181706_f)
-            WorldRenderer.func_181662_b(-maxWidth - 1, -1 * l, 0).func_181666_a(0, 0, 0, 0.25).func_181675_d()
-            WorldRenderer.func_181662_b(-maxWidth - 1, 9 * l, 0).func_181666_a(0, 0, 0, 0.25).func_181675_d()
-            WorldRenderer.func_181662_b(maxWidth + 1, 9 * l, 0).func_181666_a(0, 0, 0, 0.25).func_181675_d()
-            WorldRenderer.func_181662_b(maxWidth + 1, -1 * l, 0).func_181666_a(0, 0, 0, 0.25).func_181675_d()
+            WorldRenderer.func_181662_b(maxWidth - 1, -1 * l, 0).func_181666_a(0, 0, 0, 0.25).func_181675_d()
+            WorldRenderer.func_181662_b(maxWidth - 1, 9 * l, 0).func_181666_a(0, 0, 0, 0.25).func_181675_d()
+            WorldRenderer.func_181662_b(-maxWidth + 1, 9 * l, 0).func_181666_a(0, 0, 0, 0.25).func_181675_d()
+            WorldRenderer.func_181662_b(-maxWidth + 1, -1 * l, 0).func_181666_a(0, 0, 0, 0.25).func_181675_d()
             MCTessellator.func_78381_a()
             Tessellator.enableTexture2D()
         }
 
-        lines.forEach((it, idx) => {
-            Renderer.getFontRenderer().func_175065_a(it, -Renderer.getStringWidth(it) / 2, idx * 9, color, shadow)
-        })
+        const fr = Renderer.getFontRenderer()
+        lines.forEach(([it, width, height]) => 
+            fr.func_175065_a(it, width, height, color, shadow)
+        )
 
         Tessellator
             .colorize(1, 1, 1, 1)
