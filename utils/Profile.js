@@ -27,12 +27,12 @@ new Event(EventList.ContainerClick, (window) => {
         const lore = Player.getContainer()?.getStackInSlot(4)?.getLore()?.join("\n")?.removeFormatting()
         if (!lore) return
 
-        const tuning = TextUtil.getMatches(/\+(\d+.)/g, lore)
+        const tuning = lore.match(/\+(\d+.) /g)
         data.tuning = tuning?.join(" ") ?? "Unknown"
 
         const [magPow] = TextUtil.getMatches(/Magical Power: (.+)/, lore)
         data.mp = magPow ?? "Unknown"
-    })
+    }, 2)
 }).setAlwaysActive()
 
 // Credit: DocilElm for blacklist
