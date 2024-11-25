@@ -57,9 +57,9 @@ export default new class Location {
   }
 
   constructor() {
-    new Event(EventList.TabAdd, (world) => this._triggerWorldEvents(world), /^(?:Area|Dungeon): (.+)$/).register()
-    new Event(EventList.SidebarChange, (zone) => this._triggerZoneEvents(zone), /^ [⏣ф] (.+)$/).register()
-    new Event("worldUnload", () => this._triggerWorldEvents(null)._triggerZoneEvents(null)).register()
+    new Event(EventList.TabAdd, (world) => this._triggerWorldEvents(world), /^(?:Area|Dungeon): (.+)$/).setAlwaysActive()
+    new Event(EventList.SidebarChange, (zone) => this._triggerZoneEvents(zone), /^ [⏣ф] (.+)$/).setAlwaysActive()
+    new Event("worldUnload", () => this._triggerWorldEvents(null)._triggerZoneEvents(null)).setAlwaysActive()
 
     // Ct reload case
     if (World.isLoaded()) {
