@@ -1,12 +1,12 @@
 import Feature from "../../core/Feature";
 import { Event } from "../../core/Event";
-import EventEnums from "../../core/EventEnums";
+import EventList from "../../libs/CustomEventFactory/EventList";
 import { scheduleTask } from "../../utils/Ticker";
 import EntityUtil from "../../core/static/EntityUtil";
 
 new Feature({setting: "deathAnimation"})
   .addEvent(
-    new Event(EventEnums.ENTITY.DEATH, (_, mcEntity) => {
+    new Event(EventList.EntityDeath, (_, mcEntity) => {
       mcEntity.func_70106_y() // setDead
       
       scheduleTask(() => 

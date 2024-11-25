@@ -1,5 +1,5 @@
 import GuiFeature from "../../core/GuiFeature";
-import EventEnums from "../../core/EventEnums";
+import EventList from "../../libs/CustomEventFactory/EventList";
 import { Event } from "../../core/Event";
 import ItemUtil from "../../core/static/ItemUtil";
 import { data } from "../../data/Data";
@@ -15,7 +15,7 @@ const ReaperOverlay = new GuiFeature({
     _command: "nwjnReaper"
 })
     .addEvent(
-        new Event(EventEnums.CLIENT.SOUNDPLAY, () => {
+        new Event(EventList.WorldSound, () => {
             if (
                 ItemUtil.getSkyblockItemID(Player.armor.getChestplate())
                 !==

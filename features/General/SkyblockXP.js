@@ -1,4 +1,4 @@
-import EventEnums from "../../core/EventEnums";
+import EventList from "../../libs/CustomEventFactory/EventList";
 import Feature from "../../core/Feature";
 import { Event } from "../../core/Event";
 import { log } from "../../core/static/TextUtil";
@@ -6,7 +6,7 @@ import { log } from "../../core/static/TextUtil";
 let lastbar = [Date.now(), ""]
 new Feature({setting: "skyblockXP"})
   .addEvent(
-    new Event(EventEnums.SERVER.ACTIONBAR, (xp, category, progress) => {
+    new Event(EventList.ServerChat, (xp, category, progress) => {
       const msg = `§b${xp} §7${category} §b${progress}`
       if (Date.now() - lastbar[0] < 5000 && msg == lastbar[1]) return
       lastbar = [Date.now(), msg]

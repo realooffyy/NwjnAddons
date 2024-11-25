@@ -1,8 +1,8 @@
-import Feature from "../../core/Feature.js";
-import EventEnums from "../../core/EventEnums.js";
-import { Event } from "../../core/Event.js";
-import { notify } from "../../core/static/TextUtil.js";
-import RenderUtil from "../../core/static/RenderUtil.js"
+import Feature from "../../core/Feature";
+import EventList from "../../libs/CustomEventFactory/EventList";
+import { Event } from "../../core/Event";
+import { notify } from "../../core/static/TextUtil";
+import RenderUtil from "../../core/static/RenderUtil"
 
 const data = JSON.parse(FileLib.read("NwjnAddons", "features/Mining/MineshaftWaypointsData.json"))
 let currentCorpses = []
@@ -15,7 +15,7 @@ const feat = new Feature({
     // Does not use Mineshaft as world because the scoreboard check is always triggered before it
 })
     .addEvent(
-        new Event(EventEnums.SERVER.SCOREBOARD, (id, material, type) => {
+        new Event(EventList.SidebarChange, (id, material, type) => {
             if (currentRoom) return
             if (type != 2 && !(id in data.rooms)) return
 
@@ -41,10 +41,10 @@ const feat = new Feature({
         }, / (([A-Z]{4})(1|2))$/)
     )
     .addSubEvent(
-        new Event(EventEnums.INTERVAL.FPS, () => {
+        new Event(EventList.Interval, () => {
             const canDelete = currentCorpses.findIndex(([x, y, z]) => Player.asPlayerMP().distanceTo(x, y, z) > 5)
             if (~canDelete) return currentCorpses.splice(canDelete, 1)
-        }, 3),
+        }, 1 / 3),
         () => currentRoom
     )
     .addSubEvent(

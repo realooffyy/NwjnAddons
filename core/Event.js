@@ -5,17 +5,17 @@
  * @credit https://github.com/DocilElm/Doc/blob/main/core/Event.js
  */
 
-import { customTriggers } from "./CustomRegisters"
+import { registerMap } from "../libs/CustomEventFactory/Registers"
 
 export class Event {
     // Custom triggers are number enums
-    static _createRegisterCustom = (type, onTrigger, args) => customTriggers.get(type)(onTrigger, args).unregister()
+    static _createRegisterCustom = (type, onTrigger, args) => registerMap.get(type)(onTrigger, args).unregister()
 
     static _createRegisterNormal = (type, onTrigger) => register(type, onTrigger).unregister()
 
     /**
      * Register Handler for events
-     * @param {Number|String|net.minecraftforge.fml.common.eventhandler.Event} type 
+     * @param {Number|String|JavaTPath["net.minecraftforge.fml.common.eventhandler.Event"]} type 
      * @param {(...args) => void} onTrigger 
      * @param {any?} args
      */
@@ -26,8 +26,14 @@ export class Event {
             : Event._createRegisterNormal(type, onTrigger)
             
         this.isRegistered = false
-            
-        if (!this._event) throw new Error("Improper Event Formatting")
+    }
+
+    setAlwaysActive() {
+        const event = this._event.register()
+
+        delete this
+
+        return event
     }
 
     /**

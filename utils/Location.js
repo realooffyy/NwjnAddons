@@ -6,7 +6,7 @@
  */
 
 import { Event } from "../core/Event"
-import EventEnums from "../core/EventEnums"
+import EventList from "../libs/CustomEventFactory/EventList"
 import TextUtil from "../core/static/TextUtil"
 
 export default new class Location {
@@ -57,8 +57,8 @@ export default new class Location {
   }
 
   constructor() {
-    new Event(EventEnums.SERVER.TABADD, (world) => this._triggerWorldEvents(world), /^(?:Area|Dungeon): (.+)$/).register()
-    new Event(EventEnums.SERVER.SCOREBOARD, (zone) => this._triggerZoneEvents(zone), /^ [⏣ф] (.+)$/).register()
+    new Event(EventList.TabAdd, (world) => this._triggerWorldEvents(world), /^(?:Area|Dungeon): (.+)$/).register()
+    new Event(EventList.SidebarChange, (zone) => this._triggerZoneEvents(zone), /^ [⏣ф] (.+)$/).register()
     new Event("worldUnload", () => this._triggerWorldEvents(null)._triggerZoneEvents(null)).register()
 
     // Ct reload case

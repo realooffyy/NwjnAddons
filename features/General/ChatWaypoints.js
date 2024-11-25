@@ -1,6 +1,6 @@
 import Feature from "../../core/Feature";
 import { Event } from "../../core/Event";
-import EventEnums from "../../core/EventEnums";
+import EventList from "../../libs/CustomEventFactory/EventList";
 import { scheduleTask, secondsToTick } from "../../utils/Ticker";
 import RenderUtil from "../../core/static/RenderUtil";
 import TextUtil from "../../core/static/TextUtil";
@@ -19,7 +19,7 @@ const waypoints = new Map()
 
 const feat = new Feature({setting: "waypoint"})
   .addEvent(
-    new Event(EventEnums.SERVER.CHAT, (displayName, x, y, z, text = "", event, formatted) => {
+    new Event(EventList.ServerChat, (displayName, x, y, z, text = "", event, formatted) => {
       const ign = TextUtil.getSenderName(displayName).toLowerCase()
       
       if (data.blacklist.includes(ign)) return TextUtil.append(event.func_148915_c(), "§cBlacklisted")

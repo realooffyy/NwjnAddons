@@ -1,5 +1,5 @@
 import { Event } from "../../core/Event"
-import EventEnums from "../../core/EventEnums"
+import EventList from "../../libs/CustomEventFactory/EventList";
 import { data } from "../../data/Data";
 import GuiFeature from "../../core/GuiFeature"
 
@@ -22,7 +22,7 @@ const MinibossOverlay = new GuiFeature({
     _command: "nwjnMini"
 })
     .addEvent(
-        new Event(EventEnums.SERVER.CHAT, (miniboss) => {
+        new Event(EventList.ServerChat, (miniboss) => {
             const name = EnumMinibosses[miniboss]
             if (!name) return
 

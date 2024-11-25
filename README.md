@@ -23,6 +23,10 @@ The NwjnAddons discord will allow users to participate in polls and give suggest
 1. Mob Highlight -> https://github.com/nwjn/NwjnAddons/wiki/Bestiary-Entries
 
 ## Credits:
-Lots of help and functions from:
-1. DocileElm's "Doc" https://github.com/DocilElm/Doc (Core and Utils)
+1. DocilElm's "Doc" https://github.com/DocilElm/Doc (Core and Utils)
+    * Original maker of the mod Core and most of the Utils
+    * Also has helped this module through dependent libraries such as Amaterasu
+
 2. AllenZheng's "Volcaddons" https://github.com/zhenga8533/VolcAddons (Starting inspo)
+    * Took a lot of inspo when I was starting out
+    * Good friend who indirectly helped motivate me for this project

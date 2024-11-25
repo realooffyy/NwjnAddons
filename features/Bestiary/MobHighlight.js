@@ -6,7 +6,7 @@ import MathUtil from "../../core/static/MathUtil"
 import EntityUtil from "../../core/static/EntityUtil"
 import RenderUtil from "../../core/static/RenderUtil"
 import Feature from "../../core/Feature"
-import EventEnums from "../../core/EventEnums"
+import EventList from "../../libs/CustomEventFactory/EventList"
 import { Event } from "../../core/Event"
 import { notify } from "../../core/static/TextUtil"
 import Settings from "../../data/Settings"
@@ -27,6 +27,7 @@ function getClassOfEntity(name, index = 0) {
   }
 }
 
+// change to weakhashmap
 const mobsHighlight = new HashMap()
 /**
  * @see https://github.com/nwjn/NwjnAddons/wiki/Bestiary-Entries
@@ -59,7 +60,7 @@ Settings().getConfig().onCloseGui(setMobHighlight)
 const renderThese = new HashMap()
 const feat = new Feature({setting: "mobList"})
   .addEvent(
-    new Event(EventEnums.INTERVAL.FPS, () => {
+    new Event(EventList.Interval, () => {
       renderThese.clear()
 
       mobsHighlight.forEach((clazz, hps) => {
@@ -69,19 +70,20 @@ const feat = new Feature({setting: "mobList"})
       })
 
       feat.update()
-    }, 2)
+    }, 1 / 2)
   )
   .addSubEvent(
     new Event("renderWorld", () => {
       const color = Settings().mobHighlightColor
       renderThese.forEach((_, it) => 
-        RenderUtil.drawEntityBox(it.getRenderX(), it.getRenderY(), it.getRenderZ(), it.getWidth(), it.getHeight(), color[0], color[1], color[2], color[3], 2, true)
+        RenderUtil.drawOutlinedBox(it.getRenderX(), it.getRenderY(), it.getRenderZ(), it.getWidth(), it.getHeight(), color[0], color[1], color[2], color[3], true, 2)
       )
     }),
     () => !renderThese.isEmpty()
   )
   .addSubEvent(
-    new Event(EventEnums.ENTITY.DEATH, (_, mcEntity) => {
+    // remove this after weakhashmap
+    new Event(EventList.EntityDeath, (_, mcEntity) => {
       renderThese.remove(mcEntity.func_145782_y())
     }),
     () => !renderThese.isEmpty()

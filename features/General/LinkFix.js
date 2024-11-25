@@ -2,26 +2,23 @@
 import StuffysCipher from "../../core/static/StuffysCipher";
 import TextUtil from "../../core/static/TextUtil";
 import Feature from "../../core/Feature";
-import EventEnums from "../../core/EventEnums";
+import EventList from "../../libs/CustomEventFactory/EventList";
 import { Event } from "../../core/Event";
 
 
 new Feature({setting: "linkFix"})
   .addEvent(
-    new Event("messageSent", (msg, event) => {
-      try {
-        const [url] = TextUtil.getMatches(/([a-z\d]{2,}:\/\/[-\w.]+\.[a-z]{2,}(?:\d{1,5})?(?:\S*)?(?:\.\S+)?(?=[!"\S\n]|$))/, msg)
-        if (!url) return
-  
-        cancel(event)
-        ChatLib.say(
-          msg.replace(url, StuffysCipher.encode(url))
-        )
-      } catch (err) {}
-    })
+    new Event(EventList.MessageSent, (msg, event) => {
+      cancel(event)
+
+      
+      ChatLib.say(
+        msg.replace(msg, StuffysCipher.encode(msg))
+      )
+    }, /([a-z\d]{2,}:\/\/[-\w.]+\.[a-z]{2,}(?:\d{1,5})?(?:\S*)?(?:\.\S+)?(?=[!"\S\n]|$))/)
   )
   .addEvent(
-    new Event(EventEnums.SERVER.CHAT, (url, _, __, component) => {
+    new Event(EventList.ServerChat, (url, _, __, component) => {
       try {
         const decoded = StuffysCipher.decode(url)
 

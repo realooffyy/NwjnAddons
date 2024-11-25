@@ -1,4 +1,4 @@
-import EventEnums from "../../core/EventEnums";
+import EventList from "../../libs/CustomEventFactory/EventList";
 import { Event } from "../../core/Event";
 import MathUtil from "../../core/static/MathUtil";
 import GuiFeature from "../../core/GuiFeature";
@@ -13,7 +13,7 @@ const clock = new GuiFeature({
   _command: "nwjnClock"
 })
   .addEvent(
-    new Event(EventEnums.INTERVAL.SECONDS, () => 
+    new Event(EventList.Interval, () => {
       clock.text = MathUtil.getTime()
-    )
+    }, 1)
   )

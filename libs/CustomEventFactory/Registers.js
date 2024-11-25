@@ -5,101 +5,63 @@
  * @credit https://github.com/DocilElm/Doc/blob/main/core/CustomRegisters.js
  */
 
-import { scheduleTask } from "../utils/Ticker";
-import TextUtil from "./static/TextUtil";
-import ItemUtil from "./static/ItemUtil"
-import EventEnums from "./EventEnums"
+import { scheduleTask } from "../../utils/Ticker"
+import TextUtil from "../../core/static/TextUtil"
+import ItemUtil from "../../core/static/ItemUtil"
+import EventList from "./EventList";
 
-export const customTriggers = new Map()
+export const registerMap = new Map()
 
-const createCustomEvent = (id, invokeFn) => customTriggers.set(id, invokeFn)
+const createEvent = (id, invokeFn) => registerMap.set(id, invokeFn)
 
 // Constant used to get the packet's ENUMS
 // and also filter the class in packetReceived event
 const S38PacketPlayerListItem = net.minecraft.network.play.server.S38PacketPlayerListItem
 
-// [Interval]
-createCustomEvent(EventEnums.INTERVAL.FPS, (fn, fps = 3) => register("step", fn).setFps(fps).unregister())
+createEvent(EventList.Interval, (fn, interval) => {
+    const reg = register("step", fn)
 
-createCustomEvent(EventEnums.INTERVAL.SECONDS, (fn, sec = 1) => register("step", fn).setDelay(sec).unregister())
+    if (interval >= 1) reg.setDelay(interval)
+    return reg.setFps(1 / interval)
+})
 
-createCustomEvent(EventEnums.INTERVAL.TICK, (fn) =>
+createEvent(EventList.ServerTick, (fn) =>
     register("packetReceived", (packet) => {
         if (packet.func_148890_d() <= 0) fn()
-    }).setFilteredClass(net.minecraft.network.play.server.S32PacketConfirmTransaction).unregister()
+    }).setFilteredClass(net.minecraft.network.play.server.S32PacketConfirmTransaction)
 )
 
-// [Entity]
-
-createCustomEvent(EventEnums.ENTITY.JOINWORLD, (fn, clazz) => 
-    // Credits: https://github.com/BetterMap/BetterMap/blob/main/Extra/Events/SecretTracker.js
+createEvent(EventList.EntityLoad, (fn, clazz) => 
     register(net.minecraftforge.event.entity.EntityJoinWorldEvent, (event) => {
-        if (!(event.entity instanceof clazz)) return
-    
         const entity = event.entity
+        if (clazz && !(entity instanceof clazz)) return
+    
         const entityID = entity.func_145782_y()
         fn(entity, entityID)
-    }).unregister()
+    })
 )
 
-createCustomEvent(EventEnums.ENTITY.SPAWNMOB, (fn, clazz) =>
+createEvent(EventList.SpawnMob, (fn, clazz) =>
     register("packetReceived", (packet) => {
         scheduleTask(() => {
             const entityID = packet.func_149024_d()
             const entity = World.getWorld().func_73045_a(entityID)
-            if (!(entity instanceof clazz)) return
+            if (clazz && !(entity instanceof clazz)) return
 
             fn(entity, entityID)
         })
-    }).setFilteredClass(net.minecraft.network.play.server.S0FPacketSpawnMob).unregister()
+    }).setFilteredClass(net.minecraft.network.play.server.S0FPacketSpawnMob)
 )
 
-createCustomEvent(EventEnums.ENTITY.DEATH, (fn, clazz) =>
+createEvent(EventList.EntityDeath, (fn, clazz) =>
     register("entityDeath", (entity) => {
         if (clazz && !(entity.entity instanceof clazz)) return
 
         fn(entity, entity.entity)
-    }).unregister()
+    })
 )
 
-// [Client]
-createCustomEvent(EventEnums.CLIENT.CHAT, (fn, criteria = "") => register("chat", fn).setCriteria(criteria).unregister())
-
-createCustomEvent(EventEnums.CLIENT.COMMAND, (fn, name) => register("command", fn).setName(name).unregister())
-
-createCustomEvent(EventEnums.CLIENT.SOUNDPLAY, (fn, criteria) => 
-    register("packetReceived", (packet, event) => {
-        if (packet.func_149212_c()/*getSoundName*/ !== criteria) return
-
-        const pitch = packet.func_149209_h()
-        const volume = packet.func_149208_g()
-        
-        fn(pitch, volume, event)
-    }).setFilteredClass(net.minecraft.network.play.server.S29PacketSoundEffect).unregister()
-)
-
-createCustomEvent(EventEnums.CLIENT.HELDITEMCHANGE, (fn) => 
-    register("packetSent", (packet) => {
-        const item = Player.getHeldItem()
-        if (!item) return fn()
-
-        const index = packet.func_149614_c()
-        const attr = ItemUtil.getExtraAttribute(item)
-        const sbID = ItemUtil.getSkyblockItemID(item)
-        
-        fn(item, index, attr, sbID)
-    }).setFilteredClass(net.minecraft.network.play.client.C09PacketHeldItemChange).unregister()
-)
-
-createCustomEvent(EventEnums.CLIENT.UPDATEINVENTORY, (fn) => 
-    register("packetReceived", (packet) => {
-        if (packet.func_149175_c() === 0) 
-            fn(packet.func_149174_e(), packet.func_149173_d())
-    }).setFilteredClass(net.minecraft.network.play.server.S2FPacketSetSlot).unregister()
-)
-
-// [Server]
-createCustomEvent(EventEnums.SERVER.CHAT, (fn, criteria = "") => 
+createEvent(EventList.ServerChat, (fn, criteria = "") => 
     register("packetReceived", (packet, event) => {
         // Check if the packet is for the actionbar
         if (packet.func_148916_d()) return
@@ -111,10 +73,16 @@ createCustomEvent(EventEnums.SERVER.CHAT, (fn, criteria = "") =>
         if (!unformatted) return
         
         TextUtil.matchesCriteria(fn, criteria, unformatted, event, formatted, chatComponent)
-    }).setFilteredClass(net.minecraft.network.play.server.S02PacketChat).unregister()
+    }).setFilteredClass(net.minecraft.network.play.server.S02PacketChat)
 )
 
-createCustomEvent(EventEnums.SERVER.ACTIONBAR, (fn, criteria) => 
+createEvent(EventList.MessageSent, (fn, criteria) => 
+    register("messageSent", (msg, event) => {
+        TextUtil.matchesCriteria(fn, criteria, msg, event)
+    })
+)
+
+createEvent(EventList.ActionBarChange, (fn, criteria) => 
     register("packetReceived", (packet, event) => {
         // Check if the packet is for the actionbar
         if (!packet.func_148916_d()) return
@@ -126,10 +94,10 @@ createCustomEvent(EventEnums.SERVER.ACTIONBAR, (fn, criteria) =>
         if (!unformatted) return
         
         TextUtil.matchesCriteria(fn, criteria, unformatted, event, formatted)
-    }).setFilteredClass(net.minecraft.network.play.server.S02PacketChat).unregister()
+    }).setFilteredClass(net.minecraft.network.play.server.S02PacketChat)
 )
 
-createCustomEvent(EventEnums.SERVER.SCOREBOARD, (fn, criteria) => 
+createEvent(EventList.SidebarChange, (fn, criteria) => 
     register("packetReceived", (packet, event) => {
         const channel = packet.func_149307_h()
 
@@ -146,10 +114,10 @@ createCustomEvent(EventEnums.SERVER.SCOREBOARD, (fn, criteria) =>
         if (!unformatted) return
         
         TextUtil.matchesCriteria(fn, criteria, unformatted, event, formatted)
-    }).setFilteredClass(net.minecraft.network.play.server.S3EPacketTeams).unregister()
+    }).setFilteredClass(net.minecraft.network.play.server.S3EPacketTeams)
 )
 
-createCustomEvent(EventEnums.SERVER.TABUPDATE, (fn, criteria) => 
+createEvent(EventList.TabUpdate, (fn, criteria) => 
     register("packetReceived", (packet, event) => {
         const players = packet.func_179767_a() // .getPlayers()
         const action = packet.func_179768_b() // .getAction()
@@ -168,10 +136,10 @@ createCustomEvent(EventEnums.SERVER.TABUPDATE, (fn, criteria) =>
 
             TextUtil.matchesCriteria(fn, criteria, unformatted, event, formatted)
         })
-    }).setFilteredClass(S38PacketPlayerListItem).unregister()
+    }).setFilteredClass(S38PacketPlayerListItem)
 )
 
-createCustomEvent(EventEnums.SERVER.TABADD, (fn, criteria) => 
+createEvent(EventList.TabAdd, (fn, criteria) => 
     register("packetReceived", (packet, event) => {
         const players = packet.func_179767_a() // .getPlayers()
         const action = packet.func_179768_b() // .getAction()
@@ -189,11 +157,37 @@ createCustomEvent(EventEnums.SERVER.TABADD, (fn, criteria) =>
 
             TextUtil.matchesCriteria(fn, criteria, unformatted, event, formatted)
         })
-    }).setFilteredClass(S38PacketPlayerListItem).unregister()
+    }).setFilteredClass(S38PacketPlayerListItem)
 )
 
-// [Window]
-createCustomEvent(EventEnums.WINDOW.OPEN, (fn) => 
+createEvent(EventList.WorldSound, (fn, criteria) => 
+    register("packetReceived", (packet, event) => {
+        const name = packet.func_149212_c()
+
+        TextUtil.matchesCriteria(fn, criteria, name, event)
+    }).setFilteredClass(net.minecraft.network.play.server.S29PacketSoundEffect)
+)
+
+createEvent(EventList.HeldItemChange, (fn) => 
+    register("packetSent", (packet) => {
+        const item = Player.getHeldItem()
+        if (!item) return fn()
+
+        const index = packet.func_149614_c()
+        const attr = ItemUtil.getExtraAttribute(item)
+        const sbID = ItemUtil.getSkyblockItemID(item)
+        
+        fn(item, index, attr, sbID)
+    }).setFilteredClass(net.minecraft.network.play.client.C09PacketHeldItemChange)
+)
+
+createEvent(EventList.InventoryUpdate, (fn) => 
+    register("packetReceived", (packet) => {
+        if (packet.func_149175_c() === 0) fn(packet.func_149174_e(), packet.func_149173_d())
+    }).setFilteredClass(net.minecraft.network.play.server.S2FPacketSetSlot)
+)
+
+createEvent(EventList.OpenContainer, (fn) => 
     register("packetReceived", (packet) => {
         const windowTitle = packet.func_179840_c().func_150254_d().removeFormatting()
         const windowID = packet.func_148901_c()
@@ -203,18 +197,18 @@ createCustomEvent(EventEnums.WINDOW.OPEN, (fn) =>
         const entityID = packet.func_148897_h()
     
         fn(windowTitle, windowID, hasSlots, slotCount, guiID, entityID)
-    }).setFilteredClass(net.minecraft.network.play.server.S2DPacketOpenWindow).unregister()
+    }).setFilteredClass(net.minecraft.network.play.server.S2DPacketOpenWindow)
 )
 
-createCustomEvent(EventEnums.WINDOW.CLOSE, (fn) => 
+createEvent(EventList.CloseContainer, (fn) => 
     register("guiClosed", (screen) => {
         if (screen instanceof net.minecraft.client.gui.inventory.GuiContainer) fn(screen)
-    }).unregister()
+    })
 )
 
-createCustomEvent(EventEnums.WINDOW.CLICK, (fn) => 
+createEvent(EventList.ContainerClick, (fn) => 
     register("packetSent", (packet) => {
         // Container name, Slot clicked
         fn(Player.getContainer().getName(), packet.func_149544_d())
-    }).setFilteredClass(net.minecraft.network.play.client.C0EPacketClickWindow).unregister()
+    }).setFilteredClass(net.minecraft.network.play.client.C0EPacketClickWindow)
 )

@@ -1,7 +1,6 @@
 import Feature from "../../core/Feature";
 import { Event } from "../../core/Event";
-import EventEnums from "../../core/EventEnums";
-import { scheduleTask } from "../../utils/Ticker";
+import EventList from "../../libs/CustomEventFactory/EventList";
 
 const options = [
   ["fallingBlocks", net.minecraft.entity.item.EntityFallingBlock],
@@ -13,8 +12,8 @@ const options = [
 options.forEach(([setting, clazz]) => {
   new Feature({setting})
     .addEvent(
-      new Event(EventEnums.ENTITY.JOINWORLD, (entity) => {
-        scheduleTask(() => entity.func_70106_y())
+      new Event(EventList.EntityLoad, (entity) => {
+        entity.func_70106_y()
       }, clazz)
     )
 })

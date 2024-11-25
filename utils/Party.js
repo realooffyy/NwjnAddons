@@ -1,5 +1,5 @@
 // Credit: BloomCore
-import EventEnums from "../core/EventEnums"
+import EventList from "../libs/CustomEventFactory/EventList"
 import { Event } from "../core/Event"
 import { scheduleTask } from "./Ticker"
 
@@ -7,12 +7,12 @@ const stripRank = (name) => name.replace(/(\[[A-z]+\++\] )/, "")
 
 const messagesToHide = [
     /^-{53}$/,
-    /^Party (Members|Members\:|Leader\:|Moderators\:).+$/,
+    /^Party (Members|Moderators|Leader)\:?.+/,
     /^You are not currently in a party\.$/
 ]
 
 const partySpam = {
-    chat: new Event(EventEnums.SERVER.CHAT, (event) => {
+    chat: new Event(EventList.ServerChat, (event) => {
         cancel(event)
     }, new RegExp(`(${messagesToHide.join("|")})`)),
 
