@@ -5,13 +5,21 @@
  * @credit https://github.com/DocilElm/Doc/blob/main/core/Event.js
  */
 
+import EventList from "../libs/CustomEventFactory/EventList"
 import { registerMap } from "../libs/CustomEventFactory/Registers"
 
 export class Event {
     // Custom triggers are number enums
-    static _createRegisterCustom = (type, onTrigger, args) => registerMap.get(type)(onTrigger, args).unregister()
+    static _createRegisterCustom(type, onTrigger, args) {
+        const reg = registerMap.get(typeof(type) === "string" ? EventList[type] : type)
 
-    static _createRegisterNormal = (type, onTrigger) => register(type, onTrigger).unregister()
+        if (!reg) return null
+        return reg(onTrigger, args)
+    }
+
+    static _createRegisterNormal(type, onTrigger) {
+        return register(type, onTrigger).unregister()
+    }
 
     /**
      * Register Handler for events
@@ -20,10 +28,8 @@ export class Event {
      * @param {any?} args
      */
     constructor(type, onTrigger, args) {
-        // Custom triggers are numbers
-        this._event = typeof(type) === "number"
-            ? Event._createRegisterCustom(type, onTrigger, args)
-            : Event._createRegisterNormal(type, onTrigger)
+        // Register event from correct source
+        this._event = Event._createRegisterCustom(type, onTrigger, args) ?? Event._createRegisterNormal(type, onTrigger)
             
         this.isRegistered = false
     }
