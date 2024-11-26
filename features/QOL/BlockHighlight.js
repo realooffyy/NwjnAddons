@@ -1,5 +1,5 @@
 import Feature from "../../core/Feature"
-import { Event } from "../../core/Event"
+import Event from "../../libs/CustomEventFactory/Event"
 import RenderUtil from "../../core/static/RenderUtil"
 import RenderHelper from "../../core/static/RenderHelper"
 import Settings from "../../data/Settings"

@@ -6,8 +6,7 @@ import MathUtil from "../../core/static/MathUtil"
 import EntityUtil from "../../core/static/EntityUtil"
 import RenderUtil from "../../core/static/RenderUtil"
 import Feature from "../../core/Feature"
-import EventList from "../../libs/CustomEventFactory/EventList"
-import { Event } from "../../core/Event"
+import Event from "../../libs/CustomEventFactory/Event"
 import { notify } from "../../core/static/TextUtil"
 import Settings from "../../data/Settings"
 
@@ -60,7 +59,7 @@ Settings().getConfig().onCloseGui(setMobHighlight)
 const renderThese = new HashMap()
 const feat = new Feature({setting: "mobList"})
   .addEvent(
-    new Event(EventList.Interval, () => {
+    new Event("interval", () => {
       renderThese.clear()
 
       mobsHighlight.forEach((clazz, hps) => {
@@ -83,7 +82,7 @@ const feat = new Feature({setting: "mobList"})
   )
   .addSubEvent(
     // remove this after weakhashmap
-    new Event(EventList.EntityDeath, (_, mcEntity) => {
+    new Event("entityDeath", (_, mcEntity) => {
       renderThese.remove(mcEntity.func_145782_y())
     }),
     () => !renderThese.isEmpty()

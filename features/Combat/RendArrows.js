@@ -1,5 +1,4 @@
-import { Event } from "../../core/Event";
-import EventList from "../../libs/CustomEventFactory/EventList";
+import Event from "../../libs/CustomEventFactory/Event"
 import Feature from "../../core/Feature";
 import ItemUtil from "../../core/static/ItemUtil";
 import { scheduleTask } from "../../utils/Ticker";
@@ -8,7 +7,7 @@ let arrows = 0
 
 new Feature({setting: "rendArrows"})
   .addEvent(
-    new Event(EventList.WorldSound, () => {
+    new Event("worldSound", () => {
       const held = Player.getHeldItem()
       if (held && !ItemUtil.getExtraAttribute(Player.getHeldItem())?.enchantments?.ultimate_rend) return
       arrows++;

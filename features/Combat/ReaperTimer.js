@@ -1,9 +1,8 @@
 import GuiFeature from "../../core/GuiFeature";
-import EventList from "../../libs/CustomEventFactory/EventList";
-import { Event } from "../../core/Event";
+import Event from "../../libs/CustomEventFactory/Event"
 import ItemUtil from "../../core/static/ItemUtil";
 import { data } from "../../data/Data";
-import { addCountdown, secondsToTick, tickToSeconds } from "../../utils/Ticker";
+import { addCountdown, secondsToTick } from "../../utils/Ticker";
 
 const prefix = "Reaper:"
 const ReaperOverlay = new GuiFeature({
@@ -15,7 +14,7 @@ const ReaperOverlay = new GuiFeature({
     _command: "nwjnReaper"
 })
     .addEvent(
-        new Event(EventList.WorldSound, () => {
+        new Event("worldSound", () => {
             if (
                 ItemUtil.getSkyblockItemID(Player.armor.getChestplate())
                 !==

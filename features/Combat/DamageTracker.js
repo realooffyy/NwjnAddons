@@ -1,12 +1,11 @@
 import Feature from "../../core/Feature";
-import { Event } from "../../core/Event";
-import EventList from "../../libs/CustomEventFactory/EventList";
+import Event from "../../libs/CustomEventFactory/Event"
 
 new Feature({
   setting: "damageTracker"
 })
   .addEvent(
-    new Event(EventList.SpawnMob, (entity) => {
+    new Event("spawnMob", (entity) => {
       const name = entity.func_95999_t()
 
       if (!(/[^A-Za-z:-_.#]/.test(name?.removeFormatting()))) return

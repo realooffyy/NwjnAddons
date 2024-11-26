@@ -1,6 +1,5 @@
 // Credit: BloomCore
-import EventList from "../libs/CustomEventFactory/EventList"
-import { Event } from "../core/Event"
+import Event from "../libs/CustomEventFactory/Event"
 import { scheduleTask } from "./Ticker"
 
 const stripRank = (name) => name.replace(/(\[[A-z]+\++\] )/, "")
@@ -12,7 +11,7 @@ const messagesToHide = [
 ]
 
 const partySpam = {
-    chat: new Event(EventList.ServerChat, (event) => {
+    chat: new Event("serverChat", (event) => {
         cancel(event)
     }, new RegExp(`(${messagesToHide.join("|")})`)),
 

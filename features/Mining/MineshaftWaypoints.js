@@ -1,6 +1,5 @@
 import Feature from "../../core/Feature";
-import EventList from "../../libs/CustomEventFactory/EventList";
-import { Event } from "../../core/Event";
+import Event from "../../libs/CustomEventFactory/Event"
 import { notify } from "../../core/static/TextUtil";
 import RenderUtil from "../../core/static/RenderUtil"
 
@@ -15,7 +14,7 @@ const feat = new Feature({
     // Does not use Mineshaft as world because the scoreboard check is always triggered before it
 })
     .addEvent(
-        new Event(EventList.SidebarChange, (id, material, type) => {
+        new Event("sidebarChange", (id, material, type) => {
             if (currentRoom) return
             if (type != 2 && !(id in data.rooms)) return
 
@@ -41,7 +40,7 @@ const feat = new Feature({
         }, / (([A-Z]{4})(1|2))$/)
     )
     .addSubEvent(
-        new Event(EventList.Interval, () => {
+        new Event("interval", () => {
             const canDelete = currentCorpses.findIndex(([x, y, z]) => Player.asPlayerMP().distanceTo(x, y, z) > 5)
             if (~canDelete) return currentCorpses.splice(canDelete, 1)
         }, 1 / 3),

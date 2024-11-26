@@ -1,5 +1,4 @@
-import EventList from "../../libs/CustomEventFactory/EventList";
-import { Event } from "../../core/Event";
+import Event from "../../libs/CustomEventFactory/Event"
 import MathUtil from "../../core/static/MathUtil";
 import GuiFeature from "../../core/GuiFeature";
 import { data } from "../../data/Data";
@@ -13,7 +12,7 @@ const clock = new GuiFeature({
   _command: "nwjnClock"
 })
   .addEvent(
-    new Event(EventList.Interval, () => {
+    new Event("interval", () => {
       clock.text = MathUtil.getTime()
     }, 1)
   )

@@ -1,26 +1,27 @@
 import TextUtil from "../core/static/TextUtil"
-import { Event } from "../core/Event"
-import EventList from "../libs/CustomEventFactory/EventList"
+import Event from "../libs/CustomEventFactory/Event"
 import { data } from "../data/Data"
 import { scheduleTask } from "./Ticker"
 import { addCommand } from "./Command"
 
 // [Power Stone]
 new Event(
-    EventList.ServerChat, 
+    "serverChat", 
     (stone) => data.power = stone, 
-    /^You selected the (.+) power for your Accessory Bag!$/
-).setAlwaysActive()
+    /^You selected the (.+) power for your Accessory Bag!$/,
+    true
+)
 
 // [Enrichments]
 new Event(
-    EventList.ServerChat, 
+    "serverChat", 
     (volume, stat) => data.enrich = `${volume} ${stat}`, 
-    /^Swapped (\d{1,3}) enrichments to (.+)!$/
-).setAlwaysActive()
+    /^Swapped (\d{1,3}) enrichments to (.+)!$/,
+    true
+)
 
 // [Tunings + Magical Power]
-new Event(EventList.ContainerClick, (window) => {
+new Event("containerClick", (window) => {
     if (window !== "Stats Tuning") return
 
     scheduleTask(() => {
@@ -33,7 +34,7 @@ new Event(EventList.ContainerClick, (window) => {
         const [magPow] = TextUtil.getMatches(/Magical Power: (.+)/, lore)
         data.mp = magPow ?? "Unknown"
     }, 2)
-}).setAlwaysActive()
+}, null, true)
 
 // Credit: DocilElm for blacklist
 const INVALID = () => notify("&cInvalid. &aAdd and remove need name entry. List and clear do not.")

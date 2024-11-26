@@ -1,6 +1,5 @@
 import Feature from "../../core/Feature";
-import { Event } from "../../core/Event";
-import EventList from "../../libs/CustomEventFactory/EventList";
+import Event from "../../libs/CustomEventFactory/Event"
 
 const options = [
   ["fallingBlocks", net.minecraft.entity.item.EntityFallingBlock],
@@ -12,7 +11,7 @@ const options = [
 options.forEach(([setting, clazz]) => {
   new Feature({setting})
     .addEvent(
-      new Event(EventList.EntityLoad, (entity) => {
+      new Event("entityLoad", (entity) => {
         entity.func_70106_y()
       }, clazz)
     )

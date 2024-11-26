@@ -1,37 +1,37 @@
 /** 
- * Virtually entirely taken from:
+ * Virtually entire file taken from:
  * @author DocilElm
  * @license {GNU-GPL-3} https://github.com/DocilElm/Doc/blob/main/LICENSE
- * @credit https://github.com/DocilElm/Doc/blob/main/core/CustomRegisters.js
+ * @credit https://github.com/DocilElm/Doc/blob/main/core/EventEnums.js
  */
 
-import { scheduleTask } from "../../utils/Ticker"
 import TextUtil from "../../core/static/TextUtil"
 import ItemUtil from "../../core/static/ItemUtil"
-import EventList from "./EventList";
+import { scheduleTask } from "../../utils/Ticker"
 
-export const registerMap = new Map()
-
-const createEvent = (id, invokeFn) => registerMap.set(id, invokeFn)
-
-// Constant used to get the packet's ENUMS
-// and also filter the class in packetReceived event
 const S38PacketPlayerListItem = net.minecraft.network.play.server.S38PacketPlayerListItem
 
-createEvent(EventList.Interval, (fn, interval) => {
+/** @type {HashMap<String,Function>} */
+const map = new HashMap()
+
+const createEvent = (triggerType, method) => {
+    map.put(triggerType.toUpperCase(), method)
+}
+
+createEvent("interval", (fn, interval) => {
     const reg = register("step", fn)
 
-    if (interval >= 1) reg.setDelay(interval)
+    if (interval >= 1) return reg.setDelay(interval)
     return reg.setFps(1 / interval)
 })
 
-createEvent(EventList.ServerTick, (fn) =>
+createEvent("serverTick", (fn) => 
     register("packetReceived", (packet) => {
         if (packet.func_148890_d() <= 0) fn()
     }).setFilteredClass(net.minecraft.network.play.server.S32PacketConfirmTransaction)
 )
 
-createEvent(EventList.EntityLoad, (fn, clazz) => 
+createEvent("entityLoad", (fn, clazz) => 
     register(net.minecraftforge.event.entity.EntityJoinWorldEvent, (event) => {
         const entity = event.entity
         if (clazz && !(entity instanceof clazz)) return
@@ -41,7 +41,7 @@ createEvent(EventList.EntityLoad, (fn, clazz) =>
     })
 )
 
-createEvent(EventList.SpawnMob, (fn, clazz) =>
+createEvent("spawnMob", (fn, clazz) =>
     register("packetReceived", (packet) => {
         scheduleTask(() => {
             const entityID = packet.func_149024_d()
@@ -53,7 +53,7 @@ createEvent(EventList.SpawnMob, (fn, clazz) =>
     }).setFilteredClass(net.minecraft.network.play.server.S0FPacketSpawnMob)
 )
 
-createEvent(EventList.EntityDeath, (fn, clazz) =>
+createEvent("entityDeath", (fn, clazz) =>
     register("entityDeath", (entity) => {
         if (clazz && !(entity.entity instanceof clazz)) return
 
@@ -61,7 +61,7 @@ createEvent(EventList.EntityDeath, (fn, clazz) =>
     })
 )
 
-createEvent(EventList.ServerChat, (fn, criteria = "") => 
+createEvent("serverChat", (fn, criteria = "") => 
     register("packetReceived", (packet, event) => {
         // Check if the packet is for the actionbar
         if (packet.func_148916_d()) return
@@ -76,13 +76,13 @@ createEvent(EventList.ServerChat, (fn, criteria = "") =>
     }).setFilteredClass(net.minecraft.network.play.server.S02PacketChat)
 )
 
-createEvent(EventList.MessageSent, (fn, criteria) => 
+createEvent("messageSent", (fn, criteria) => 
     register("messageSent", (msg, event) => {
         TextUtil.matchesCriteria(fn, criteria, msg, event)
     })
 )
 
-createEvent(EventList.ActionBarChange, (fn, criteria) => 
+createEvent("actionBarChange", (fn, criteria) => 
     register("packetReceived", (packet, event) => {
         // Check if the packet is for the actionbar
         if (!packet.func_148916_d()) return
@@ -97,7 +97,7 @@ createEvent(EventList.ActionBarChange, (fn, criteria) =>
     }).setFilteredClass(net.minecraft.network.play.server.S02PacketChat)
 )
 
-createEvent(EventList.SidebarChange, (fn, criteria) => 
+createEvent("sideBarChange", (fn, criteria) => 
     register("packetReceived", (packet, event) => {
         const channel = packet.func_149307_h()
 
@@ -117,7 +117,7 @@ createEvent(EventList.SidebarChange, (fn, criteria) =>
     }).setFilteredClass(net.minecraft.network.play.server.S3EPacketTeams)
 )
 
-createEvent(EventList.TabUpdate, (fn, criteria) => 
+createEvent("tabUpdate", (fn, criteria) => 
     register("packetReceived", (packet, event) => {
         const players = packet.func_179767_a() // .getPlayers()
         const action = packet.func_179768_b() // .getAction()
@@ -139,7 +139,7 @@ createEvent(EventList.TabUpdate, (fn, criteria) =>
     }).setFilteredClass(S38PacketPlayerListItem)
 )
 
-createEvent(EventList.TabAdd, (fn, criteria) => 
+createEvent("tabAdd", (fn, criteria) => 
     register("packetReceived", (packet, event) => {
         const players = packet.func_179767_a() // .getPlayers()
         const action = packet.func_179768_b() // .getAction()
@@ -160,7 +160,7 @@ createEvent(EventList.TabAdd, (fn, criteria) =>
     }).setFilteredClass(S38PacketPlayerListItem)
 )
 
-createEvent(EventList.WorldSound, (fn, criteria) => 
+createEvent("worldSound", (fn, criteria) => 
     register("packetReceived", (packet, event) => {
         const name = packet.func_149212_c()
 
@@ -168,7 +168,7 @@ createEvent(EventList.WorldSound, (fn, criteria) =>
     }).setFilteredClass(net.minecraft.network.play.server.S29PacketSoundEffect)
 )
 
-createEvent(EventList.HeldItemChange, (fn) => 
+createEvent("heldItemChange", (fn) => 
     register("packetSent", (packet) => {
         const item = Player.getHeldItem()
         if (!item) return fn()
@@ -181,13 +181,13 @@ createEvent(EventList.HeldItemChange, (fn) =>
     }).setFilteredClass(net.minecraft.network.play.client.C09PacketHeldItemChange)
 )
 
-createEvent(EventList.InventoryUpdate, (fn) => 
+createEvent("inventoryUpdate", (fn) => 
     register("packetReceived", (packet) => {
         if (packet.func_149175_c() === 0) fn(packet.func_149174_e(), packet.func_149173_d())
     }).setFilteredClass(net.minecraft.network.play.server.S2FPacketSetSlot)
 )
 
-createEvent(EventList.OpenContainer, (fn) => 
+createEvent("openContainer", (fn) => 
     register("packetReceived", (packet) => {
         const windowTitle = packet.func_179840_c().func_150254_d().removeFormatting()
         const windowID = packet.func_148901_c()
@@ -200,15 +200,26 @@ createEvent(EventList.OpenContainer, (fn) =>
     }).setFilteredClass(net.minecraft.network.play.server.S2DPacketOpenWindow)
 )
 
-createEvent(EventList.CloseContainer, (fn) => 
+createEvent("closeContainer", (fn) => 
     register("guiClosed", (screen) => {
         if (screen instanceof net.minecraft.client.gui.inventory.GuiContainer) fn(screen)
     })
 )
 
-createEvent(EventList.ContainerClick, (fn) => 
+createEvent("containerClick", (fn) => 
     register("packetSent", (packet) => {
         // Container name, Slot clicked
         fn(Player.getContainer().getName(), packet.func_149544_d())
     }).setFilteredClass(net.minecraft.network.play.client.C0EPacketClickWindow)
 )
+
+export const getEvent = (triggerType, method, args) => {
+    const type = triggerType.toUpperCase()
+
+    const trigger =
+        map.containsKey(type) ?
+        map.get(type)(method, args) :
+        register(type, method)
+    
+    return trigger.unregister()
+}

@@ -5,8 +5,7 @@
  * @credit https://github.com/DocilElm/Doc/blob/main/shared/Location.js
  */
 
-import { Event } from "../core/Event"
-import EventList from "../libs/CustomEventFactory/EventList"
+import Event from "../libs/CustomEventFactory/Event"
 import TextUtil from "../core/static/TextUtil"
 
 export default new class Location {
@@ -57,21 +56,21 @@ export default new class Location {
   }
 
   constructor() {
-    new Event(EventList.TabAdd, (world) => this._triggerWorldEvents(world), /^(?:Area|Dungeon): (.+)$/).setAlwaysActive()
-    new Event(EventList.SidebarChange, (zone) => this._triggerZoneEvents(zone), /^ [⏣ф] (.+)$/).setAlwaysActive()
-    new Event("worldUnload", () => this._triggerWorldEvents(null)._triggerZoneEvents(null)).setAlwaysActive()
+    new Event("tabAdd", (world) => this._triggerWorldEvents(world), /^(?:Area|Dungeon): (.+)$/, true)
+    new Event("sidebarChange", (zone) => this._triggerZoneEvents(zone), /^ [⏣ф] (.+)$/, true)
+    new Event("worldUnload", () => this._triggerWorldEvents(null)._triggerZoneEvents(null), null, true)
 
     // Ct reload case
-    if (World.isLoaded()) {
-      TabList?.getNames()?.find(it => {
-        [it] = TextUtil.getMatches(/^(?:Area|Dungeon): (.+)$/, it.removeFormatting())
-        return it ? Boolean(this._triggerWorldEvents(it)) : false
-      })
-      Scoreboard?.getLines()?.find(it => {
-        [it] = TextUtil.getMatches(/^ [⏣ф] (.+)$/, it.getName().removeFormatting().replace(/[^\x0-\xFF]/g, ""))
-        return it ? Boolean(this._triggerZoneEvents(it)) : false
-      })
-    }
+    // if (World.isLoaded()) {
+    //   TabList?.getNames()?.find(it => {
+    //     [it] = TextUtil.getMatches(/^(?:Area|Dungeon): (.+)$/, it.removeFormatting())
+    //     return it ? Boolean(this._triggerWorldEvents(it)) : false
+    //   })
+    //   Scoreboard?.getLines()?.find(it => {
+    //     [it] = TextUtil.getMatches(/^ [⏣ф] (.+)$/, it.getName().removeFormatting().replace(/[^\x0-\xFF]/g, ""))
+    //     return it ? Boolean(this._triggerZoneEvents(it)) : false
+    //   })
+    // }
   }
 
   _listeners = {

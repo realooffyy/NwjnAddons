@@ -1,6 +1,5 @@
 import Feature from "../../core/Feature";
-import { Event } from "../../core/Event";
-import EventList from "../../libs/CustomEventFactory/EventList";
+import Event from "../../libs/CustomEventFactory/Event"
 import Party from "../../utils/Party";
 import { data } from "../../data/Data";
 import TextUtil from "../../core/static/TextUtil";
@@ -109,7 +108,7 @@ const commands = {
 
 new Feature({setting: "partyCommands"})
   .addEvent(
-    new Event(EventList.ServerChat, (player, command, event) => {
+    new Event("serverChat", (player, command, event) => {
       const ign = TextUtil.getSenderName(player).toLowerCase()
       const cmd = command.toLowerCase()
 

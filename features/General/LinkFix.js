@@ -1,14 +1,12 @@
 /** @see StuffysCipher */
 import StuffysCipher from "../../core/static/StuffysCipher";
-import TextUtil from "../../core/static/TextUtil";
 import Feature from "../../core/Feature";
-import EventList from "../../libs/CustomEventFactory/EventList";
-import { Event } from "../../core/Event";
+import Event from "../../libs/CustomEventFactory/Event"
 
 
 new Feature({setting: "linkFix"})
   .addEvent(
-    new Event(EventList.MessageSent, (msg, event) => {
+    new Event("messageSent", (msg, event) => {
       cancel(event)
 
       
@@ -18,7 +16,7 @@ new Feature({setting: "linkFix"})
     }, /([a-z\d]{2,}:\/\/[-\w.]+\.[a-z]{2,}(?:\d{1,5})?(?:\S*)?(?:\.\S+)?(?=[!"\S\n]|$))/)
   )
   .addEvent(
-    new Event(EventList.ServerChat, (url, _, __, component) => {
+    new Event("serverChat", (url, _, __, component) => {
       try {
         const decoded = StuffysCipher.decode(url)
 
