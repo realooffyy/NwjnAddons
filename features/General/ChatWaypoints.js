@@ -25,7 +25,7 @@ const feat = new Feature({setting: "waypoint"})
         
         const [title] = TextUtil.getMatches(/^(.+)§.:/, formatted)
 
-        const wp = [title, ~~x, ~~y, ~~z]
+        const wp = [title, ~~x - 0.5, ~~y, ~~z - 0.5]
         if (text.trim()) wp.push(`\n${text}`)
 
         waypoints.set(ign, wp)
