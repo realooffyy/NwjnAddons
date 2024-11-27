@@ -59,9 +59,9 @@ const feat = new Feature({setting: "waypoint"})
       })
     })
   )
-  .onUnregister(() => waypoints.clear())
 
 import { addCommand } from "../../utils/Command"
 addCommand("clearWaypoints", "Stops rendering current waypoints", () => {
+  waypoints.clear()
   feat.unregisterSubsOnly()
 })
