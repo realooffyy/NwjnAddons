@@ -13,7 +13,7 @@ import Settings from "../../data/Settings";
  */
 const ChatWaypointSentRegex = /^(?:[\w\-]{5} > )?(?:\[\d{1,3}\] .? ?)?(?:\[\w+\+*\] )?(\w{1,16})(?: .? ?)?: x: (-?[\d\.]+), y: (-?[\d\.]+), z: (-?[\d\.]+) ?(.+)?$/
 
-/** @type {Map<String, [String, Number, Number, Number, String?]>} */
+/** @type {Map<String, Object>} */
 const waypoints = new Map()
 
 const feat = new Feature({setting: "waypoint"})
@@ -25,33 +25,43 @@ const feat = new Feature({setting: "waypoint"})
         
         const [title] = TextUtil.getMatches(/^(.+)§.:/, formatted)
 
-        const wp = [title, ~~x - 0.5, ~~y, ~~z - 0.5]
-        if (text.trim()) wp.push(`\n${text}`)
+        const wp = {
+          title,
+          text: text.trim() && `\n${text}`,
+          coord: [~~x - 0.5, ~~y, ~~z - 0.5],
+          dist: ~~Player.asPlayerMP().distanceTo(~~x - 0.5, ~~y, ~~z - 0.5),
+          dur: secondsToTick(Settings().wpTime)
+        }
 
         waypoints.set(ign, wp)
-        feat.update()
-        
-        scheduleTask(() => {
-          waypoints.delete(ign)
-          feat.update()
-        }, secondsToTick(Settings().wpTime))
+        feat.registerSubsOnly()
     }, ChatWaypointSentRegex)
+  )
+  .addSubEvent(
+    new Event("serverTick", () => {
+      if (!waypoints.size) feat.unregisterSubsOnly()
+
+      waypoints.forEach(it => {
+        const dist = it.dist = ~~Player.asPlayerMP().distanceTo(...it.coord)
+        const dur = it.dur--
+
+        if (dur <= 0 || dist <= 5) it.dirty = true
+      })
+    })
   )
   .addSubEvent(
     new Event("renderWorld", () => {
       const [r, g, b, a] = Settings().wpColor
-      waypoints.forEach(([title, x, y, z, text = ""]) => {
-        const distance = ~~Player.asPlayerMP().distanceTo(x, y, z)
+      waypoints.forEach((it, ign) => {
+        if (it.dirty) return waypoints.delete(ign)
 
-        RenderUtil.renderWaypoint(`${ title } §b[${ distance }m]${text}`, x, y, z, r, g, b, a, true)
+        RenderUtil.renderWaypoint(`${ it.title } §b[${ it.dist }m]${it.text}`, ...it.coord, r, g, b, a, true)
       })
-    }),
-    () => waypoints.size
+    })
   )
   .onUnregister(() => waypoints.clear())
 
 import { addCommand } from "../../utils/Command"
 addCommand("clearWaypoints", "Stops rendering current waypoints", () => {
-  waypoints.clear()
-  feat.update()
+  feat.unregisterSubsOnly()
 })

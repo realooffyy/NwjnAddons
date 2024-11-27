@@ -140,7 +140,7 @@ export default class Feature {
    * @param {() => Boolean} condition The function that will be ran whenever this subEvent gets updated
    * @returns {this} meth chain
    */
-  addSubEvent(subEvent, condition) {
+  addSubEvent(subEvent, condition = () => true) {
     this.subEvents.push([subEvent, condition])
 
     return this
@@ -179,6 +179,20 @@ export default class Feature {
 
       condition() ? subEvent.register() : subEvent.unregister()
     }
+
+    return this
+  }
+
+  registerSubsOnly() {
+    for (let subEvent of this.subEvents) subEvent[0].register()
+    for (let listener of this._onRegister) listener?.()
+
+    return this
+  }
+
+  unregisterSubsOnly() {
+    for (let subEvent of this.subEvents) subEvent[0].unregister()
+    for (let listener of this._onUnregister) listener?.()
 
     return this
   }
