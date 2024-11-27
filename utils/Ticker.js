@@ -51,7 +51,7 @@ const _updateTimers = () => {
 const history = Array(3)
 let tick = 0, lastSec = 0, avg = 0
 
-export const getTPS = () => avg.toFixed(2)
+export const getTPS = () => MathLib.clamp(avg.toFixed(2), 0, 20)
 const _updateTPS = () => {
     if (tick++ % 20) return
     const ticked = 20000 / (-lastSec + (lastSec = Date.now()))
