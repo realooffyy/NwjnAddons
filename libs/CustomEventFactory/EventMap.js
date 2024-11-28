@@ -78,7 +78,7 @@ createEvent("serverChat", (fn, criteria = "") =>
 
 createEvent("messageSent", (fn, criteria) => 
     register("messageSent", (msg, event) => {
-        TextUtil.matchesCriteria(fn, criteria, msg, event)
+        TextUtil.matchesCriteria(fn, criteria, msg, event, msg)
     })
 )
 

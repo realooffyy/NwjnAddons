@@ -48,13 +48,14 @@ export default class StuffysCipher {
     * @param {String} url - The URL to Encode.
     */
     static encode = (url) => {
-        const [valid, scheme, host, dir, extension] = TextUtil.getMatches(/^(([a-z\d]{2,}:\/\/)([-\w.]+\.[a-z]{2,})(?:\d{1,5})?(\S*)?(\.\S+)(?=[!"§ \n]|$))$/, url, 5)
+        const [valid, scheme, host, dir] = TextUtil.getMatches(/^(([a-z\d]{2,}:\/\/)([-\w.]+\.[a-z]{2,})(\/\S*))$/, url, 5)
         if (!valid) return
 
         let encoded = "l$"
         const schemeKey = TextUtil.getKeyFromValue(schemes, scheme) ?? ""
         if (schemeKey) encoded += schemeKey
 
+        const extension = dir.slice(-4)
         const extensionKey = TextUtil.getKeyFromValue(extensions, extension) ?? ""
         if (extensionKey) encoded += extensionKey
         else encoded += "0"
@@ -64,9 +65,7 @@ export default class StuffysCipher {
             +
             host
             +
-            dir
-            +
-            (extensionKey ? "" : extension)
+            (extensionKey ? dir.slice(0, -4) : dir)
         )
 
         const first9 = newBodyPart.substring(0, 9)
