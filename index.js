@@ -11,6 +11,7 @@ import "./features/Combat/ReaperTimer"
 import "./features/Combat/RendArrows"
 import "./features/Combat/FatalTempo"
 
+import "./features/CrimsonIsle/AnnounceVanqs"
 import "./features/CrimsonIsle/LastMinibossKills"
 import "./features/CrimsonIsle/MagmaBossMessage"
 
