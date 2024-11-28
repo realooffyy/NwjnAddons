@@ -8,7 +8,7 @@ import { addCommand } from "../utils/Command"
 import Settings from "../data/Settings"
 
 const baseColor = [255, 255, 255, 255]
-const guis = new Set()
+const guis = new Set() // todo: hashset
 
 export default class GuiFeature extends Feature {
     /**
@@ -37,13 +37,15 @@ export default class GuiFeature extends Feature {
     } = {}) {
         super({setting, worlds, zones})
 
-        this.text = ""
+        this.message = ""
         this.name = name
         this._setData(name, dataObj)
         this._setGui(_command, baseText)
         this._setColor(color)
 
-        this.addEvent(new Event("renderOverlay", () => this._draw(this.text, this.color)))
+        this.addSubEvent(
+            new Event("renderOverlay", () => this._draw(this.message, this.color)
+        ), () => this.message)
 
         guis.add(this)
     }
@@ -58,7 +60,7 @@ export default class GuiFeature extends Feature {
         this.gui = new Gui()
         this.gui.registerScrolled((_, __, dir) => this.data.scale += (dir * 0.02))
         this.gui.registerMouseDragged((mx, my) => {this.data.x = mx; this.data.y = my})
-        this.gui.registerDraw(() => this._draw(this.text || baseText, this.color))
+        this.gui.registerDraw(() => this._draw(this.message || baseText, this.color))
 
         register("command", () => this.gui.open()).setName(command, true)
     }
@@ -72,7 +74,7 @@ export default class GuiFeature extends Feature {
     }
     
     _draw(text, color) {
-        if (!text) return
+        if (!text) this.text = text
 
         Renderer.retainTransforms(true)
         Renderer.translate(this.data.x, this.data.y)
@@ -81,6 +83,11 @@ export default class GuiFeature extends Feature {
         Renderer.drawStringWithShadow(text, 0, 0)
         Renderer.retainTransforms(false)
         Renderer.finishDraw()
+    }
+
+    set text(text) {
+        this.message = text
+        this.update()
     }
 }
 
@@ -113,7 +120,7 @@ const scrollableSlider = new UIRoundedRectangle(3)
 
 bgScrollable.setScrollBarComponent(scrollableSlider, true, false)
 
-const buttons = new Set()
+const buttons = new Set() // todo: hashset
 
 class ButtonComponent {
     constructor(gui) {
