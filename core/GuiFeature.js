@@ -86,8 +86,9 @@ export default class GuiFeature extends Feature {
     }
 
     set text(text) {
+        const dirty = (this.message && !text) || (!this.message && text)
         this.message = text
-        this.update()
+        if (dirty) this.update()
     }
 }
 
