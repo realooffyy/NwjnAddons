@@ -541,9 +541,12 @@ const defCon1 = new DefaultConfig("NwjnAddons", "/data/.Config.json")
 })
 .addSwitch({
     category: "QOL",
-    configName: "fallingBlocks",
-    title: "Remove Falling Blocks",
-    description: "Cancels spawn events of falling blocks",
+    configName: "miscShit",
+    title: "&eHighly Recommended: &bRemove Misc Shit",
+    description: 
+`Completely cancels the construction of lots of useless entities for a huge performance boost
+Notably Removes: falling blocks, arrows, paintings
+&cNote: Removes Tic Tac Toe maps but can be fixed by not being dumb or by enabling TTT solver in this mod`,
     value: false
 })
 .addMultiCheckbox({

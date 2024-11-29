@@ -28,7 +28,7 @@ import "./features/General/Commands"
 import "./features/QOL/BlockHighlight"
 import "./features/QOL/ChatCleanup"
 import "./features/QOL/DeathAnimation"
-import "./features/QOL/NoFallingBlocks"
+import "./features/QOL/MiscShit"
 
 import "./features/Mining/MineshaftWaypoints"
 
