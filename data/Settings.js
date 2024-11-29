@@ -539,34 +539,12 @@ const defCon1 = new DefaultConfig("NwjnAddons", "/data/.Config.json")
     description: "Stops entity death animation and removes its armorstand tag",
     value: false
 })
-.addMultiCheckbox({
+.addSwitch({
     category: "QOL",
-    configName: "entitySpawns",
-    title: "Remove Entity",
-    description: "Cancels spawn events of these common clutter options",
-    placeHolder: "Click",
-    options: [
-        {
-            title: "Falling Blocks",
-            configName: "fallingBlocks",
-            value: false
-        },
-        {
-            title: "XP Orbs",
-            configName: "xpOrbs",
-            value: false
-        },
-        {
-            title: "Arrows",
-            configName: "arrows",
-            value: false
-        },
-        {
-            title: "Wither Skulls",
-            configName: "witherSkulls",
-            value: false
-        }
-    ]
+    configName: "fallingBlocks",
+    title: "Remove Falling Blocks",
+    description: "Cancels spawn events of falling blocks",
+    value: false
 })
 .addMultiCheckbox({
     category: "QOL",

@@ -53,6 +53,12 @@ createEvent("spawnMob", (fn, clazz) =>
     }).setFilteredClass(net.minecraft.network.play.server.S0FPacketSpawnMob)
 )
 
+createEvent("spawnObject", (fn) =>
+    register("packetReceived", (packet, event) => {
+        fn(packet, event)
+    }).setFilteredClass(net.minecraft.network.play.server.S0EPacketSpawnObject)
+)
+
 createEvent("entityDeath", (fn, clazz) =>
     register("entityDeath", (entity) => {
         if (clazz && !(entity.entity instanceof clazz)) return
