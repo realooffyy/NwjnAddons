@@ -8,8 +8,7 @@ const clock = new GuiFeature({
   name: "Clock",
   dataObj: data.Clock,
   baseText: "0:00:00",
-  color: "clockColor",
-  _command: "nwjnClock"
+  color: "clockColor"
 })
   .addEvent(
     new Event("interval", () => {

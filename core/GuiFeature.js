@@ -7,7 +7,6 @@ import { CenterConstraint, CramSiblingConstraint, ScrollComponent, UIRoundedRect
 import { addCommand } from "../utils/Command"
 import Settings from "../data/Settings"
 
-const baseColor = [255, 255, 255, 255]
 const guis = new Set()
 
 export default class GuiFeature extends Feature {
@@ -30,53 +29,36 @@ export default class GuiFeature extends Feature {
         zones = null,
 
         name = null,
-        dataObj = null,
+        dataObj = {},
         baseText = null,
-        color = null,
-        _command = null
+        color = null
     } = {}) {
         super({setting, worlds, zones})
 
-        this.message = ""
-        this.name = name
-        this._setData(name, dataObj)
-        this._setGui(_command, baseText)
-        this._setColor(color)
+        if (!dataObj || !dataObj.x || !dataObj.y || !dataObj.scale) this.data = data[name] = {x: 0, y: 0, scale: 1}
+        else this.data = dataObj
 
-        this.addEvent(this.render = new Event("renderOverlay", () => this._draw(this.message, this.color)))
-
-        guis.add(this)
-    }
-
-    _setData(name, dataObj, defObj = {x: 0, y: 0, scale: 1}) {
-        if (!name) dataObj = defObj
-        else if (!(dataObj && "x" in dataObj && "y" in dataObj && "scale" in dataObj)) dataObj = data[name] = defObj
-        this.data = dataObj
-    }
-
-    _setGui(command, baseText) {
         this.gui = new Gui()
         this.gui.registerScrolled((_, __, dir) => this.data.scale += (dir * 0.02))
         this.gui.registerMouseDragged((mx, my) => {this.data.x = mx; this.data.y = my})
-        this.gui.registerDraw(() => this._draw(this.message || baseText, this.color))
+        this.gui.registerDraw(() => this._draw(this.message || baseText))
 
-        register("command", () => this.gui.open()).setName(command, true)
-    }
+        if (color && color in Settings()) {
+            this.color = Settings()[color]
+            Settings().getConfig().registerListener(color, (_, val) => this.color = val)
+        }
+        else this.color = [255, 255, 255, 255]
 
-    
-    _setColor(color) {
-        if (!color || !(color in Settings())) return this.color = baseColor
-        
-        this.color = Settings()[color]
-        Settings().getConfig().registerListener(color, (_, val) => this.color = val)
+        this.addEvent(this.render = new Event("renderOverlay", () => this._draw()))
+        guis.add(this)
     }
     
-    _draw(text, color) {
+    _draw(text = this.message, color = this.color, {x, y, scale} = this.data) {
         if (!text) return
 
         Renderer.retainTransforms(true)
-        Renderer.translate(this.data.x, this.data.y)
-        Renderer.scale(this.data.scale)
+        Renderer.translate(x, y)
+        Renderer.scale(scale)
         Renderer.colorize(color[0], color[1], color[2], color[3])
         Renderer.drawStringWithShadow(text, 0, 0)
         Renderer.retainTransforms(false)

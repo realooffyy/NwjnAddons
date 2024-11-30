@@ -10,8 +10,7 @@ const ReaperOverlay = new GuiFeature({
 
     name: "Reaper",
     dataObj: data.Reaper,
-    baseText: `${prefix} 0.00s`,
-    _command: "nwjnReaper"
+    baseText: `${prefix} 0.00s`
 })
     .addEvent(
         new Event("worldSound", () => {

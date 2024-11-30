@@ -17,8 +17,7 @@ const MinibossOverlay = new GuiFeature({
     
     name: "Last Minibosses",
     dataObj: data.Miniboss,
-    baseText: title,
-    _command: "nwjnMini"
+    baseText: title
 })
     .addEvent(
         new Event("serverChat", (miniboss) => {
