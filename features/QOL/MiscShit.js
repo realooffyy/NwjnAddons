@@ -1,6 +1,7 @@
 import Feature from "../../core/Feature";
 import Event from "../../libs/CustomEventFactory/Event"
 
+/** @type {Set<Number>} of EntityTypeBytes*/
 const blacklist = new Set([
     1, // Boat
     // 2, // Item (Dropped items & dungeon secrets)
@@ -27,8 +28,7 @@ const blacklist = new Set([
 new Feature({setting: "miscShit"})
     .addEvent(
         new Event("spawnObject", (packet, event) => {
-            const entityTypeByte = packet.func_148993_l()
-            if (blacklist.has(entityTypeByte)) cancel(event)
+            if (blacklist.has(packet.func_148993_l() /** entityTypeByte */)) cancel(event)
         })
     )
     .addEvent(new Event("spawnPainting", cancel))
