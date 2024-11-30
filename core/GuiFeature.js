@@ -8,7 +8,7 @@ import { addCommand } from "../utils/Command"
 import Settings from "../data/Settings"
 
 const baseColor = [255, 255, 255, 255]
-const guis = new Set() // todo: hashset
+const guis = new Set()
 
 export default class GuiFeature extends Feature {
     /**
@@ -43,9 +43,7 @@ export default class GuiFeature extends Feature {
         this._setGui(_command, baseText)
         this._setColor(color)
 
-        this.addSubEvent(
-            new Event("renderOverlay", () => this._draw(this.message, this.color)
-        ), () => this.message)
+        this.addEvent(this.render = new Event("renderOverlay", () => this._draw(this.message, this.color)))
 
         guis.add(this)
     }
@@ -74,7 +72,7 @@ export default class GuiFeature extends Feature {
     }
     
     _draw(text, color) {
-        if (!text) this.text = text
+        if (!text) return
 
         Renderer.retainTransforms(true)
         Renderer.translate(this.data.x, this.data.y)
@@ -85,10 +83,10 @@ export default class GuiFeature extends Feature {
         Renderer.finishDraw()
     }
 
-    set text(text) {
-        const dirty = (this.message && !text) || (!this.message && text)
-        this.message = text
-        if (dirty) this.update()
+    set text(txt) {
+        txt ? this.render.register() : this.render.unregister() 
+
+        return this.message = txt
     }
 }
 
@@ -121,7 +119,7 @@ const scrollableSlider = new UIRoundedRectangle(3)
 
 bgScrollable.setScrollBarComponent(scrollableSlider, true, false)
 
-const buttons = new Set() // todo: hashset
+const buttons = new Set()
 
 class ButtonComponent {
     constructor(gui) {
