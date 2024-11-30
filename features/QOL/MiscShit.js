@@ -1,14 +1,32 @@
 import Feature from "../../core/Feature";
 import Event from "../../libs/CustomEventFactory/Event"
 
+const blacklist = new Set([
+    1, // Boat
+    // 2, // Item (Dropped items & dungeon secrets)
+    10, // MineCart
+    // 50, // TntPrimed (SuperBoomTnt & T5 Phase 4)
+    // 51, // EnderCrystal (Ender Dragons & F/M7 Phase 1)
+    // 60, // Arrow (Who's trolling)
+    61, // Snowball
+    62, // Egg
+    63, // Fireball
+    64, // SmallFireball
+    66, // WitherSkull
+    70, // FallingBlock
+    // 71, // ItemFrame ("Why can't I do Tic-Tac-Toe")
+    72, // EnderEye
+    73, // Potion
+    75, // ExpBottle
+    77, // Leash
+    // 78, // ArmorStand (LET ME CLICK EXPERIMENTATION TABLE)
+    86, // Rocket
+    // 90, // FishHook ("Is my rod out?")
+])
+
 new Feature({setting: "miscShit"})
-  .addEvent(
-    new Event("spawnObject", (packet, event) => {
-      if (
-        packet.func_149010_g() === 0 &&
-        packet.func_149004_h() === 0 &&
-        packet.func_148999_i() === 0 &&
-        packet.func_149009_m() !== 0
-      ) cancel(event)
-    })
-  )
+    .addEvent(
+        new Event("spawnObject", (packet, event) => {
+            if (blacklist.has(packet.func_148993_l())) cancel(event)
+        })
+    )

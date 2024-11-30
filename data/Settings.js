@@ -35,7 +35,7 @@ const defCon1 = new DefaultConfig("NwjnAddons", "/data/.Config.json")
 .addSwitch({
     category: "General",
     configName: "linkFix",
-    title: "&e✯&r Link Fix",
+    title: "&e✯&r &bLink Fix",
     description: "Encodes and Decodes Links to allow sending and viewing for those with the mod",
     value: true
 })
@@ -542,12 +542,11 @@ const defCon1 = new DefaultConfig("NwjnAddons", "/data/.Config.json")
 .addSwitch({
     category: "QOL",
     configName: "miscShit",
-    title: "&eHighly Recommended: &bRemove Misc Shit",
+    title: "&e✯&r &bRemove Misc Shit",
     description: 
 `Completely cancels the construction of lots of useless entities for a huge performance boost
-Notably Removes: falling blocks, arrows, paintings
-&cNote: Removes Tic Tac Toe maps but can be fixed by not being dumb or by enabling TTT solver in this mod`,
-    value: false
+Notably cancels: FallingBlocks & Wither Skulls`,
+    value: true
 })
 .addMultiCheckbox({
     category: "QOL",
