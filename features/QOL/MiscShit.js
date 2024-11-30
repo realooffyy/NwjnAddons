@@ -27,6 +27,9 @@ const blacklist = new Set([
 new Feature({setting: "miscShit"})
     .addEvent(
         new Event("spawnObject", (packet, event) => {
-            if (blacklist.has(packet.func_148993_l())) cancel(event)
+            const entityTypeByte = packet.func_148993_l()
+            if (blacklist.has(entityTypeByte)) cancel(event)
         })
     )
+    .addEvent(new Event("spawnPainting", cancel))
+    .addEvent(new Event("spawnExp"), cancel)

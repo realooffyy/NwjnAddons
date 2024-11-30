@@ -59,6 +59,18 @@ createEvent("spawnObject", (fn) =>
     }).setFilteredClass(net.minecraft.network.play.server.S0EPacketSpawnObject)
 )
 
+createEvent("spawnPainting", (fn) => 
+    register("packetReceived", (_, event) => {
+        fn(event)
+    }).setFilteredClass(net.minecraft.network.play.server.S10PacketSpawnPainting)
+)
+
+createEvent("spawnExp", (fn) => 
+    register("packetReceived", (_, event) => {
+        fn(event)
+    }).setFilteredClass(net.minecraft.network.play.server.S11PacketSpawnExperienceOrb)
+)
+
 createEvent("entityDeath", (fn, clazz) =>
     register("entityDeath", (entity) => {
         if (clazz && !(entity.entity instanceof clazz)) return
