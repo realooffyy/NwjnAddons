@@ -29,8 +29,8 @@ Object.entries({
 }).forEach(([k, v]) => blacklist.put(k, v))
 
 new Feature({setting: "miscShit"})
-    .addEvent("spawnObject", (packet, event) => {
-        const value = blacklist.get(packet.func_148993_l() /** entityTypeByte */)
+    .addEvent("spawnObject", (entityTypeByte, event) => {
+        const value = blacklist.get(entityTypeByte)
         if (!value) return
 
         if (

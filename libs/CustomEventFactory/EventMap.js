@@ -55,7 +55,10 @@ createEvent("spawnMob", (fn, clazz) =>
 
 createEvent("spawnObject", (fn) =>
     register("packetReceived", (packet, event) => {
-        fn(packet, event)
+        /** @see {https://github.com/Marcelektro/MCP-919/blob/1717f75902c6184a1ed1bfcd7880404aab4da503/src/minecraft/net/minecraft/entity/EntityTrackerEntry.java} ctrl-f S0EPacketSpawnObject*/
+        const entityTypeByte = packet.func_148993_l()
+        
+        fn(entityTypeByte, event)
     }).setFilteredClass(net.minecraft.network.play.server.S0EPacketSpawnObject)
 )
 
