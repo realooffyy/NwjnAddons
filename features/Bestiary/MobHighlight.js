@@ -80,4 +80,4 @@ const feat = new Feature({setting: "mobList"})
         renderThese.remove(mcEntity.func_145782_y())
     }, () => !renderThese.isEmpty())
 
-    .onUnregister(renderThese.clear)
+    .onUnregister(() => renderThese.clear())
