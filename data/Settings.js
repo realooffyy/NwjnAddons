@@ -543,10 +543,55 @@ const defCon1 = new DefaultConfig("NwjnAddons", "/data/.Config.json")
     category: "QOL",
     configName: "miscShit",
     title: "&e✯&r &bRemove Misc Shit",
-    description: 
-`Completely cancels the construction of lots of useless entities for a huge performance boost
-Notably cancels: FallingBlocks & Wither Skulls`,
+    description: `Completely cancels the construction of lots of useless entities for a notable performance boost`,
     value: true
+})
+.addMultiCheckbox({
+    category: "QOL",
+    configName: "miscShitOptions",
+    title: "&e✯&r &bRemove Misc Shit Customization",
+    description: "Edit which entities to cancel, most are occluded because they should always or never be canceled",
+    placeHolder: "Click",
+    options: [
+        {
+            title: "PrimedTnt (Prob don't cuz SuperBoomTnt & T5 Phase 4)",
+            configName: "removeTnt",
+            value: false
+        },
+        {
+            title: "Ender Crystals (Prob don't cuz M7 Phase 1)",
+            configName: "removeCrystals",
+            value: false
+        },
+        {
+            title: "Arrows (Recommended)",
+            configName: "removeArrows",
+            value: false
+        },
+        {
+            title: "&e✯&r Fireballs",
+            configName: "removeFireballs",
+            value: true
+        },
+        {
+            title: "&e✯&r Wither Skulls (Recommended)",
+            configName: "removeWitherSkulls",
+            value: true
+        },
+        {
+            title: "&e✯&r Falling Blocks (Recommended)",
+            configName: "removeFallingBlocks",
+            value: true
+        },
+        {
+            title: "&e✯&r Rockets",
+            configName: "removeRockets",
+            value: true
+        }
+    ],
+    shouldShow(data) {
+        return data.miscShit
+    }
 })
 .addMultiCheckbox({
     category: "QOL",

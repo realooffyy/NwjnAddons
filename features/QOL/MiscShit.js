@@ -1,32 +1,43 @@
 import Feature from "../../core/Feature";
+import Settings from "../../data/Settings";
 
-/** @type {Set<Number>} of EntityTypeBytes*/
-const blacklist = new Set([
-    1, // Boat
-    // 2, // Item (Dropped items & dungeon secrets)
-    10, // MineCart
-    // 50, // TntPrimed (SuperBoomTnt & T5 Phase 4)
-    // 51, // EnderCrystal (Ender Dragons & F/M7 Phase 1)
-    // 60, // Arrow (Who's trolling)
-    61, // Snowball
-    62, // Egg
-    63, // Fireball
-    64, // SmallFireball
-    66, // WitherSkull
-    70, // FallingBlock
-    // 71, // ItemFrame ("Why can't I do Tic-Tac-Toe")
-    72, // EnderEye
-    73, // Potion
-    75, // ExpBottle
-    77, // Leash
-    // 78, // ArmorStand (LET ME CLICK EXPERIMENTATION TABLE)
-    86, // Rocket
-    // 90, // FishHook ("Is my rod out?")
-])
+/** @type {HashMap<Number: EntityTypeByte, (() => Boolean)|Boolean: always/never>} */
+const blacklist = new HashMap()
+Object.entries({
+    1: true, // Boat,
+    2: false, // Item (Dropped items & dungeon secrets)
+    10: true, // MineCart
+    50: () => Settings().removeTnt, // TntPrimed (SuperBoomTnt & T5 Phase 4)
+    51: () => Settings().removeCrystals, // EnderCrystal (Ender Dragons & F/M7 Phase 1)
+    60: () => Settings().removeArrows, // Arrow (Who's not shooting?)
+    61: true, // Snowball
+    62: true, // Egg
+    63: () => Settings().removeFireballs, // Fireball
+    64: () => Settings().removeFireballs, // SmallFireball
+    66: () => Settings().removeWitherSkulls, // WitherSkull
+    70: () => Settings().removeFallingBlocks, // FallingBlock
+    71: false, // ItemFrame ("Why can't I do Tic-Tac-Toe")
+    72: true, // EnderEye
+    73: true, // Potion
+    75: true, // ExpBottle
+    77: true, // Leash
+    78: false, // ArmorStand (LET ME CLICK EXPERIMENTATION TABLE)
+    86: () => Settings().removeRockets, // Rocket
+    90: false, // FishHook ("Is my rod out?")
+    // Painting (Lovely separate packet)
+    // ExpOrbs (Lovely separate packet)
+}).forEach(([k, v]) => blacklist.put(k, v))
 
 new Feature({setting: "miscShit"})
     .addEvent("spawnObject", (packet, event) => {
-        if (blacklist.has(packet.func_148993_l() /** entityTypeByte */)) cancel(event)
+        const value = blacklist.get(packet.func_148993_l() /** entityTypeByte */)
+        if (!value) return
+
+        if (
+            (typeof(value) === "function" && value())
+            ||
+            (typeof(value) === "boolean" && value)
+        ) return cancel(event)
     })
 
     .addEvent("spawnPainting", cancel)
