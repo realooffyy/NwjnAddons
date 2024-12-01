@@ -1,5 +1,4 @@
 import Feature from "../../core/Feature";
-import Event from "../../libs/CustomEventFactory/Event"
 import { notify } from "../../core/static/TextUtil";
 import RenderUtil from "../../core/static/RenderUtil"
 
@@ -13,48 +12,43 @@ const feat = new Feature({
     zones: "Glacite Mineshafts"
     // Does not use Mineshaft as world because the scoreboard check is always triggered before it
 })
-    .addEvent(
-        new Event("sidebarChange", (id, material, type) => {
-            if (currentRoom) return
-            if (type != 2 && !(id in data.rooms)) return
+    .addEvent("sidebarChange", (id, material, type) => {
+        if (currentRoom) return
+        if (type != 2 && !(id in data.rooms)) return
 
-            currentRoom = data.rooms[type == 2 ? type : id]
-            currentCorpses = currentRoom.corpses
-            
-            const name = data.names[material]
-            const formatName = type == 2 ? `${name} Crystal` : name
+        currentRoom = data.rooms[type == 2 ? type : id]
+        currentCorpses = currentRoom.corpses
+        
+        const name = data.names[material]
+        const formatName = type == 2 ? `${name} Crystal` : name
 
-            notify(formatName)
-            feat.update()
+        notify(formatName)
+        feat.update()
 
-            if (id === "FAIR1") {
-                new TextComponent("&eClick here to notify guild of the Vanguard!")
-                    .setClickAction("run_command")
-                    .setClickValue(`gc ${formatName}`)
-                    .chat()
-                new TextComponent("&eClick here to stream open")
-                    .setClickAction("run_command")
-                    .setClickValue("stream open")
-                    .chat()
-            }
-        }, / (([A-Z]{4})(1|2))$/)
-    )
-    .addSubEvent(
-        new Event("interval", () => {
-            const canDelete = currentCorpses.findIndex(([x, y, z]) => Player.asPlayerMP().distanceTo(x, y, z) > 5)
-            if (~canDelete) return currentCorpses.splice(canDelete, 1)
-        }, 1 / 3),
-        () => currentRoom
-    )
-    .addSubEvent(
-        new Event("renderWorld", () => {
-            const [xi, yi, zi] = currentRoom.exit
-            RenderUtil.renderWaypoint("§bExit", xi, yi, zi, 255, 0, 0, 255)
+        if (id === "FAIR1") {
+            new TextComponent("&eClick here to notify guild of the Vanguard!")
+                .setClickAction("run_command")
+                .setClickValue(`gc ${formatName}`)
+                .chat()
+            new TextComponent("&eClick here to stream open")
+                .setClickAction("run_command")
+                .setClickValue("stream open")
+                .chat()
+        }
+    }, / (([A-Z]{4})(1|2))$/)
 
-            currentCorpses.forEach(([x, y, z]) => RenderUtil.renderWaypoint("§cGuess", x, y, z, 255, 0, 0, 255))
-        }),
-        () => currentRoom
-    )
+    .addSubEvent("interval", () => {
+        const canDelete = currentCorpses.findIndex(([x, y, z]) => Player.asPlayerMP().distanceTo(x, y, z) > 5)
+        if (~canDelete) return currentCorpses.splice(canDelete, 1)
+    }, 1 / 3, () => currentRoom)
+    
+    .addSubEvent("renderWorld", () => {
+        const [xi, yi, zi] = currentRoom.exit
+        RenderUtil.renderWaypoint("§bExit", xi, yi, zi, 255, 0, 0, 255)
+
+        currentCorpses.forEach(([x, y, z]) => RenderUtil.renderWaypoint("§cGuess", x, y, z, 255, 0, 0, 255))
+    }, () => currentRoom)
+    
     .onUnregister(() => {
         currentRoom = null
         currentCorpses.length = 0

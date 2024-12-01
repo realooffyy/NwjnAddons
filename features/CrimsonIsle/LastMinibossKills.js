@@ -1,4 +1,3 @@
-import Event from "../../libs/CustomEventFactory/Event"
 import { data } from "../../data/Data";
 import GuiFeature from "../../core/GuiFeature"
 
@@ -19,12 +18,10 @@ const MinibossOverlay = new GuiFeature({
     dataObj: data.Miniboss,
     baseText: title
 })
-    .addEvent(
-        new Event("serverChat", (miniboss) => {
-            const name = EnumMinibosses[miniboss]
-            if (!name) return
+    .addEvent("serverChat", (miniboss) => {
+        const name = EnumMinibosses[miniboss]
+        if (!name) return
 
-            if (data.lastMini.push(name) > 4) data.lastMini.shift()
-                MinibossOverlay.text = title + data.lastMini.join("\n")
-        }, /^\S+(\s.+) DOWN!$/)
-    )
+        if (data.lastMini.push(name) > 4) data.lastMini.shift()
+            MinibossOverlay.text = title + data.lastMini.join("\n")
+    }, /^\S+(\s.+) DOWN!$/)

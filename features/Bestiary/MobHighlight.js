@@ -6,24 +6,23 @@ import MathUtil from "../../core/static/MathUtil"
 import EntityUtil from "../../core/static/EntityUtil"
 import RenderUtil from "../../core/static/RenderUtil"
 import Feature from "../../core/Feature"
-import Event from "../../libs/CustomEventFactory/Event"
 import { notify } from "../../core/static/TextUtil"
 import Settings from "../../data/Settings"
 
 const MOB_TYPES = ["monster", "passive", "boss"];
 function getClassOfEntity(name, index = 0) {
-  try {
-    const clazz = Java.type(`net.minecraft.entity.${ MOB_TYPES[index] }.Entity${ name }`).class;
-    // recurses if #toString() throws error
-    clazz.toString()
+    try {
+        const clazz = Java.type(`net.minecraft.entity.${ MOB_TYPES[index] }.Entity${ name }`).class;
+        // recurses if #toString() throws error
+        clazz.toString()
 
-    return clazz;
-  } catch(err) {
-    if (index < MOB_TYPES.length) return getClassOfEntity(name, index + 1)
+        return clazz;
+    } catch(err) {
+        if (index < MOB_TYPES.length) return getClassOfEntity(name, index + 1)
 
-    notify(`&cEntity class called &e'${name}'&r &cdoesn't exist. Make sure to use Mob Class Name not SkyBlock name. &3@see https://github.com/nwjn/NwjnAddons/wiki/Bestiary-Entries`)
-    return null;
-  }
+        notify(`&cEntity class called &e'${name}'&r &cdoesn't exist. Make sure to use Mob Class Name not SkyBlock name. &3@see https://github.com/nwjn/NwjnAddons/wiki/Bestiary-Entries`)
+        return null;
+    }
 }
 
 // change to weakhashmap
@@ -32,25 +31,24 @@ const mobsHighlight = new HashMap()
  * @see https://github.com/nwjn/NwjnAddons/wiki/Bestiary-Entries
  */
 function setMobHighlight() {
-    mobsHighlight
-  mobsHighlight.clear()
-  if (!Settings().mobList) return
+    mobsHighlight.clear()
+    if (!Settings().mobList) return
 
-  Settings().mobList.split(/,\s?/g).forEach(entry => {
-    const [mob, hpParam] = entry.split("-")
+    Settings().mobList.split(/,\s?/g).forEach(entry => {
+        const [mob, hpParam] = entry.split("-")
 
-    // Check if entry is valid
-    if (!mob) return
-    const clazz = getClassOfEntity(mob)
-    if (!clazz) return
+        // Check if entry is valid
+        if (!mob) return
+        const clazz = getClassOfEntity(mob)
+        if (!clazz) return
 
-    const hps = hpParam?.split("|")?.map(MathUtil.convertToNumber)
+        const hps = hpParam?.split("|")?.map(MathUtil.convertToNumber)
 
-    mobsHighlight.put(
-      clazz,
-      hps
-    )
-  })
+        mobsHighlight.put(
+            clazz,
+            hps
+        )
+    })
 }
 setMobHighlight()
 Settings().getConfig().onCloseGui(setMobHighlight)
@@ -58,35 +56,28 @@ Settings().getConfig().onCloseGui(setMobHighlight)
 
 const renderThese = new HashMap()
 const feat = new Feature({setting: "mobList"})
-  .addEvent(
-    new Event("interval", () => {
-      renderThese.clear()
+    .addEvent("interval", () => {
+        renderThese.clear()
 
-      mobsHighlight.forEach((clazz, hps) => {
-        World.getAllEntitiesOfType(clazz).forEach(it => {
-            if (!it.isDead() && (!hps || hps.includes(EntityUtil.getMaxHP(it)))) renderThese.put(it.entity.func_145782_y(), it)
+        mobsHighlight.forEach((clazz, hps) => {
+            World.getAllEntitiesOfType(clazz).forEach(it => {
+                if (!it.isDead() && (!hps || hps.includes(EntityUtil.getMaxHP(it)))) renderThese.put(it.entity.func_145782_y(), it)
+            })
         })
-      })
 
-      feat.update()
+        feat.update()
     }, 1 / 2)
-  )
-  .addSubEvent(
-    new Event("renderWorld", () => {
-      const color = Settings().mobHighlightColor
-      renderThese.forEach((_, it) => 
-        RenderUtil.drawOutlinedBox(it.getRenderX(), it.getRenderY(), it.getRenderZ(), it.getWidth(), it.getHeight(), color[0], color[1], color[2], color[3], true, 2)
-      )
-    }),
-    () => !renderThese.isEmpty()
-  )
-  .addSubEvent(
+
+    .addSubEvent("renderWorld", () => {
+        const color = Settings().mobHighlightColor
+        renderThese.forEach((_, it) => 
+            RenderUtil.drawOutlinedBox(it.getRenderX(), it.getRenderY(), it.getRenderZ(), it.getWidth(), it.getHeight(), color[0], color[1], color[2], color[3], true, 2)
+        )
+    }, () => !renderThese.isEmpty())
+    
     // remove this after weakhashmap
-    new Event("entityDeath", (_, mcEntity) => {
-      renderThese.remove(mcEntity.func_145782_y())
-    }),
-    () => !renderThese.isEmpty()
-  )
-  .onUnregister(() => 
-    renderThese.clear()
-  )
+    .addSubEvent("entityDeath", (_, mcEntity) => {
+        renderThese.remove(mcEntity.func_145782_y())
+    }, () => !renderThese.isEmpty())
+
+    .onUnregister(renderThese.clear)

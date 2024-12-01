@@ -61,16 +61,16 @@ export default new class Location {
     new Event("worldUnload", () => this._triggerWorldEvents(null)._triggerZoneEvents(null), null, true)
 
     // Ct reload case
-    // if (World.isLoaded()) {
-    //   TabList?.getNames()?.find(it => {
-    //     [it] = TextUtil.getMatches(/^(?:Area|Dungeon): (.+)$/, it.removeFormatting())
-    //     return it ? Boolean(this._triggerWorldEvents(it)) : false
-    //   })
-    //   Scoreboard?.getLines()?.find(it => {
-    //     [it] = TextUtil.getMatches(/^ [⏣ф] (.+)$/, it.getName().removeFormatting().replace(/[^\x0-\xFF]/g, ""))
-    //     return it ? Boolean(this._triggerZoneEvents(it)) : false
-    //   })
-    // }
+    if (World.isLoaded()) {
+      TabList?.getNames()?.find(it => {
+        [it] = TextUtil.getMatches(/^(?:Area|Dungeon): (.+)$/, it.removeFormatting())
+        return it ? Boolean(this._triggerWorldEvents(it)) : false
+      })
+      Scoreboard?.getLines()?.find(it => {
+        [it] = TextUtil.getMatches(/^ [⏣ф] (.+)$/, it.getName().removeFormatting().replace(/[^\x0-\xFF]/g, ""))
+        return it ? Boolean(this._triggerZoneEvents(it)) : false
+      })
+    }
   }
 
   _listeners = {

@@ -1,5 +1,4 @@
 import Feature from "../../core/Feature";
-import Event from "../../libs/CustomEventFactory/Event"
 import Party from "../../utils/Party";
 import { data } from "../../data/Data";
 import TextUtil from "../../core/static/TextUtil";
@@ -9,113 +8,108 @@ import Location from "../../utils/Location";
 import Settings from "../../data/Settings";
 
 const commands = {
-  "help": {
-    matches: /^help$/,
-    access: () => true,
-    fn: () => 
-      "pc NwjnAddons Cmds > " + Object.keys(commands).map(key => `.${ key }`).join(" | ")
-  },
+    "help": {
+        matches: /^help$/,
+        access: () => true,
+        fn: () => "pc NwjnAddons Cmds > " + Object.keys(commands).map(key => `.${ key }`).join(" | ")
+    },
 
-  "time": {
-    matches: /^time$/,
-    access: () => Settings().pcTime,
-    fn: () => "pc " + MathUtil.getTime()
-  },
-  
-  "coords": {
-    matches: /^coord(s)?|loc|xyz$/,
-    access: () => Settings().pcCoords,
-    fn: () => `pc x: ${ ~~Player.getX() }, y: ${ ~~Player.getY() }, z: ${ ~~Player.getZ() } [${Location.getWorld()} - ${Location.getZone()}]`
-  },
-  
-  "power": {
-    matches: /^pow(er)?$/,
-    access: () => Settings().pcPower,
-    fn: () => `pc Power: ${ data.power } | Tuning: ${ data.tuning } | Enrich: ${ data.enrich } | MP: ${ data.mp }`
-  },
+    "time": {
+        matches: /^time$/,
+        access: () => Settings().pcTime,
+        fn: () => "pc " + MathUtil.getTime()
+    },
 
-  "stats": {
-    matches: /^stats$/,
-    access: () => Settings().pcStats,
-    fn: () => 
-      "pc " +
-        (
-          TextUtil.getTabBlock(
-          TabList.getNames()
-            .map(it => it.removeFormatting()),
-          Location.inWorld("Catacombs") ? /Skills:/ : /Stats:/
+    "coords": {
+        matches: /^coord(s)?|loc|xyz$/,
+        access: () => Settings().pcCoords,
+        fn: () => `pc x: ${ ~~Player.getX() }, y: ${ ~~Player.getY() }, z: ${ ~~Player.getZ() } [${Location.getWorld()} - ${Location.getZone()}]`
+    },
+
+    "power": {
+        matches: /^pow(er)?$/,
+        access: () => Settings().pcPower,
+        fn: () => `pc Power: ${ data.power } | Tuning: ${ data.tuning } | Enrich: ${ data.enrich } | MP: ${ data.mp }`
+    },
+
+    "stats": {
+        matches: /^stats$/,
+        access: () => Settings().pcStats,
+        fn: () => "pc " + (
+            TextUtil.getTabBlock(
+                TabList.getNames().map(it => it.removeFormatting()),
+                Location.inWorld("Catacombs") ? /Skills:/ : /Stats:/
+            )
+            ?.map(it => it.match(/: (.[\d]+)$/)?.[1])
+            ?.join(" | ")
+                ?? "Me no have stat widget"
         )
-          ?.map(it => it.match(/: (.[\d]+)$/)?.[1])
-          ?.join(" | ")
-            ?? "Me no have stat widget"
-        )
-  },
+    },
 
-  "tps": {
-    matches: /^tps$/,
-    access: () => Settings().pcTps,
-    fn: () =>
-      "pc TPS: " + getTPS()
-  },
+    "tps": {
+        matches: /^tps$/,
+        access: () => Settings().pcTps,
+        fn: () => "pc TPS: " + getTPS()
+    },
 
-  "build": {
-    matches: /^build$/,
-    access: () => Settings().pcBuild,
-    fn: () => "pc https://i.imgur.com/tsg6tx5.jpg"
-  },
+    "build": {
+        matches: /^build$/,
+        access: () => Settings().pcBuild,
+        fn: () => "pc https://i.imgur.com/tsg6tx5.jpg"
+    },
 
-  "allinvite": {
-    matches: /^allinv(ite)?$/,
-    access: () => Settings().pcAllinvite && Party.amILeader(),
-    fn: () => "p settings allinvite"
-  },
+    "allinvite": {
+        matches: /^allinv(ite)?$/,
+        access: () => Settings().pcAllinvite && Party.amILeader(),
+        fn: () => "p settings allinvite"
+    },
 
-  "invite": {
-    matches: /^inv(ite)?$/,
-    access: () => Settings().pcInvite && Party.amILeader(),
-    fn: (_, cmd) => `p ${cmd.split(" ").slice(-1)[0]}`
-  },
+    "invite": {
+        matches: /^inv(ite)?$/,
+        access: () => Settings().pcInvite && Party.amILeader(),
+        fn: (_, cmd) => `p ${cmd.split(" ").slice(-1)[0]}`
+    },
 
-  "warp": {
-    matches: /^warp$/,
-    access: () => Settings().pcWarp && Party.amILeader(),
-    fn: () => "p warp"
-  },
+    "warp": {
+        matches: /^warp$/,
+        access: () => Settings().pcWarp && Party.amILeader(),
+        fn: () => "p warp"
+    },
 
-  "transfer": {
-    matches: /^transfer|pt(?:me)?$/,
-    access: () => Settings().pcTransfer && Party.amILeader(),
-    fn: (ign, cmd) => cmd.includes(" ") ? `p transfer ${ cmd.split(" ").slice(-1)[0] }` : `p transfer ${ ign }`
-  },
+    "transfer": {
+        matches: /^transfer|pt(?:me)?$/,
+        access: () => Settings().pcTransfer && Party.amILeader(),
+        fn: (ign, cmd) => cmd.includes(" ") ? `p transfer ${ cmd.split(" ").slice(-1)[0] }` : `p transfer ${ ign }`
+    },
 
-  "f1-7 | .m1-7 | .t1-5": {
-    matches: /^([fmt]) ?([1-7])$/,
-    access: () => Settings().pcInstance && Party.amILeader(),
-    fn: (_, cmd) => {
-      const [type, number] = TextUtil.getMatches(/^([fmt]) ?([1-7])$/, cmd)
+    "f1-7 | .m1-7 | .t1-5": {
+        matches: /^([fmt]) ?([1-7])$/,
+        access: () => Settings().pcInstance && Party.amILeader(),
+        fn: (_, cmd) => {
+            const [type, number] = TextUtil.getMatches(/^([fmt]) ?([1-7])$/, cmd)
 
-      switch (type) {
-        case "f":
-          return `joininstance catacombs_floor_${ TextUtil.getFloorWord(number) }`;
-        case "m":
-          return `joininstance master_catacombs_floor_${ TextUtil.getFloorWord(number) }`;
-        case "t":
-          return `joininstance kuudra_${ TextUtil.getTierWord(number) }`;
-      }
+            switch (type) {
+                case "f":
+                    return `joininstance catacombs_floor_${ TextUtil.getFloorWord(number) }`;
+                case "m":
+                    return `joininstance master_catacombs_floor_${ TextUtil.getFloorWord(number) }`;
+                case "t":
+                    return `joininstance kuudra_${ TextUtil.getTierWord(number) }`;
+                default: 
+                    return "pc Invalid instance?"
+            }
+        }
     }
-  }
 }
 
 new Feature({setting: "partyCommands"})
-  .addEvent(
-    new Event("serverChat", (player, command, event) => {
-      const ign = TextUtil.getSenderName(player).toLowerCase()
-      const cmd = command.toLowerCase()
+    .addEvent("serverChat", (player, command, event) => {
+        const ign = TextUtil.getSenderName(player).toLowerCase()
+        const cmd = command.toLowerCase()
 
-      if (data.blacklist.includes(ign)) return TextUtil.append(event.func_148915_c(), "&cBlacklisted")
-      
-      const response = Object.values(commands).find(obj => obj.matches.test(cmd) && obj.access())
+        if (data.blacklist.includes(ign)) return TextUtil.append(event.func_148915_c(), "&cBlacklisted")
+        
+        const response = Object.values(commands).find(obj => obj.matches.test(cmd) && obj.access())
 
-      if (response) scheduleTask(() => ChatLib.command(response.fn(ign, cmd)), 4)
+        if (response) scheduleTask(() => ChatLib.command(response.fn(ign, cmd)), 4)
     }, /^Party > (.+): [,.?!](.+)$/)
-)

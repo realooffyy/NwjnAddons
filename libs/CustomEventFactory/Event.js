@@ -15,13 +15,11 @@ export default class Event {
      * @param {any} arg
      * @param {Boolean} orphan
      */
-    constructor(triggerType, method, args, orphan = false) {
-        if (orphan) {
-            return getEvent(triggerType, method, args).register()
-        }
-            
+    constructor(triggerType, method, args = null, orphan = false) {
         // Register event from correct source
         this._event = getEvent(triggerType, method, args)
+        if (orphan) return this._event.register()
+
         this.isRegistered = false
     }
 
