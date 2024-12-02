@@ -1,5 +1,5 @@
 /** 
- * Virtually entire class taken from:
+ * Adaptation based upon:
  * @author DocilElm
  * @license {GNU-GPL-3} https://github.com/DocilElm/Doc/blob/main/LICENSE
  * @credit https://github.com/DocilElm/Doc/blob/main/core/Feature.js
@@ -9,22 +9,15 @@ import Settings from "../data/Settings";
 import Location from "../utils/Location"
 import Event from "../libs/CustomEventFactory/Event";
 
-/**
- * - Class to handle Events and SubEvents of a feature
- * - Usually used in tandem with settings unless extra utility is needed—in which case [obj.setting] is omitted
- * 
- * - Huge thanks to DocilElm
- * @credit https://github.com/DocilElm/Doc/blob/main/core/Feature.js
- */
 export default class Feature {
     /**
-     * - Class that handles event based utilities
-     * - For example waiting for the proper world to be loaded in order
-     * - to register the event/subEvents
+     * - Utility that handles registering various events and listeners to make complex, functional, and performative features
+     * - Class can be used with or without requiring the settings, worlds, or zones fields depending on the intended functionality
+     * 
      * @param {Object} obj
-     * @param {String} obj.setting The feature name (config name) for this Feature
-     * @param {String[]|String} obj.worlds The required world for this Feature (if left empty it will not check)
-     * @param {String[]|String} obj.zones The required area for this Feature (if left empty it will not check)
+     * @param {String} obj.setting The main config name: If null -> Feature is always active, If setting returns false -> all events of this feature will be unregistered
+     * @param {String[]|String} obj.worlds The world(s) where this feature should activate: If null -> Feature is not world dependent
+     * @param {String[]|String} obj.zones The zones(s) where this feature should activate: If null -> Feature is not zone dependent
      */
     constructor({
         setting = null,
@@ -34,12 +27,12 @@ export default class Feature {
         // Events & listeners
         this.events = []
         this.subEvents = []
-        this._onRegister = []
-        this._onUnregister = []
+        this.registerListeners = []
+        this.unregisterListeners = []
 
         this.isRegistered = false
 
-        
+        // Feature should listen for setting changes if required
         if (setting in Settings()) {
             this.setting = setting
             this.settingValue = Settings()[setting]
@@ -50,7 +43,7 @@ export default class Feature {
             })
         }
 
-        // Feature should be updated when the world changes
+        // Feature should be updated when the area changes
         if (worlds) this.worlds = Array.isArray(worlds) ? worlds : Array(worlds)
         Location.registerWorldChange(() => this._updateRegister())
 
@@ -61,52 +54,7 @@ export default class Feature {
     }
 
     /**
-     * - Internal use.
-     * - Note: #inWorld and #inZone return true if param is nullish
-     * @returns {this} meth chain
-     */
-    _updateRegister() {
-        if (this.setting && !this.settingValue) return this._unregister()
-        if (!(Location.inWorld(this.worlds) && Location.inZone(this.zones))) return this._unregister()
-        
-        return this._register()
-    }
-
-    /**
-     * - Internal use.
-     * - Unregisters all of the events and subEvents for this Feature
-     * - Only unregisters if the events have been registered before-hand
-     * @returns {this} meth chain
-     */
-    _unregister() {
-        if (!this.isRegistered) return this
-        
-        for (let event of this.events) event.unregister()
-        for (let subEvent of this.subEvents) subEvent[0].unregister()
-        for (let listener of this._onUnregister) listener?.()
-    
-        this.isRegistered = false
-        return this
-    }
-
-    /**
-     * - Internal use.
-     * - Registers all of the events and triggers the listener for this Feature
-     * - Only registers the events if it should and if they haven't been registered before-hand
-     * @returns {this} meth chain
-     */
-    _register() {
-        if (this.isRegistered) return this
-        
-        for (let event of this.events) event.register()
-        for (let listener of this._onRegister) listener?.()
-    
-        this.isRegistered = true
-        return this
-    }
-
-    /**
-     * - Adds a [Event] to this Feature
+     * - Adds an [Event] that is registered as long as the Feature is
      * @param {String|Event} triggerType
      * @param {() => void} methodFn
      * @param {any} args
@@ -120,11 +68,11 @@ export default class Feature {
     }
 
     /**
-     * - Adds a [SubEvent] to this Feature
+     * - Adds a (conditional Event) aka [SubEvent] that is (un)registered by the main events
      * @param {String} triggerType
-     * @param {() => void} methodFn
+     * @param {(...args) => void} methodFn
      * @param {any} args
-     * @param {() => Boolean} condition The function that will be ran whenever this subEvent gets updated
+     * @param {() => Boolean} condition The function to check if this subEvent should be (un)registered
      * @returns {this} meth chain
      */
     addSubEvent(triggerType, methodFn, args, condition = () => true) {
@@ -137,53 +85,102 @@ export default class Feature {
     }
 
     /**
-     * - Calls the given function whenever this Feature's events have been registered
-     * @param {() => void} fn
+     * - Tags a listener function that's called when this [Feature] is registered
+     * @param {Function} fn
      * @returns {this} meth chain   
      */
     onRegister(fn) {
-        this._onRegister.push(fn)
+        this.registerListeners.push(fn)
 
         return this
     }
 
     /**
-     * - Calls the given function whenever this Feature's events have been unregistered
-     * @param {() => void} fn
+     * - Tags a listener function that's called when this [Feature] is unregistered
+     * @param {Function} fn
      * @returns {this} meth chain
      */
     onUnregister(fn) {
-        this._onUnregister.push(fn)
+        this.unregisterListeners.push(fn)
 
         return this
     }
 
     /**
-     * - Calls all of the subEvents for update
-     * - Each subEvent's function is ran to see whether it should be registered or not
+     * - Calls every subEvent's condition and (un)register based on its state
      * @returns {this} meth chain
      */
     update() {
-        for (let it of this.subEvents) {
-            let [ subEvent, condition ] = it // grr Rhino
-
-            condition() ? subEvent.register() : subEvent.unregister()
-        }
+        this.subEvents.forEach(([subEvent, condition]) => condition() ? subEvent.register() : subEvent.unregister())
 
         return this
     }
 
-    registerSubsOnly() {
-        for (let subEvent of this.subEvents) subEvent[0].register()
-        for (let listener of this._onRegister) listener?.()
+    /**
+     * - Externally registers all subEvents
+     * @returns {this} meth chain
+     */
+    register() {
+        if (this.isRegistered) return this
+
+        this.update()
+        for (let listener of this.registerListeners) listener?.()
 
         return this
     }
 
-    unregisterSubsOnly() {
+    /**
+     * - Externally unRegisters all subEvents
+     * @returns {this} meth chain
+     */
+    unregister() {
+        if (!this.isRegistered) return this
+
         for (let subEvent of this.subEvents) subEvent[0].unregister()
-        for (let listener of this._onUnregister) listener?.()
+        for (let listener of this.unregisterListeners) listener?.()
 
+        return this
+    }
+
+    /**
+     * - Updates the Feature based on the setting, world, and zone criteria
+     * @note Location#inWorld and Location#inZone return true if param is nullish
+     * @returns {this} meth chain
+     */
+    _updateRegister() {
+        if (this.setting && !this.settingValue) return this._unregister()
+        if (!(Location.inWorld(this.worlds) && Location.inZone(this.zones))) return this._unregister()
+        
+        return this._register()
+    }
+
+    /**
+     * - UnRegisters all strung [Events] including subEvents
+     * @returns {this} meth chain
+     */
+    _unregister() {
+        if (!this.isRegistered) return this
+        
+        for (let event of this.events) event.unregister()
+        for (let subEvent of this.subEvents) subEvent[0].unregister()
+        for (let listener of this.registerListeners) listener?.()
+    
+        this.isRegistered = false
+        return this
+    }
+
+    /**
+     * - UnRegisters all strung [Events] including subEvents
+     * @returns {this} meth chain
+     */
+    _register() {
+        if (this.isRegistered) return this
+        
+        for (let event of this.events) event.register()
+        this.update()
+        for (let listener of this.unregisterListeners) listener?.()
+    
+        this.isRegistered = true
         return this
     }
 }

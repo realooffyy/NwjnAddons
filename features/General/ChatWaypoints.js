@@ -32,11 +32,11 @@ const feat = new Feature({setting: "waypoint"})
         }
 
         waypoints.set(ign, wp)
-        feat.registerSubsOnly()
+        feat.register()
     }, ChatWaypointSentRegex)
 
     .addSubEvent("serverTick", () => {
-        if (!waypoints.size) feat.unregisterSubsOnly()
+        if (!waypoints.size) feat.unregister()
 
         waypoints.forEach(it => {
             const dist = it.dist = ~~Player.asPlayerMP().distanceTo(...it.coord)
@@ -58,5 +58,5 @@ const feat = new Feature({setting: "waypoint"})
 import { addCommand } from "../../utils/Command"
 addCommand("clearWaypoints", "Stops rendering current waypoints", () => {
     waypoints.clear()
-    feat.unregisterSubsOnly()
+    feat.unregister()
 })
