@@ -1,3 +1,10 @@
+/** 
+ * Adaptation based upon:
+ * @author DocilElm
+ * @license {GNU-GPL-3} https://github.com/DocilElm/Doc/blob/main/LICENSE
+ * @credit https://github.com/DocilElm/Doc/blob/main/shared/DraggableGui.js
+ */
+
 import Feature from "./Feature";
 import { data } from "../data/Data";
 import Event from "../libs/CustomEventFactory/Event";
@@ -7,21 +14,21 @@ import { CenterConstraint, CramSiblingConstraint, ScrollComponent, UIRoundedRect
 import { addCommand } from "../utils/Command"
 import Settings from "../data/Settings"
 
-const guis = new Set()
+const guis = new HashMap()
 
 export default class GuiFeature extends Feature {
     /**
-     * - Class that handles event based utilities with gui elements
-     * @param {Object} obj
-     * @param {String} obj.setting The feature name (config name) for this Feature
-     * @param {String[]|String} obj.worlds The required world for this Feature (if left empty it will not check)
-     * @param {String[]|String} obj.zones The required area for this Feature (if left empty it will not check)
+     * - Extension of [Feature] for features that include gui elements
      * 
-     * @param {String} obj.name The gui name to show in the editor
-     * @param {Object} obj.dataObj the reference to the data with the x, y, scale values
-     * @param {String} obj.baseText The example text that shows in the editor when theres no other text
+     * @param {Object} obj
+     * @param {String} obj.setting The main config name: If null -> Feature is always active, If setting returns false -> all events of this feature will be unregistered
+     * @param {String[]|String} obj.worlds The world(s) where this feature should activate: If null -> Feature is not world dependent
+     * @param {String[]|String} obj.zones The zones(s) where this feature should activate: If null -> Feature is not zone dependent
+     * 
+     * @param {String} obj.name The gui name to show on the button in the editor
+     * @param {Object} obj.dataObj The reference to the data with the x, y, scale values
+     * @param {String} obj.baseText The text to shown in the editor if the feature's text is blank
      * @param {String} obj.color The feature's color setting (Not needed for texts with color codes)
-     * @param {String} obj._command Internal command name to open the editing gui for this feature
     */
     constructor({
         setting = null,
@@ -42,6 +49,7 @@ export default class GuiFeature extends Feature {
         this.gui.registerScrolled((_, __, dir) => this.data.scale += (dir * 0.02))
         this.gui.registerMouseDragged((mx, my) => {this.data.x = mx; this.data.y = my})
         this.gui.registerDraw(() => this._draw(this.message || baseText))
+        guis.put(this.name = name, this.gui)
 
         if (color && color in Settings()) {
             this.color = Settings()[color]
@@ -50,9 +58,9 @@ export default class GuiFeature extends Feature {
         else this.color = [255, 255, 255, 255]
 
         this.addEvent(this.render = new Event("renderOverlay", () => this._draw()))
-        guis.add(this)
     }
     
+    /** Draw based on data */
     _draw(text = this.message, color = this.color, {x, y, scale} = this.data) {
         if (!text) return
 
@@ -65,6 +73,7 @@ export default class GuiFeature extends Feature {
         Renderer.finishDraw()
     }
 
+    /** Automatically un(register) the render event when setting the text */
     set text(txt) {
         txt ? this.render.register() : this.render.unregister() 
 
@@ -104,7 +113,7 @@ bgScrollable.setScrollBarComponent(scrollableSlider, true, false)
 const buttons = new Set()
 
 class ButtonComponent {
-    constructor(gui) {
+    constructor(name, gui) {
         this.bgButtonBox = new UIRoundedRectangle(scheme.Button.background.roundness)
             .setX((1).pixels())
             .setY(new CramSiblingConstraint(5))
@@ -114,21 +123,21 @@ class ButtonComponent {
             .enableEffect(new OutlineEffect(ElementUtils.getJavaColor(scheme.Button.background.outlineColor), scheme.Button.background.outlineSize))
             .setChildOf(bgScrollable)
             .onMouseClick((_, event) => {
-                if (event.mouseButton === 0) gui.gui.open()
+                if (event.mouseButton === 0) gui.open()
             })
 
-        this.buttonText = new UIText(gui.name)
+        this.buttonText = new UIText(name)
             .setX(new CenterConstraint())
             .setY(new CenterConstraint())
             .setChildOf(this.bgButtonBox)
 
-        buttons.add(gui.name)
+        buttons.add(name)
     }
 }
 
 addCommand("gui", "Opens the Editor Gui", () => {
-    guis.forEach(gui => {
-        if (!buttons.has(gui.name)) new ButtonComponent(gui)
+    guis.forEach((name, gui) => {
+        if (!buttons.has(name)) new ButtonComponent(name, gui)
     })
 
     handler.ctGui.open()
