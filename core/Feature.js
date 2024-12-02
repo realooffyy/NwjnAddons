@@ -31,16 +31,15 @@ export default class Feature {
         worlds = null,
         zones = null
     } = {}) {
-        // Events stuff
-        /** @type {Event[]}*/ this.events = []
-        /** @type {[Event, () => Boolean][]} */ this.subEvents = []
-
-        this.isRegistered = false
-
-        // Listeners
+        // Events & listeners
+        this.events = []
+        this.subEvents = []
         this._onRegister = []
         this._onUnregister = []
 
+        this.isRegistered = false
+
+        
         if (setting in Settings()) {
             this.setting = setting
             this.settingValue = Settings()[setting]
@@ -51,18 +50,14 @@ export default class Feature {
             })
         }
 
-        if (worlds) {
-            this.worlds = Array.isArray(worlds) ? worlds : Array(worlds)
-            Location.registerWorldChange(() => this._updateRegister())
-        }
+        // Feature should be updated when the world changes
+        if (worlds) this.worlds = Array.isArray(worlds) ? worlds : Array(worlds)
+        Location.registerWorldChange(() => this._updateRegister())
+
         if (zones) {
             this.zones = Array.isArray(zones) ? zones : Array(zones)
-            Location.registerZoneChange(() => this._updateRegister())
+            Location.registerWorldChange(() => this._updateRegister())
         }
-
-        // Feature should be updated when the world changes
-        register("worldLoad", () => this._updateRegister())
-        register("worldUnload", () => this._unregister())
     }
 
     /**

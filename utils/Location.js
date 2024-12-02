@@ -60,17 +60,19 @@ export default new class Location {
     new Event("sidebarChange", (zone) => this._triggerZoneEvents(zone), /^ [⏣ф] (.+)$/, true)
     new Event("worldUnload", () => this._triggerWorldEvents(null)._triggerZoneEvents(null), null, true)
 
-    // Ct reload case
-    if (World.isLoaded()) {
-      TabList?.getNames()?.find(it => {
+    // For CT Reload while playing
+    new Event("gameLoad", () => {
+      if (!World.isLoaded()) return
+
+      TabList.getNames().find(it => {
         [it] = TextUtil.getMatches(/^(?:Area|Dungeon): (.+)$/, it.removeFormatting())
-        return it ? Boolean(this._triggerWorldEvents(it)) : false
+        return it ? this._triggerWorldEvents(it) : false
       })
-      Scoreboard?.getLines()?.find(it => {
-        [it] = TextUtil.getMatches(/^ [⏣ф] (.+)$/, it.getName().removeFormatting().replace(/[^\x0-\xFF]/g, ""))
-        return it ? Boolean(this._triggerZoneEvents(it)) : false
+      Scoreboard.getLines().find(it => {
+        [it] = TextUtil.getMatches(/^ [⏣ф] (.+)$/, it.getName().removeFormatting().replace(/[^\w\s]/g, "").trim())
+        return it ? this._triggerZoneEvents(it) : false
       })
-    }
+    }, null, true)
   }
 
   _listeners = {
