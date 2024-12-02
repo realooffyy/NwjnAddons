@@ -33,7 +33,7 @@ const version = register("worldLoad", () => {
     const mod = compareVersions(ChatTriggers.MODVERSION, modVersion)
 
     if (rel === 0 && mod !== 0) 
-        notify(`Please use Chattriggers-v${modVer} to run this module most efficiently. https://github.com/ChatTriggers/ChatTriggers/releases/tag/${modVer}`)
+        notify(`Please use Chattriggers-v${modVersion} to run this module most efficiently. https://github.com/ChatTriggers/ChatTriggers/releases/tag/${modVer}`)
 })
 
 function compareVersions(current, compareTo) {
