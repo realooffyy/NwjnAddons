@@ -121,8 +121,6 @@ export default class Feature {
      * @returns {this} meth chain
      */
     register() {
-        if (this.isRegistered) return this
-
         this.update()
         for (let listener of this.registerListeners) listener?.()
 
@@ -134,8 +132,6 @@ export default class Feature {
      * @returns {this} meth chain
      */
     unregister() {
-        if (!this.isRegistered) return this
-
         for (let subEvent of this.subEvents) subEvent[0].unregister()
         for (let listener of this.unregisterListeners) listener?.()
 

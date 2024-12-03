@@ -44,11 +44,11 @@ createEvent("entityLoad", (fn, clazz) =>
 createEvent("spawnMob", (fn, clazz) =>
     register("packetReceived", (packet) => {
         scheduleTask(() => {
-            const entityID = packet.func_149024_d()
-            const entity = World.getWorld().func_73045_a(entityID)
-            if (clazz && !(entity instanceof clazz)) return
-
-            fn(entity, entityID)
+        const entityID = packet.func_149024_d()
+        const entity = World.getWorld().func_73045_a(entityID)
+        if (clazz && !(entity instanceof clazz)) return
+        
+        fn(entity, entityID)
         })
     }).setFilteredClass(net.minecraft.network.play.server.S0FPacketSpawnMob)
 )
@@ -56,9 +56,9 @@ createEvent("spawnMob", (fn, clazz) =>
 createEvent("spawnObject", (fn) =>
     register("packetReceived", (packet, event) => {
         /** @see {https://github.com/Marcelektro/MCP-919/blob/1717f75902c6184a1ed1bfcd7880404aab4da503/src/minecraft/net/minecraft/entity/EntityTrackerEntry.java} ctrl-f S0EPacketSpawnObject*/
-        const entityTypeByte = packet.func_148993_l()
+        const entityType = packet.func_148993_l()
         
-        fn(entityTypeByte, event)
+        fn(entityType, event)
     }).setFilteredClass(net.minecraft.network.play.server.S0EPacketSpawnObject)
 )
 
@@ -74,12 +74,20 @@ createEvent("spawnExp", (fn) =>
     }).setFilteredClass(net.minecraft.network.play.server.S11PacketSpawnExperienceOrb)
 )
 
-createEvent("entityDeath", (fn, clazz) =>
-    register("entityDeath", (entity) => {
-        if (clazz && !(entity.entity instanceof clazz)) return
+createEvent("armorStandDeath", (fn) => 
+    register("packetReceived", (packet) => {
+        const dataWatcherList = packet.func_149376_c()
+        if (dataWatcherList?.length !== 1) return
 
-        fn(entity, entity.entity)
-    })
+        const entry = dataWatcherList[0]
+        if (entry.func_75674_c() !== 4) return
+        if (!/§r §[^a]0(§f\/|§c❤)/.test(entry.func_75669_b())) return
+
+        const entity = World.getWorld().func_73045_a(packet.func_149375_d())
+        if (!entity) return
+
+        fn(entity)
+    }).setFilteredClass(net.minecraft.network.play.server.S1CPacketEntityMetadata)
 )
 
 createEvent("serverChat", (fn, criteria = "") => 

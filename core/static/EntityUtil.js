@@ -6,27 +6,6 @@ export default class EntityUtil {
     static getEntity = (entity) => entity?.entity ?? entity
 
     /**
-     * - Credit: SkyHanni
-     * - Gets the correspond armor stand tag of the entity
-     * @param {MCTEntity|Entity} entity 
-     * @returns {MCTEntity} The armor stand entity
-     */
-    static getMobStandTag(entity) {
-        entity = EntityUtil.getEntity(entity)
-
-        const tagEntity =
-            World.getWorld().func_73045_a( // getEntityByID
-                entity.func_145782_y() + 1 // getEntityID, + 1 gets next entity
-            )
-
-        return (
-            tagEntity instanceof net.minecraft.entity.item.EntityArmorStand
-            &&
-            /§r §[^a]0(§f\/|§c❤)/g.test(tagEntity.func_95999_t()) // tests if the nametag of the stand is hp tag
-        ) ? tagEntity : null
-    }
-
-    /**
      * Credit: PerseusPotter
      * Gets the Max HP of the entity
      * @param {MCTEntity|Entity} entity 
