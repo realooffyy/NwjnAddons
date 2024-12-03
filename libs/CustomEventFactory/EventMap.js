@@ -41,37 +41,32 @@ createEvent("entityLoad", (fn, clazz) =>
     })
 )
 
-createEvent("spawnMob", (fn, clazz) =>
-    register("packetReceived", (packet) => {
-        scheduleTask(() => {
-        const entityID = packet.func_149024_d()
-        const entity = World.getWorld().func_73045_a(entityID)
-        if (clazz && !(entity instanceof clazz)) return
-        
-        fn(entity, entityID)
-        })
+createEvent("spawnDamageTag", (fn) =>
+    register("packetReceived", (packet, event) => {
+        if (packet.func_149025_e() !== 30) return
+
+        const firstString = packet.func_149027_c().find(o => o.func_75674_c() === 4)?.func_75669_b()
+        if (firstString && !firstString.includes(" ")) fn(firstString, event)
     }).setFilteredClass(net.minecraft.network.play.server.S0FPacketSpawnMob)
 )
 
+/** @see {https://github.com/Marcelektro/MCP-919/blob/1717f75902c6184a1ed1bfcd7880404aab4da503/src/minecraft/net/minecraft/entity/EntityTrackerEntry.java} ctrl-f S0EPacketSpawnObject*/
 createEvent("spawnObject", (fn) =>
-    register("packetReceived", (packet, event) => {
-        /** @see {https://github.com/Marcelektro/MCP-919/blob/1717f75902c6184a1ed1bfcd7880404aab4da503/src/minecraft/net/minecraft/entity/EntityTrackerEntry.java} ctrl-f S0EPacketSpawnObject*/
-        const entityType = packet.func_148993_l()
-        
-        fn(entityType, event)
-    }).setFilteredClass(net.minecraft.network.play.server.S0EPacketSpawnObject)
+    register("packetReceived", (packet, event) => 
+        fn(packet.func_148993_l(), event)
+    ).setFilteredClass(net.minecraft.network.play.server.S0EPacketSpawnObject)
 )
 
 createEvent("spawnPainting", (fn) => 
-    register("packetReceived", (_, event) => {
+    register("packetReceived", (_, event) => 
         fn(event)
-    }).setFilteredClass(net.minecraft.network.play.server.S10PacketSpawnPainting)
+    ).setFilteredClass(net.minecraft.network.play.server.S10PacketSpawnPainting)
 )
 
 createEvent("spawnExp", (fn) => 
-    register("packetReceived", (_, event) => {
+    register("packetReceived", (_, event) => 
         fn(event)
-    }).setFilteredClass(net.minecraft.network.play.server.S11PacketSpawnExperienceOrb)
+    ).setFilteredClass(net.minecraft.network.play.server.S11PacketSpawnExperienceOrb)
 )
 
 createEvent("armorStandDeath", (fn) => 

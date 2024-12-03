@@ -29,15 +29,15 @@ Object.entries({
 }).forEach(([k, v]) => blacklist.put(k, v))
 
 new Feature({setting: "miscShit"})
-    .addEvent("spawnObject", (entityTypeByte, event) => {
-        const value = blacklist.get(entityTypeByte)
+    .addEvent("spawnObject", (entityType, event) => {
+        const value = blacklist.get(entityType)
         if (!value) return
 
         if (
             (typeof(value) === "function" && value())
             ||
             (typeof(value) === "boolean" && value)
-        ) return cancel(event)
+        ) cancel(event)
     })
 
     .addEvent("spawnPainting", cancel)
