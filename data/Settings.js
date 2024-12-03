@@ -534,10 +534,17 @@ const defCon1 = new DefaultConfig("NwjnAddons", "/data/.Config.json")
 })
 .addSwitch({
     category: "QOL",
-    configName: "deathAnimation",
-    title: "Stops Entity Death Animation",
-    description: "Stops entity death animation and removes its armorstand tag",
-    value: false
+    configName: "noDeathAnimation",
+    title: "&e✯&r &bRemove Entity Death Animation",
+    description: "Fully kills the entity before it can perform the animation",
+    value: true
+})
+.addSwitch({
+    category: "QOL",
+    configName: "noDeadArmorStands",
+    title: "&e✯&r &bRemove Dead Armor Stands",
+    description: "Kills the ArmorStand used for a mob's hp when the mob dies instead of half a second after",
+    value: true
 })
 .addSwitch({
     category: "QOL",
