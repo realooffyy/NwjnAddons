@@ -1,16 +1,23 @@
 import Feature from "../../core/Feature"
 import RenderUtil from "../../core/static/RenderUtil"
-import RenderHelper from "../../core/static/RenderHelper"
 import Settings from "../../data/Settings"
 
+const DrawBlockHighlightEvent = net.minecraftforge.client.event.DrawBlockHighlightEvent
+const BlockHit = net.minecraft.util.MovingObjectPosition.MovingObjectType.BLOCK
+
 new Feature({setting: "blockHighlight"})
-    .addEvent("drawBlockHighlight", (_, event) => {
-        cancel(event)
+    .addEvent(DrawBlockHighlightEvent, (event) => {
+        const target = event.target
+        if (!target || target.field_72313_a !== BlockHit) return
 
-        const target = Player.lookingAt()
+        const pos = target.func_178782_a()
+        const WorldClient = World.getWorld()
+        if (!pos || WorldClient.func_175623_d(pos)) return
 
-        if (!target?.type) return
-
+        const BlockState = WorldClient.func_180495_p(pos).func_177230_c()
+        const AABB = BlockState.func_180646_a(WorldClient, pos).func_72314_b(0.002, 0.002, 0.002)
+        
         const color = Settings().highlightColor
-        RenderUtil.drawOutlinedAABB(RenderHelper.getCTBlockAABB(target), color[0], color[1], color[2], color[3], false, 3)
+        RenderUtil.drawOutlinedAABB(AABB, color[0], color[1], color[2], color[3], false, 3)
+        cancel(event)
     })

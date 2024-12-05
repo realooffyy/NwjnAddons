@@ -167,7 +167,7 @@ createEvent("containerClick", (fn) =>
 )
 
 export const getEvent = (triggerType, method, args) => {
-    const type = triggerType.toUpperCase()
+    const type = typeof(triggerType) === "string" ? triggerType.toUpperCase() : triggerType
 
     const trigger =
         map.containsKey(type) ?
