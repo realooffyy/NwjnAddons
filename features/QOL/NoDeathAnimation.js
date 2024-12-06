@@ -1,4 +1,4 @@
 import Feature from "../../core/Feature";
 
 new Feature({setting: "noDeathAnimation"})
-    .addEvent("entityDeath", (entity) => entity.entity.func_70106_y())
+    .addEvent(net.minecraftforge.event.entity.living.LivingDeathEvent, (event) => event.entity.func_70106_y())

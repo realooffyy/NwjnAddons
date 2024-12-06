@@ -59,7 +59,7 @@ createEvent("spawnExp", (fn) =>
 )
 
 createEvent("armorStandDeath", (fn) => 
-    register("packetReceived", (packet) => {
+    register("packetReceived", (packet, event) => {
         const dataWatcherList = packet.func_149376_c()
         if (dataWatcherList?.length !== 1) return
 
@@ -70,7 +70,7 @@ createEvent("armorStandDeath", (fn) =>
         const entity = World.getWorld().func_73045_a(packet.func_149375_d())
         if (!entity) return
 
-        fn(entity)
+        fn(entity, event)
     }).setFilteredClass(net.minecraft.network.play.server.S1CPacketEntityMetadata)
 )
 
