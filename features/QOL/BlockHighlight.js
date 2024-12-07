@@ -15,7 +15,7 @@ new Feature({setting: "blockHighlight"})
         if (!pos || WorldClient.func_175623_d(pos)) return
 
         const BlockState = WorldClient.func_180495_p(pos).func_177230_c()
-        const AABB = BlockState.func_180646_a(WorldClient, pos).func_72314_b(0.002, 0.002, 0.002)
+        const AABB = BlockState.func_180646_a(WorldClient, pos)
         
         const color = Settings().highlightColor
         RenderUtil.drawOutlinedAABB(AABB, color[0], color[1], color[2], color[3], false, 3)

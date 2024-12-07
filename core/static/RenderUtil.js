@@ -24,31 +24,24 @@ export default class RenderUtil {
      */
     static drawOutlinedAABB(aabb, r, g, b, a, phase = false, lineWidth = 3) {
         const [rx, ry, rz] = RenderHelper.getRenderPos()
+
         Tessellator
-            .pushMatrix()
-            .disableTexture2D()
             .enableBlend()
-            .disableAlpha()
             .tryBlendFuncSeparate(770, 771, 1, 0)
-
+            .colorize(r / 255, g / 255, b / 255, a / 255)
         GL11.glLineWidth(lineWidth)
+        Tessellator
+            .disableTexture2D()
 
-        Tessellator.translate(-rx, -ry, -rz)
         if (phase) Tessellator.disableDepth()
 
-        RenderGlobal.func_181563_a(aabb, r, g, b, a) // drawOutlinedBoundingBox
+        RenderGlobal.func_181561_a(aabb.func_72314_b(0.002, 0.002, 0.002).func_72317_d(-rx, -ry, -rz)) // drawSelectionBoundingBox
 
-        Tessellator.translate(rx, ry, rz)
         if (phase) Tessellator.enableDepth()
 
         Tessellator
             .disableBlend()
-            .enableAlpha()
             .enableTexture2D()
-            .colorize(1, 1, 1, 1)
-            .popMatrix()
-
-        GL11.glLineWidth(2)
     }
 
     /**

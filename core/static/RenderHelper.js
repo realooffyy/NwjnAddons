@@ -30,6 +30,14 @@ export default class RenderUtil {
             aabb.field_72337_e, // Max Y
             aabb.field_72334_f // Max Z
         ]
+        // return [
+        //     field_72340_a, // Min X
+        //     field_72338_b, // Min Y
+        //     field_72339_c, // Min Z
+        //     field_72336_d, // Max X
+        //     field_72337_e, // Max Y
+        //     field_72334_f // Max Z
+        // ] = aabb
     }
 
     static isAABB(value) {
