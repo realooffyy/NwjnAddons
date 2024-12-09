@@ -3,7 +3,7 @@ import { log } from "../../core/static/TextUtil";
 
 let lastbar = [Date.now(), ""]
 new Feature({setting: "skyblockXP"})
-    .addEvent("serverChat", (xp, category, progress) => {
+    .addEvent("actionBarChange", (xp, category, progress) => {
         const msg = `§b${xp} §7${category} §b${progress}`
         if (Date.now() - lastbar[0] < 5000 && msg == lastbar[1]) return
         lastbar = [Date.now(), msg]
