@@ -627,10 +627,14 @@ const defCon1 = new DefaultConfig("NwjnAddons", "/data/.Config.json")
 
 import TextUtil from "../core/static/TextUtil"
 const meinConf = new Settings("NwjnAddons", defCon1, "/data/Scheme.json", `${TextUtil.NWJNADDONS} by &6nwjn`)
-    .addMarkdown("Changelog", FileLib.getUrlContent("https://raw.githubusercontent.com/wiki/nwjn/NwjnAddons/Latest-Changelog.md"))
-
     .setPos(15, 15)
     .setSize(70, 70)
     .apply()
+
+try {
+    const changelog = FileLib.getUrlContent("https://raw.githubusercontent.com/wiki/nwjn/NwjnAddons/Latest-Changelog.md")
+
+    meinConf.addChangelog(changelog).apply()
+} catch (e) {}
     
 export default () => meinConf.settings
