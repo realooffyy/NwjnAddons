@@ -9,7 +9,8 @@ export default new class Party extends Feature {
 	constructor() {
         super(); this
             .addEvent("serverChat", (member) => {
-                members.add(TextUtil.getSenderName(member))
+                const ign = TextUtil.getSenderName(member)
+                ign && members.add(ign)
             }, /^(?:(.+) joined the party\.|.+ invited (.+) to the party! They have 60 seconds to accept\.|Party Finder > (.+) joined the (dungeon )?group! \(.+\))$/)
             
             .addEvent("serverChat", (member) => {
@@ -25,11 +26,17 @@ export default new class Party extends Feature {
             }, /^(?:Party Leader: (.+) ●|You have joined (.+)'s? party!|The party was transferred to (.+) by .+)$/)
             
             .addEvent("serverChat", (pList) => {
-                pList.split(", ").forEach(p => members.add(TextUtil.getSenderName(p)))
+                pList.split(", ").forEach(p => {
+                    const ign = TextUtil.getSenderName(p)
+                    ign && members.add(ign)
+                })
             }, /You'll be partying with: (.+)/)
             
             .addEvent("serverChat", (pList) => {
-                pList.split(/ ?● ?/).forEach(p => members.add(TextUtil.getSenderName(p)))
+                pList.split(/ ?● ?/).forEach(p => {
+                    const ign = TextUtil.getSenderName(p)
+                    ign && members.add(ign)
+                })
             }, /^Party .+: (.+)/)
             
             .addEvent("serverChat", () => {
@@ -45,9 +52,10 @@ export default new class Party extends Feature {
             }, /^.+ invited .+ to the party! They have 60 seconds to accept\.$/)
             
             .addEvent("serverChat", (lead, left) => {
-                if (TextUtil.getSenderName(lead) === Player.getName()) return this.disbandParty()
+                const ignLead = TextUtil.getSenderName(lead)
+                if (ignLead === Player.getName()) return this.disbandParty()
 
-                leader = TextUtil.getSenderName(lead)
+                leader = ignLead
                 members.delete(TextUtil.getSenderName(left))
             }, /The party was transferred to (.+) because (.+) left/)
             
