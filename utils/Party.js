@@ -1,169 +1,81 @@
 // Credit: BloomCore
-import Event from "../libs/CustomEventFactory/Event"
+import Feature from "../core/Feature"
+import TextUtil from "../core/static/TextUtil"
 import { scheduleTask } from "./Ticker"
 
-const stripRank = (name) => name.replace(/(\[[A-z]+\++\] )/, "")
-
-const messagesToHide = [
-    /^-{53}$/,
-    /^Party (Members|Moderators|Leader)\:?.+/,
-    /^You are not currently in a party\.$/
-]
-
-const partySpam = {
-    chat: new Event("serverChat", (event) => {
-        cancel(event)
-    }, new RegExp(`(${messagesToHide.join("|")})`)),
-
-    sent: new Event("messageSent", (msg, event) => {
-        if (["/pl", "/party list"].includes(msg)) cancel(event)
-    })
-}
-
-let hidingSpam = false
-const hidePartySpam = (ticks) => {
-    if (hidingSpam) return
-    
-    hidingSpam = true
-    partySpam.chat.register()
-    partySpam.sent.register()
-
-    scheduleTask(() => {
-        if (!hidingSpam) return
-        hidingSpam = false
-        partySpam.chat.unregister()
-        partySpam.sent.unregister()
-    }, ticks)
-}
-
-export default new class Party {
+const members = new Set()
+let leader
+export default new class Party extends Feature {
 	constructor() {
-		this.members = {}
-		this.leader = null
-		this.memberJoined = [
-			/^(.+) &r&ejoined the party.&r$/,
-			/^(.+) &r&einvited &r.+ &r&eto the party! They have &r&c60 &r&eseconds to accept.&r$/,
-			/^&eYou have joined &r(.+)'[s]? &r&eparty!&r$/,
-			/^&dParty Finder &r&f> &r(.+) &r&ejoined the dungeon group! \(&r&b.+&r&e\)&r$/
-		]
-		this.memberLeft = [
-			/^(.+) &r&ehas been removed from the party.&r$/,
-			/^(.+) &r&ehas left the party.&r$/,
-			/^(.+) was removed from your party because they disconnected.$/,
-            /^Kicked (.+) because they were offline.$/
-		]
-		this.partyDisbanded = [
-			/^.+ &r&ehas disbanded the party!&r$/,
-			/^&cThe party was disbanded because all invites expired and the party was empty&r$/,
-			/^&eYou left the party.&r$/,
-			/^&6Party Members \(\d+\)&r$/,
-            /^You are not currently in a party\.$/,
-            /^You have been kicked from the party by .+$/,
-            /^The party was disbanded because the party leader disconnected\.$/
-		]
-		this.leaderMessages = [
-			/^&eParty Leader: &r(.+) &r&a●&r$/,
-			/^&eYou have joined &r(.+)'s* &r&eparty!&r$/,
-            /^&eThe party was transferred to &r(.+) &r&eby &r.+&r$/
-		]
+        super(); this
+            .addEvent("serverChat", (member) => {
+                members.add(TextUtil.getSenderName(member))
+            }, /^(?:(.+) joined the party\.|.+ invited (.+) to the party! They have 60 seconds to accept\.|Party Finder > (.+) joined the (dungeon )?group! \(.+\))$/)
+            
+            .addEvent("serverChat", (member) => {
+                members.delete(TextUtil.getSenderName(member))
+            }, /^(?:(.+) has been removed from the party\.|(.+) has left the party\.|(.+) was removed from your party because they disconnected\.|Kicked (.+) because they were offline\.)$/)
+            
+            .addEvent("serverChat", () => {
+                this.disbandParty()
+            }, /^(?:.+ has disbanded the party!|The party was disbanded because all invites expired and the party was empty|You left the party\.|You are not currently in a party\.|You have been kicked from the party by .+|he party was disbanded because the party leader disconnected\.)$/)
+            
+            .addEvent("serverChat", (lead) => {
+                leader = TextUtil.getSenderName(lead)
+            }, /^(?:Party Leader: (.+) ●|You have joined (.+)'s? party!|The party was transferred to (.+) by .+)$/)
+            
+            .addEvent("serverChat", (pList) => {
+                pList.split(", ").forEach(p => members.add(TextUtil.getSenderName(p)))
+            }, /You'll be partying with: (.+)/)
+            
+            .addEvent("serverChat", (pList) => {
+                pList.split(/ ?● ?/).forEach(p => members.add(TextUtil.getSenderName(p)))
+            }, /^Party .+: (.+)/)
+            
+            .addEvent("serverChat", () => {
+                this.checkParty()
+            }, /^Party Finder > Your party has been queued in the (dungeon|party) finder!$/)
+            
+            .addEvent("serverChat", () => {
+                this.checkParty()
+            }, /You have joined .+'s party!/)
+            
+            .addEvent("serverChat", () => {
+                if (!members.size()) leader = Player.getName()
+            }, /^.+ invited .+ to the party! They have 60 seconds to accept\.$/)
+            
+            .addEvent("serverChat", (lead, left) => {
+                if (TextUtil.getSenderName(lead) === Player.getName()) return this.disbandParty()
 
-        register("chat", (event) => {
-            let formatted = ChatLib.getChatMessage(event, true)
-            let unformatted = formatted.removeFormatting()
-            this.memberJoined.forEach(regex => {
-                let match = formatted.match(regex)
-                if (match) this.addMember(match[1])
-            })
-            this.memberLeft.forEach(regex => {
-                let match = formatted.match(regex)
-                if (match) this.removeMember(match[1])
-            })
-            this.leaderMessages.forEach(regex => {
-                let match = formatted.match(regex)
-                if (match) this.makeLeader(match[1])
-            })
-            this.partyDisbanded.forEach(regex => {
-                let match = formatted.match(regex)
-                if (match) this.disbandParty()
-            })
+                leader = TextUtil.getSenderName(lead)
+                members.delete(TextUtil.getSenderName(left))
+            }, /The party was transferred to (.+) because (.+) left/)
+            
+            .addSubEvent("serverChat", (event) => cancel(event), /^(?:-{53}|Party (?:Members|Moderators|Leader)\:?.*|You are not currently in a party\.)$/)
+            
+            .addSubEvent("messageSent", (event) => cancel(event), /^\/(?:pl|party list)$/i)
 
-            // Joined a party
-            if (/&eYou'll be partying with: .+/.test(formatted)) {
-                // You'll be partying with: [MVP+] Noob2334, [MVP+] urMomLolxdddd, UnclaimedBloom6
-                // (?<=:|,)\s*(?:\[[^\]]+\] )*(\w+)
-                let players = formatted.match(/&eYou'll be partying with: (.+)/)[1].split("&e, ")
-                for (let p of players) this.addMember(p)
-            }
-            // Party List shown in chat
-            if (/^&eParty .+: (.+)/.test(formatted)) {
-                let match = formatted.match(/^&eParty .+: &r(.+)/)
-                let players = match[1].split(new RegExp("&r&a ● &r|&r&c ● &r| &r&a●&r| &r&c●&r"))
-                for (i in players) {
-                    if (players[i].replace(new RegExp(" ", "g"), "") !== "") this.addMember(players[i])
-                }
-            }
-            // You make a party in party finder
-            if (unformatted == "Party Finder > Your party has been queued in the dungeon finder!") {
-                scheduleTask(() => {
-                    hidePartySpam(20)
-                    ChatLib.command("pl")
-                }, 5);
-            }
+        this.checkParty()
+	}
 
-            // Creating a party
-            if (Object.keys(this.members).length == 1) {
-                let match = formatted.match(/(.+) &r&einvited &r.+ &r&eto the party! They have &r&c60 &r&eseconds to accept.&r/)
-                if (match) this.makeLeader(match[1])
-            }
-
-            // Joining a party
-            if (/&eYou have joined &r.+'s &r&eparty!&r/.test(formatted)) {
-                scheduleTask(() => {
-                    hidePartySpam(15)
-                    ChatLib.command("pl")
-                }, 6);
-            }
-
-            // Party leader left
-            let match = formatted.match(/&eThe party was transferred to &r(.+) &r&ebecause &r(.+) &r&eleft&r/)
-            if (match) {
-                if (stripRank(match[2].removeFormatting()) == Player.getName()) this.disbandParty()
-                else {
-                    this.makeLeader(match[1])
-                    this.removeMember(match[2])
-                }
-            }
-        }).setCriteria(/party|offline\./i)
-
+    checkParty() {
         scheduleTask(() => {
-            hidePartySpam(15)
             ChatLib.command("pl")
+            this.register()
+            scheduleTask(() => this.unregister(), 5)
         })
-	}
-
-	addMember(player) {
-		// Can use member's formatted name with rank
-        this.members[stripRank(player.removeFormatting())] = player
-	}
-
-	removeMember(player) {
-        delete this.members[stripRank(player.removeFormatting())]
-	}
-
-	makeLeader(player) {
-        this.leader = stripRank(player.removeFormatting())
-	}
+    }
 
 	disbandParty() {
-		this.members = {}
-		this.leader = null
+		members.clear()
+		leader = null
     }
     
     amILeader() {
-        return this.leader === Player.getName()
+        return leader === Player.getName()
     }
 
     getMembers() {
-        return Object.keys(this.members)
+        return members
     }
 }
