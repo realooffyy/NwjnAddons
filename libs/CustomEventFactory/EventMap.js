@@ -97,16 +97,15 @@ createEvent("messageSent", (fn, criteria) =>
 
 createEvent("actionBarChange", (fn, criteria) => 
     register("packetReceived", (packet, event) => {
-        // Check if the packet is for the actionbar
-        if (!packet.func_148916_d()) return
+        if (!packet["isChat", "func_148916_d"]()) return
 
-        const chatComponent = packet.func_148915_c()        
-        const formatted = chatComponent?.func_150254_d()
-        const unformatted = formatted?.removeFormatting()
+        const chatComponent = packet["getChatComponent", "func_148915_c"]()
+        const formatted = chatComponent["getFormattedText", "func_150254_d"]()
+        const unformatted = formatted.removeFormatting()
         
         if (!unformatted) return
         
-        TextUtil.matchesCriteria(fn, criteria, unformatted, event, formatted)
+        TextUtil.matchesCriteria(fn, criteria, unformatted, event, formatted, chatComponent)
     }).setFilteredClass(net.minecraft.network.play.server.S02PacketChat)
 )
 
