@@ -48,7 +48,7 @@ export default new class Party extends Feature {
             }, /You have joined .+'s party!/)
             
             .addEvent("serverChat", () => {
-                if (!members.size()) leader = Player.getName()
+                if (!members.size) leader = Player.getName()
             }, /^.+ invited .+ to the party! They have 60 seconds to accept\.$/)
             
             .addEvent("serverChat", (lead, left) => {
