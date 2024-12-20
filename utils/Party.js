@@ -1,7 +1,6 @@
 // Credit: BloomCore
 import Feature from "../core/Feature"
 import TextUtil from "../core/static/TextUtil"
-import { scheduleTask } from "./Ticker"
 
 const members = new Set()
 let leader
@@ -59,18 +58,24 @@ export default new class Party extends Feature {
                 members.delete(TextUtil.getSenderName(left))
             }, /The party was transferred to (.+) because (.+) left/)
             
-            .addSubEvent("serverChat", (event) => cancel(event), /^(?:-{53}|Party (?:Members|Moderators|Leader)\:?.*|You are not currently in a party\.)$/)
+            .addSubEvent("serverChat", (event) => cancel(event), /^(?:-{53}|Party (?:Members|Moderators|Leader)\:?.*|You are not currently in a party\.)$/, () => this.checkingParty)
             
-            .addSubEvent("messageSent", (event) => cancel(event), /^\/(?:pl|party list)$/i)
+            .addSubEvent("messageSent", (event) => cancel(event), /^\/(?:pl|party list)$/i, () => this.checkingParty)
 
         this.checkParty()
 	}
 
     checkParty() {
-        scheduleTask(() => {
-            ChatLib.command("pl")
-            this.register()
-            scheduleTask(() => this.unregister(), 5)
+        if (!World.isLoaded()) return
+
+        this.checkingParty = true
+        this.update()
+
+        ChatLib.command("pl")
+
+        Client.scheduleTask(20, () => {
+            this.checkingParty = false
+            this.update()
         })
     }
 

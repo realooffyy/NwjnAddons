@@ -1,7 +1,8 @@
 import TextUtil from "../core/static/TextUtil"
 import Event from "../libs/CustomEventFactory/Event"
 import { data } from "../data/Data"
-import { scheduleTask } from "./Ticker"
+import { scheduleTask } from "../libs/Time/ServerTime"
+import Tick from "../libs/Time/Tick"
 import { addCommand } from "./Command"
 
 // [Power Stone]
@@ -33,7 +34,7 @@ new Event("containerClick", (window) => {
 
         const [magPow] = TextUtil.getMatches(/Magical Power: (.+)/, lore)
         data.mp = magPow ?? "Unknown"
-    }, 2)
+    }, new Tick(2))
 }, null, true)
 
 // Credit: DocilElm for blacklist

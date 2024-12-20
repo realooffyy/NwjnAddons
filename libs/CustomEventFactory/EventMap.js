@@ -6,8 +6,6 @@
  */
 
 import TextUtil from "../../core/static/TextUtil"
-import ItemUtil from "../../core/static/ItemUtil"
-import { scheduleTask } from "../../utils/Ticker"
 
 const S38PacketPlayerListItem = net.minecraft.network.play.server.S38PacketPlayerListItem
 
@@ -65,7 +63,7 @@ createEvent("armorStandDeath", (fn) =>
 
         const entry = dataWatcherList[0]
         if (entry.func_75674_c() !== 4) return
-        if (!/§r §[^a]0(§f\/|§c❤)/.test(entry.func_75669_b())) return
+        if (!/§r (§[edlr]){1,2}0§(f\/|c❤)/.test(entry.func_75669_b())) return
 
         const entity = World.getWorld().func_73045_a(packet.func_149375_d())
         if (!entity) return

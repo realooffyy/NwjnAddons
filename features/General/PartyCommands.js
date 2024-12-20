@@ -3,9 +3,9 @@ import Party from "../../utils/Party";
 import { data } from "../../data/Data";
 import TextUtil from "../../core/static/TextUtil";
 import MathUtil from "../../core/static/MathUtil";
-import { getTPS, scheduleTask } from "../../utils/Ticker";
 import Location from "../../utils/Location";
 import Settings from "../../data/Settings";
+import { getTPS, scheduleTask } from "../../libs/Time/ServerTime";
 
 const commands = {
     "help": {
@@ -111,5 +111,5 @@ new Feature({setting: "partyCommands"})
         
         const response = Object.values(commands).find(obj => obj.matches.test(cmd) && obj.access())
 
-        if (response) scheduleTask(() => ChatLib.command(response.fn(ign, cmd)), 4)
+        if (response) scheduleTask(() => ChatLib.command(response.fn(ign, cmd)))
     }, /^Party > (.+): [,.?!](.+)$/)

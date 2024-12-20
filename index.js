@@ -4,7 +4,7 @@ import "./utils/Command"
 import "./utils/Location"
 import "./utils/Party"
 import "./utils/Profile"
-import "./utils/Ticker"
+import "./libs/Time/ServerTime"
 
 import "./features/Combat/DamageTracker"
 import "./features/Combat/ReaperTimer"
