@@ -17,7 +17,7 @@ Object.entries({
     62: true, // Egg
     63: () => Settings().removeFireballs, // Fireball
     64: () => Settings().removeFireballs, // SmallFireball
-    66: () => Settings().removeWitherSkulls, // WitherSkull
+    66: () => Settings().removeWitherSkulls, // WitherSkull /** todo needs work */
     70: () => Settings().removeFallingBlocks, // FallingBlock
     // 71: false, // ItemFrame ("Why can't I do Tic-Tac-Toe")
     72: true, // EnderEye

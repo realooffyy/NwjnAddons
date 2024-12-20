@@ -11,8 +11,7 @@ export default class EntityUtil {
      * @param {MCTEntity|Entity} entity 
      * @returns {?Number} maxhealth int
      */
-    static getMaxHP = (entity) => ~~EntityUtil.getEntity(entity)
-        ?.func_110140_aT()?.func_111152_a('generic.maxHealth')?.func_111125_b()
+    static getMaxHP = (entity) => ~~entity.entity?.func_110140_aT()?.func_111152_a('generic.maxHealth')?.func_111125_b()
 
     /**
      * Gets the current HP of the entity

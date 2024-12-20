@@ -2,11 +2,11 @@
 import StuffysCipher from "../../core/static/StuffysCipher";
 import Feature from "../../core/Feature";
 
-const whitelist = new Set(["wiki.hypixel.net", "hypixel.net", "plancke.io"])
+const whitelist = /^(wiki.)?hypixel.net|plancke.io$/
 
 new Feature({setting: "linkFix"})
     .addEvent("messageSent", (link, domain, event, msg) => {
-        if (whitelist.has(domain)) return
+        if (whitelist.test(domain)) return
 
         const encoded = StuffysCipher.encode(link)
         if (!encoded) return
@@ -19,15 +19,12 @@ new Feature({setting: "linkFix"})
         const decoded = StuffysCipher.decode(url)
         if (!decoded) return
 
-        component.func_150253_a() // getSiblings
-            .map(comp => {
+        component["getSiblings", "func_150253_a"]().map(comp => {
             const text = comp.text
             if (!text.includes(url)) return comp
 
-            const actionText = text.replace(url, decoded)
-
             // Bypass CT messing up link text in new TextComponent & setText
-            comp.text = actionText
+            comp.text = text.replace(url, decoded)
 
             // Now use CT's TextComponent with MC's TextComponent
             return new TextComponent(comp)

@@ -26,12 +26,14 @@ function getClassOfEntity(name, index = 0) {
 }
 
 // change to weakhashmap
-const mobsHighlight = new HashMap()
+const mobsHighlight = new java.util.WeakHashMap()
+const renderThese = new java.util.WeakHashMap()
 /**
  * @see https://github.com/nwjn/NwjnAddons/wiki/Bestiary-Entries
  */
 function setMobHighlight() {
     mobsHighlight.clear()
+    renderThese.clear()
     if (!Settings().mobList) return
 
     Settings().mobList.split(/,\s?/g).forEach(entry => {
@@ -42,7 +44,7 @@ function setMobHighlight() {
         const clazz = getClassOfEntity(mob)
         if (!clazz) return
 
-        const hps = hpParam?.split("|")?.map(MathUtil.convertToNumber)
+        const hps = hpParam?.split("|")?.map(MathUtil.convertToNumber) ?? 0
 
         mobsHighlight.put(
             clazz,
@@ -54,30 +56,24 @@ setMobHighlight()
 Settings().getConfig().onCloseGui(setMobHighlight)
 
 
-const renderThese = new HashMap()
 const feat = new Feature({setting: "mobList"})
     .addEvent("interval", () => {
         renderThese.clear()
-
         mobsHighlight.forEach((clazz, hps) => {
             World.getAllEntitiesOfType(clazz).forEach(it => {
-                if (!it.isDead() && (!hps || hps.includes(EntityUtil.getMaxHP(it)))) renderThese.put(it.entity.func_145782_y(), it)
+                if (it.isDead()) return
+                if (!hps || hps?.includes(EntityUtil.getMaxHP(it))) renderThese.put(it, [it.getWidth(), it.getHeight()])
             })
         })
 
         feat.update()
-    }, 1 / 2)
+    }, 1 / 3)
 
     .addSubEvent("renderWorld", () => {
         const color = Settings().mobHighlightColor
-        renderThese.forEach((_, it) => 
-            RenderUtil.drawOutlinedBox(it.getRenderX(), it.getRenderY(), it.getRenderZ(), it.getWidth(), it.getHeight(), color[0], color[1], color[2], color[3], true, 2)
+        renderThese.forEach((it, [w, h]) => 
+            RenderUtil.drawOutlinedBox(it.getRenderX(), it.getRenderY(), it.getRenderZ(), w, h, color[0], color[1], color[2], color[3], true, 2)
         )
-    }, () => !renderThese.isEmpty())
-    
-    // remove this after weakhashmap
-    .addSubEvent("entityDeath", (_, mcEntity) => {
-        renderThese.remove(mcEntity.func_145782_y())
     }, () => !renderThese.isEmpty())
 
     .onUnregister(() => renderThese.clear())

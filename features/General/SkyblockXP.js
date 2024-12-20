@@ -1,12 +1,12 @@
 import Feature from "../../core/Feature";
 import {log} from "../../core/static/TextUtil";
+import { scheduleTask } from "../../libs/Time/ServerTime";
+import Second from "../../libs/Time/Second";
 
-const lastBar = [Date.now(), ""]
-new Feature({setting: "skyblockXP"})
+const SkyblockXP = new Feature({setting: "skyblockXP"})
     .addEvent("actionBarChange", (xp, category, progress) => {
-        const msg = `§b${xp} §7${category} §b${progress}`
-        if (Date.now() - lastBar[0] < 5000 && msg == lastBar[1]) return
-        lastBar[0] = Date.now()
-        lastBar[1] = msg
-        log(msg)
-    }, /\s{5}(\+\d{1,4} SkyBlock XP) (\(.+\)) (\(\d{1,2}\/100\))\s{5}/)
+        log(`§b${xp} §7${category} §b${progress}`)
+        
+        SkyblockXP._unregister()
+        scheduleTask(() => SkyblockXP._register(), new Second(2))
+    }, /\s{5}(\+\d{1,3} SkyBlock XP) (\(.+\)) (\(\d{1,2}\/100\))\s{5}/)
