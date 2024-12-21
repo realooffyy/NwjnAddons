@@ -11,12 +11,12 @@ const scheduledTasks = new Map()
  * @param {Tick|Second} delay
  */
 export const scheduleTask = (onEnd, delay = new Tick(1)) => {
-    const sym = Symbol.for(onEnd)
+    const id = onEnd.toString()
     const tick = normalize(delay)
         .atTick(0, onEnd)
-        .atTick(0, () => scheduledTasks.delete(sym))
+        .atTick(0, () => scheduledTasks.delete(id))
     
-    scheduledTasks.set(sym, tick)
+    scheduledTasks.set(id, tick)
 }
 
 
@@ -28,12 +28,12 @@ const countdowns = new Map()
  * @param {Tick|Second} lifespan
  */
 export const addCountdown = (onTick, lifespan) => {
-    const sym = Symbol.for(onTick)
+    const id = onTick.toString()
     const tick = normalize(lifespan)
         .onChange(onTick)
-        .atTick(0, () => countdowns.delete(sym))
+        .atTick(0, () => countdowns.delete(id))
     
-    countdowns.set(sym, tick)
+    countdowns.set(id, tick)
 }
 
 
@@ -44,11 +44,11 @@ const timers = new Map()
  * @param {Number} start
  */
 export const addTimer = (onTick, start = new Tick(0)) => {
-    const sym = Symbol.for(onTick)
+    const id = onTick.toString()
     const tick = normalize(start)
         .onChange(onTick)
 
-    timers.set(sym, tick)
+    timers.set(id, tick)
 }
 
 
