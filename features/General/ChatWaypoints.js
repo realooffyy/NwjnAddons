@@ -41,7 +41,7 @@ class Waypoint {
         this.key = key
         this.title = title
         this.loc = new Vec3i(~~x - 0.5, ~~y, ~~z - 0.5)
-        this.dist = this.loc.distance(Player.asPlayerMP().getPos())
+        this.dist = ~~this.loc.distance(Player.asPlayerMP().getPos())
         this.extraText = (extraText = extraText.trim()) && `\n${extraText}`
         this.text = this.formatText()
 
@@ -60,7 +60,7 @@ class Waypoint {
     updateRenderable() {
         if (this.dist < 5) return this.remove()
 
-        this.dist = this.loc.distance(Player.asPlayerMP().getPos())
+        this.dist = ~~this.loc.distance(Player.asPlayerMP().getPos())
         this.text = this.formatText()
     }
 
