@@ -63,7 +63,7 @@ createEvent("armorStandDeath", (fn) =>
 
         const entry = dataWatcherList[0]
         if (entry.func_75674_c() !== 4) return
-        if (!/§r (§[edlr]){1,2}0§(f\/|c❤)/.test(entry.func_75669_b())) return
+        if (!/ 0(\/|❤)/.test(entry.func_75669_b().removeFormatting())) return
 
         const entity = World.getWorld().func_73045_a(packet.func_149375_d())
         if (!entity) return
