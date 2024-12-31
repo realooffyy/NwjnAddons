@@ -1,13 +1,10 @@
 export default class Tick {
     static fromSeconds(seconds) {
-        return new Tick(seconds.toTicks())
+        return new Tick(seconds?.toTicks() ?? seconds * 20)
     }
 
     constructor(val) {
-        this.changeListeners = []
-        this.valueListeners = []
-
-        this.val = val
+        this.val = val | 0
     }
 
     toSeconds() {
@@ -21,18 +18,19 @@ export default class Tick {
     set value(value) {
         this.val = value
 
-        this.changeListeners.forEach(it => it(this.toSeconds()))
-        this.valueListeners.forEach(([val, fn]) => this.val === val && fn())
+        if ("changeListener" in this) this.changeListener(this.val)
+        if ("valueListener" in this && this.valueListener.val === this.val) this.valueListener()
     }
 
     atTick(value, fn) {
-        this.valueListeners.push([value, fn])
+        fn.val = value
+        this.valueListener = fn
 
         return this
     }
 
     onChange(fn) {
-        this.changeListeners.push(fn)
+        this.changeListener = fn
 
         return this
     }

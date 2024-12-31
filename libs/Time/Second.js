@@ -1,13 +1,10 @@
 export default class Second {
-    static fromTicks(tick) {
-        return new Second(tick.toSeconds())
+    static fromTicks(ticks) {
+        return new Second(ticks?.toSeconds() ?? ticks * 0.05)
     }
 
     constructor(val) {
-        this.changeListeners = []
-        this.valueListeners = []
-
-        this.val = val
+        this.val = val | 0
     }
 
     toTicks() {
@@ -21,18 +18,19 @@ export default class Second {
     set value(value) {
         this.val = value
 
-        this.changeListeners.forEach(it => it(this.val))
-        this.valueListeners.forEach(([val, fn]) => this.val === val && fn())
+        if ("changeListener" in this) this.changeListener(this.val)
+        if ("valueListener" in this && this.valueListener.val === this.val) this.valueListener()
     }
 
     atSecond(value, fn) {
-        this.valueListeners.push([value, fn])
+        fn.val = value
+        this.valueListener = fn
 
         return this
     }
 
     onChange(fn) {
-        this.changeListeners.push(fn)
+        this.changeListener = fn
 
         return this
     }
