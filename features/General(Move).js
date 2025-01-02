@@ -136,7 +136,7 @@ registerWhen(register("chat", (player, command) => {
         ChatLib.command(`pc https://i.imgur.com/tsg6tx5.jpg`); break;
       case "ver":
       case "version":
-        ChatLib.command(`pc ${version}`)
+        ChatLib.command(`pc ${version}`); break;
       case "t5":
       case "raider":
         CommandMsg = `joininstance kuudra_infernal`; break;
@@ -160,7 +160,7 @@ registerWhen(register("chat", (player, command) => {
       ChatLib.command(CommandMsg);
     }
   }, 300)
-}).setCriteria(/Party > (.+): [.?!](.+)/), () => settings.party)
+}).setCriteria(/Party > ([^:]+): [,.?!](.+)/), () => settings.party)
 
 let reaperUsed = 0
 registerWhen(register("soundPlay", () => {
